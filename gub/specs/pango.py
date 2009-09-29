@@ -1,5 +1,6 @@
 import re
 #
+from gub import gnome
 from gub import misc
 from gub import loggedos
 from gub import target
@@ -12,10 +13,9 @@ pango_module_version_regexes = [
     ]
 
 class Pango (target.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/sources/pango/1.24/pango-1.24.2.tar.bz2'
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/pango-1.24.4.tar.gz'
     patches = ['pango-1.20-substitute-env.patch']
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::glib', 
             'freetype-devel',
             'fontconfig-devel',
@@ -24,16 +24,11 @@ class Pango (target.AutoBuild):
             ]
     def get_conflict_dict (self):
         return {'': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'devel': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'doc': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'runtime': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc']}
-    #FIXME: promoteme to build.py
-    def configure_flags (self):
-        return misc.join_lines ('''
+    configure_flags = (target.AutoBuild.configure_flags
+                + misc.join_lines ('''
 --without-x
 --without-cairo
-''')
-    #FIXME: promoteme to build.py
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
+'''))
     def module_version (self):
         result = None
         version = self.version()
@@ -79,8 +74,7 @@ class Pango__linux (Pango):
                        '%(srcdir)s/configure')
 
 class Pango__freebsd (Pango__linux):
-    def _get_build_dependencies (self):
-        return Pango__linux._get_build_dependencies (self) + ['libiconv-devel']
+    dependencies = Pango__linux.dependencies + ['libiconv-devel']
 
 class Pango__darwin (Pango):
     def configure (self):
@@ -90,14 +84,13 @@ class Pango__darwin (Pango):
     def install (self):
         Pango.install (self)                
         self.dump ('''
-set PANGO_SO_EXTENSION=.so
+set PANGO_SO_EXTENSION=%(so_extension)s
 ''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
 
 class Pango__mingw (Pango):
-    def _get_build_dependencies (self):
         # FIXME: need -lpthread now?
         # /home/janneke/vc/gub/target/mingw/root/usr/cross/bin/i686-mingw32-ld: cannot find -lpthread
-        return (Pango._get_build_dependencies (self)
+    dependencies = (Pango.dependencies
                 + ['pthreads-w32-devel'])
     def create_config_files (self, prefix='/usr'):
         Pango.create_config_files (self, prefix)

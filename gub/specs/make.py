@@ -1,10 +1,9 @@
+#
 from gub import misc
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Make_make__tools (tools.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         self.source._unpack = self.source._unpack_promise_well_behaved
@@ -15,25 +14,17 @@ class Make_make__tools (tools.AutoBuild):
                         ('"/lib', '"%(system_root)s/lib')], '%(srcdir)s/remake.c')
     def librestrict_name (self):
         return 'librestrict-' + '-'.join (misc.librestrict ())
-    def _get_build_dependencies (self):
         #return [self.librestrict_name ()]
-        return ['librestrict']
-    def wrap_executables (self):
-        # no dynamic executables [other than /lib:libc]
-        pass
+    dependencies = ['librestrict']
 
 class Make_build_sh__tools (Make_make__tools):
-    def compile_command (self):
-        return 'sh build.sh'
-    def install_command (self):
-        return ('mkdir -p %(install_prefix)s/bin'
+    compile_command = 'sh build.sh'
+    install_command = ('mkdir -p %(install_prefix)s/bin'
                 ' && cp -p make %(install_prefix)s/bin')
 
 class Make_build_sh_newmake__tools (Make_make__tools):
-    def compile_command (self):
-        return ('sh build.sh && PATH=$(pwd):$PATH '
-                + Make_make__tools.compile_command (self))
-    def install_command (self):
-        return 'PATH=$(pwd):$PATH ' + Make_make__tools.install_command (self)
+    compile_command = ('sh build.sh && PATH=$(pwd):$PATH '
+                + Make_make__tools.compile_command)
+    install_command = 'PATH=$(pwd):$PATH ' + Make_make__tools.install_command
 
 Make__tools = Make_build_sh_newmake__tools

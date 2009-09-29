@@ -4,11 +4,9 @@ class Hunspell (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/hunspell/hunspell-1.2.8.tar.gz'
 
 class Hunspell__mingw (Hunspell):
-    def _get_build_dependencies (self):
-        return ['libiconv-devel']
-    def configure_command (self):
-        return (Hunspell.configure_command (self)
-                + ' --disable-nls')
+    dependencies = ['libiconv-devel']
+    configure_flags = (Hunspell.configure_flags
+                       + ' --disable-nls')
     def patch (self):
         Hunspell.patch (self)
         self.file_sub ([('(chmorph_LDADD.*)',

@@ -11,18 +11,18 @@ from gub.specs import lilypond
 #   bin/gib --platform= --branch=PACKAGE=BRANCH PACKAGE
 # not really a 'python driver'.
 class LilyPond_installer (lilypond.LilyPond_base):
-    def _get_build_dependencies (self):
-        return [self.settings.target_platform + '::lilypond']
+    install_command = 'true'
+    def __init__ (self, settings, source):
+        lilypond.LilyPond_base.__init__ (self, settings, source)
+        self.dependencies = [self.settings.target_platform + '::lilypond']
     def compile (self):
-        self.system (self.compile_command ())
-    def compile_command (self):
         # FIXME: ugh, no branches anymore in self.settings.branches['guile'],
         # let's hope/assume the user did not override guile source or branch...
+        #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         dir = os.path.join (self.settings.downloads, 'guile')
         guile_branch = repository.get_repository_proxy (dir, guile.Guile.source, guile.Guile.branch).full_branch_name ()
-        #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         lilypond_branch = self.source.full_branch_name ()
-        return (sys.executable
+        compile_command = (sys.executable
                 + misc.join_lines ('''
 bin/gib
 --platform=%%(target_platform)s
@@ -30,16 +30,12 @@ bin/gib
 --branch=lilypond=%(lilypond_branch)s
 lilypond
 ''' % locals ()))
-    def install_command (self):
-        return 'true'
+        self.system (compile_command)
 
 class LilyPond_installer__mingw (LilyPond_installer):
-    def _get_build_dependencies (self):
-        return (LilyPond_installer._get_build_dependencies (self)
-                + ['lilypad', 'tools::icoutils', 'tools::nsis'])
-    def compile_command (self):
-        return (LilyPond_installer.compile_command (self)
-                + ' lilypad')
+    dependencies = (LilyPond_installer.dependencies
+                    + ['lilypad', 'tools::icoutils', 'tools::nsis'])
+    compile_flags = LilyPond_installer.compile_flags + ' lilypad'
 
 Lilypond_installer = LilyPond_installer
 Lilypond_installer__mingw = LilyPond_installer__mingw

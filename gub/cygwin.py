@@ -5,72 +5,12 @@ import new
 #
 from gub.syntax import printf
 from gub import build
+from gub import context
 from gub import cross
 from gub import misc
 from gub import repository
 from gub import target
 from gub import w32
-
-def untar_cygwin_src_package_variant2 (self, file_name, split=False):
-    '''Unpack this unbelievably broken version of Cygwin source packages.
-
-foo[version][-split]-x.y.z-b.tar.bz2 contains
-foo[-split]-x.y.z.tar.[bz2|gz] and foo[version]-x.y.z-b.patch
-(and optionally foo[version]-x.y.z-b.patch2 ...).
-foo-x.y.z.tar.[bz2|gz] contains foo-x.y.z.  The patch contains patches
-against all foo split source balls, so applying it may fail partly and
-complain about missing files.'''
-
-    file_name = self.expand (file_name)
-    unpackdir = os.path.dirname (self.expand (self.srcdir ()))
-    t = misc.split_ball (file_name)
-    printf ('split: ' + t.__repr__ ())
-    no_src = re.sub ('-src', '', file_name)
-    base = re.sub ('\.tar\..*', '', no_src)
-    # FIXME: use split iso custom ball_re macramee
-    ball_re = '^([a-z]+)([.0-9]+)?(-[a-z+]+)?(.*)(-[0-9]+)'
-    m = re.match (ball_re, base)
-    if m.group (3):
-        second_tarball = re.sub (ball_re, '\\1\\3\\4', base)
-    else:
-        second_tarball = re.sub (ball_re, '\\1\\4', base)
-    printf ('second_tarball: ' + second_tarball)
-    if split and m.group (3):
-        second_tarball_contents = re.sub (ball_re, '\\1\\3\\4', base)
-    else:
-        second_tarball_contents = re.sub (ball_re, '\\1\\4', base)
-    printf ('second_tarball_contents: ' + second_tarball_contents)
-    flags = '-jxf'
-    self.system ('''
-rm -rf %(unpackdir)s/%(base)s
-tar -C %(unpackdir)s %(flags)s %(downloads)s/%(file_name)s
-''',
-                 locals ())
-    tgz = 'tar.bz2'
-# WTF?  self.expand is broken here?
-# relax, try not making typos:
-#    if not os.path.exists (self.expand ('%(unpackdir)s/%(second_tarball)s.%(tgz)s',
-#                                        locals ())):
-    if not os.path.exists (unpackdir + '/' + second_tarball + '.' + tgz):
-        flags = '-zxf'
-        tgz = 'tar.gz'
-    self.system ('''
-tar -C %(unpackdir)s %(flags)s %(unpackdir)s/%(second_tarball)s.%(tgz)s
-''',
-                 locals ())
-    if split:
-        return
-    if m.group (2):
-        patch = re.sub (ball_re, '\\1\\2\\4\\5.patch', base)
-    else:
-        patch = re.sub (ball_re, '\\1\\4\\5.patch', base)
-    printf ('patch: ' + patch)
-    printf ('scrdir: ', self.expand ('%(srcdir)s'))
-    self.system ('''
-cd %(unpackdir)s && mv %(second_tarball_contents)s %(base)s
-cd %(srcdir)s && patch -p1 -f < %(unpackdir)s/%(patch)s || true
-''',
-                 locals ())
 
 def libpng12_fixup (self):
     self.system ('cd %(system_prefix)s/lib && ln -sf libpng12.a libpng.a')
@@ -101,11 +41,8 @@ def change_target_package (package):
     package.get_subpackage_definitions \
         = misc.MethodOverrider (package.get_subpackage_definitions, cyg_defs)
 
-    def enable_static (d):
-        return d.replace ('--disable-static', '--enable-static')
-
-    package.configure_command \
-        = misc.MethodOverrider (package.configure_command, enable_static)
+    package.configure_command = (package.configure_command
+                                 .replace ('--disable-static', '--enable-static'))
 
     def install (whatsthis):
         package.install_readmes ()
@@ -122,7 +59,7 @@ def change_target_package (package):
             }
         full = default.copy ()
         full.update (d)
-        for i in package.get_subpackage_names ():
+        for i in package.subpackage_names:
             if not full.get (i):
                 full[i] = full['']
         return full
@@ -142,7 +79,7 @@ def change_target_package (package):
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
 
-        for i in package.get_subpackage_names ():
+        for i in package.subpackage_names:
             if not d.get (i):
                 d[i] = get_subpackage_doc (i)
         return d
@@ -150,7 +87,29 @@ def change_target_package (package):
     package.description_dict = misc.MethodOverrider (package.description_dict,
                                                      description_dict)
 
-def get_cygwin_package (settings, name, dict, skip):
+def package_class (name, cygwin_spec, blacklist):
+    cls = new.classobj (name, (build.BinaryBuild,), {})
+    deps = []
+    if 'requires' in cygwin_spec:
+        deps = re.sub ('\([^\)]*\)', '', cygwin_spec['requires']).split ()
+        #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
+        deps = [x.strip () for x in deps]
+        # URG, x11 introduces upcase *and* underscore in package name
+        #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
+        #deps = [x.replace ('libxt', 'libXt') for x in deps]
+        #deps = [x.replace ('libx11', 'libX11') for x in deps]
+        deps = [x for x in deps if x not in blacklist]
+    cls.name_dependencies = deps
+    def get_build_dependencies (self):
+        return self.name_dependencies
+    cls.get_build_dependencies = get_build_dependencies
+    @context.subst_method
+    def name_func (self):
+        return name
+    cls.name = name_func
+    return cls
+
+def get_cygwin_package (settings, name, cygwin_spec, skip):
     cross = [
         'base-passwd', 'bintutils',
         'gcc', 'gcc-core', 'gcc-g++',
@@ -180,34 +139,13 @@ def get_cygwin_package (settings, name, dict, skip):
     blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
-    package_class = new.classobj (name, (build.BinaryBuild,), {})
-    source = repository.TarBall (settings.downloads,
+    cls = package_class (name, cygwin_spec, blacklist)
+    source = repository.TarBall (settings.downloads + '/cygwin',
                                  os.path.join (mirror,
-                                               dict['install'].split ()[0]),
-                                 dict['version'],
+                                               cygwin_spec['install'].split ()[0]),
+                                 cygwin_spec['version'],
                                  strip_components=0)
-    package = package_class (settings, source)
-    package.name_dependencies = []
-    if 'requires' in dict:
-        deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
-        #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
-        deps = [x.strip () for x in deps]
-        # URG, x11 introduces upcase *and* underscore in package name
-        #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
-        #deps = [x.replace ('libxt', 'libXt') for x in deps]
-        #deps = [x.replace ('libx11', 'libX11') for x in deps]
-        deps = [x for x in deps if x not in blacklist]
-        package.name_dependencies = deps
-
-    def get_build_dependencies (self):
-        return self.name_dependencies
-    package.get_build_dependencies = misc.bind_method (get_build_dependencies,
-                                                       package)
-    pkg_name = name
-    def name (self):
-        return pkg_name
-    package.name = misc.bind_method (name, package)
-    return package
+    return cls (settings, source)
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
 def get_cygwin_packages (settings, package_file, skip=[]):
@@ -298,13 +236,12 @@ libtool_source = [
 
 # FIXME: c&p debian.py
 class Dependency_resolver:
-    def __init__ (self, settings):
+    def __init__ (self, settings, todo):
         self.settings = settings
+        if not os.path.exists (self.settings.downloads + '/cygwin'):
+            os.makedirs (self.settings.downloads + '/cygwin')
         self.packages = {}
-#        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
-#        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
-        # URG: get from command line!
-        self.source = ghostscript_source + guile_source + libtool_source + ['lilypond']
+        self.source = libtool_source + list (map (misc.strip_platform, todo))
         self.load_packages ()
 
     def grok_setup_ini (self, file, skip=[]):
@@ -314,11 +251,10 @@ class Dependency_resolver:
         url = mirror + '/setup.ini'
 
         # FIXME: download/offline update
-        file = self.settings.downloads + '/setup.ini'
+        file = self.settings.downloads + '/cygwin/setup.ini'
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads,
-                               local=['file://%s' % self.settings.downloads],
-
+            misc.download_url (url, self.settings.downloads + '/cygwin',
+                               local=['file://' + self.settings.downloads + '/cygwin'],
                                )
             # arg
             # self.file_sub ([('\':"', "':'")], file)
@@ -343,14 +279,17 @@ class Dependency_resolver:
 
 dependency_resolver = None
 
-def init_dependency_resolver (settings):
+def init_dependency_resolver (settings, todo):
     global dependency_resolver
-    dependency_resolver = Dependency_resolver (settings)
+    dependency_resolver = Dependency_resolver (settings, todo)
 
 def get_packages ():
     return dependency_resolver.get_packages ()
 
 gub_to_distro_dict = {
+    'cross/binutils': [],
+    'cross/gcc': [],
+    'cross/gcc-c++-runtime': [],
     'expat-devel': ['expat'],
     'fontconfig-runtime' : ['libfontconfig1'],
     'fontconfig-devel' : ['libfontconfig-devel'],

@@ -2,36 +2,29 @@ from gub import target
 from gub import tools
 
 class Ncurses (target.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.5.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.5.tar.gz'
     patches = ['ncurses-5.5-mkhashsize.sh.patch']
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'system::g++'
             'tools::gawk',
             ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --without-normal'
                 + ' --with-shared'
                 )
-    def license_files (self):
-        return ['%(srcdir)s/README']
+    license_files = ['%(srcdir)s/README']
 
 class Ncurses__tools (tools.AutoBuild, Ncurses):
     patches = Ncurses.patches
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-normal'
                 + ' --with-shared'
                 + ' --without-cxx'
                 + ' --without--cxx-binding'
                 )
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'system::g++'
             'gawk',
             ]
-    def makeflags (self):
-        return 'SCRIPT_SHELL=/bin/bash'
-    def license_files (self):
-        return ['%(srcdir)s/README']
+    make_flags = 'SCRIPT_SHELL=/bin/bash'
+    license_files = ['%(srcdir)s/README']

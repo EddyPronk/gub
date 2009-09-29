@@ -5,10 +5,10 @@ from gub import loggedos
 
 class Gcc__darwin (cross_gcc.Gcc):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    def _get_build_dependencies (self):
-        return ([x for x in cross_gcc.Gcc._get_build_dependencies (self)
-                 if 'cross/binutils' not in x]
-                + ['odcctools'])
+    dependencies = ['odcctools']
+#    dependencies = ([x for x in cross_gcc.Gcc.dependencies
+#                     if 'cross/binutils' not in x]
+#                    + ['odcctools'])
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
@@ -51,8 +51,7 @@ class Gcc__darwin (cross_gcc.Gcc):
     
 class Gcc__darwin__x86 (Gcc__darwin):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.3.2/gcc-4.3.2.tar.bz2'
-    def _get_build_dependencies (self):
-        return Gcc__darwin._get_build_dependencies (self) + ['tools::mpfr']
+    dependencies = Gcc__darwin.dependencies + ['tools::mpfr']
 
 class Not_used__Gcc__darwin (Gcc__darwin):
     def configure (self):

@@ -8,6 +8,8 @@ import sys
 import time
 import traceback
 import urllib2
+if sys.version.startswith ('3'):
+    from functools import reduce
 #
 from gub.syntax import printf, function_get_class, function_set_class, next
 from gub import octal
@@ -123,7 +125,8 @@ def version_from_configure (configure, default_version='0.0.0'):
 
 def version_from_configure_in (configure_in, name, default_version='0.0.0'):
     try:
-        m = re.search (r'AM_INIT_AUTOMAKE\(%(name)s, ([0-9.]+)\)' % locals (),
+        #m = re.search (r'AM_INIT_AUTOMAKE\(%(name)s, ([0-9.]+)\)' % locals (),
+        m = re.search (r'AM_INIT_AUTOMAKE\([^,]+, ([0-9.]+)\)',
                        configure_in)
         if m:
             return m.group (1)
@@ -132,7 +135,9 @@ def version_from_configure_in (configure_in, name, default_version='0.0.0'):
     return default_version
 
 def version_to_string (t):
-    return '%s-%s' % ('.'.join (map (string, t[:-1])), t[-1])
+    if t[-1]:
+        return '%s-%s' % ('.'.join (map (str, t[:-1])), t[-1])
+    return '.'.join (map (str, t[:-1]))
 
 def split_version (s):
     m = re.match ('^(([0-9].*)-([0-9]+))$', s)
@@ -164,6 +169,9 @@ def split_ball (s):
     if not m:
         return (s, (0, 0), '')
     return (m.group (1), string_to_version ('-'.join (split_version (m.group (2)))), m.group (6))
+
+def assemble_ball (t):
+    return t[0] + '-' + version_to_string (t[1]) + '.tar.' + t[2]
 
 def name_from_url (url):
     url, params = dissect_url (url)
@@ -283,6 +291,7 @@ def rewrite_url (url, mirror):
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
 def download_url (original_url, dest_dir,
+                  dest_name='',
                   local=[],
                   cache=[os.environ.get ('GUB_DOWNLOAD_CACHE', '')],
                   fallback=['http://lilypond.org/download/gub-sources'],
@@ -307,13 +316,13 @@ def download_url (original_url, dest_dir,
 
     result = 'no valid urls'
     for url in candidate_urls:
-        result = _download_url (url, dest_dir, progress)
+        result = _download_url (url, dest_dir, dest_name, progress)
         if type (result) == type (0):
             return
     raise Exception ('Download failed', result)
 
-def _download_url (url, dest_dir, progress=None):
-    progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+def _download_url (url, dest_dir, dest_name='', progress=None):
+    progress ('downloading %(url)s -> %(dest_dir)s/%(dest_name)s\n' % locals ())
     if not os.path.isdir (dest_dir):
         raise Exception ('not a dir', dest_dir)
 
@@ -347,9 +356,11 @@ def _download_url (url, dest_dir, progress=None):
     if progress:
         progress ('\n')
 
-    file_name = os.path.basename (url)
+    if not dest_name:
+        dest_name = os.path.basename (url)
     if size:
-        os.rename (tmpfile, os.path.join (dest_dir, file_name))
+        progress ('renaming: ' + tmpfile + '-> ' + os.path.join (dest_dir, dest_name))
+        os.rename (tmpfile, os.path.join (dest_dir, dest_name))
         if progress:
             progress ('done (%(size)s)\n' % locals ())
     else:
@@ -377,8 +388,9 @@ class SystemFailed (Exception):
 def file_mod_time (file_name):
     return os.stat (file_name)[stat.ST_MTIME]
 
-def file_mod_time_str (file_name):
-    return time.ctime (file_mod_time (file_name))
+ctime_format = '%a %b %d %H:%M:%S %Y'
+def file_mod_time_str (file_name, format=ctime_format):
+    return time.strftime (format, time.localtime (file_mod_time (file_name)))
 
 def binary_strip_p (filter_out=[], extension_filter_out=[]):
     def predicate (file):
@@ -524,24 +536,25 @@ def get_from_parents (cls, key):
 def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
     s = open (name).read ()
     t = s
+    unchanged = []
     for frm, to in re_pairs:
         new_text = ''
         if use_re:
             new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
         else:
             new_text = t.replace (frm, to)
-
-        if (t == new_text and must_succeed):
-            raise Exception ('nothing changed!')
-        else:
-            if must_succeed and type (must_succeed) == type (0):
-                must_succeed -= 1
+        if (t == new_text):
+            unchanged += [frm]
         t = new_text
-
+    if must_succeed:
+        changed = len (re_pairs) - len (unchanged)
+        if (must_succeed and not changed
+            or (type (must_succeed) == type (0)
+                and must_succeed < changed)):
+            raise Exception ('Unmatched expressions: ' + str (unchanged))
     if s != t or (to_name and name != to_name):
         stat_info = os.stat (name)
         mode = stat.S_IMODE (stat_info[stat.ST_MODE])
-
         if not to_name:
             try:
                 os.unlink (name + '~')
@@ -694,6 +707,43 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
+
+def latest_url (url, name, raw_version_name=None):
+    indexdir = 'downloads/indexes'
+    if not os.path.isdir (indexdir):
+        os.makedirs (indexdir)
+    if not raw_version_name:
+        raw_version_name = os.path.join (indexdir, '%(name)s.index' % locals ())
+    raw_version_name = os.path.basename (raw_version_name)
+    raw_version_file = os.path.join (indexdir, raw_version_name)
+    if not os.path.isfile (raw_version_file):
+        download_url (url, indexdir, raw_version_name)
+    s = open (raw_version_file).read ()
+    inert_name = name.replace ('+', '[+]')
+    m = re.findall ('(%(inert_name)s-[.0-9]+tar.gz)' % locals (), s)
+    if not m:
+        return None
+    if len (m) == 1:
+        return m[0]
+    return url + assemble_ball (sorted (map (split_ball, m))[-1])
+
+def double_quote (string):
+    return re.sub ('''(='[^']+')''', r'"\1"', string)
+
+def optparse_epilog (parser, string):
+    def format_plain (self):
+        return string
+    if 'epilog'  in  parser.__dict__:
+        parser.formatter.format_epilog = format_plain
+        parser.epilog = string
+    else:
+        parser.formatter.format_description = format_plain
+        parser.description = string
+
+def rename_append_time (file_name):
+    os.rename (file_name, file_name
+               + '.'
+               + file_mod_time_str (file_name, format='%Y%m%d-%H%M%S'))
 
 start = 0
 def timing ():

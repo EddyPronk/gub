@@ -6,13 +6,11 @@ from gub import tools
 class Rebase__tools (tools.MakeBuild):
     source = 'http://www.tishler.net/jason/software/rebase/rebase-2.4.2-1-src.tar.bz2'
     patches = ['rebase-2.4.2-1.patch']
-    def _get_build_dependencies (self):
-        return ['mingw::cross/gcc']
+    dependencies = ['mingw::cross/gcc']
     def patch (self):
         self.system ('dos2unix %(srcdir)s/imagehelper/*')
         tools.MakeBuild.patch (self)
-    def makeflags (self):
-        return misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 CC=i686-mingw32-gcc
 CXX=i686-mingw32-g++
 AR=i686-mingw32-ar

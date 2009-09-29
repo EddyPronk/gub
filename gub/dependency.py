@@ -132,6 +132,8 @@ class Dependency:
             x, parameters = misc.dissect_url (self._url)
             if parameters.get ('patch'):
                 self._cls.patches = parameters['patch']
+            if parameters.get ('dependency'):
+                self._cls.build_dependencies = parameters['dependency']
         return self._url
     def name (self):
         return self._name

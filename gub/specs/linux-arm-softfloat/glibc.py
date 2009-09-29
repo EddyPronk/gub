@@ -8,9 +8,8 @@ class Glibc (glibc.Glibc):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-linux-2.4.23-arm-bus-isa.patch
 ''')
-    def configure_command (self):
-        return (glibc.Glibc.configure_command (self)
-                .replace ('--enable-add-ons=nptl', '')
-                + misc.join_lines ('''
---without-fp
-'''))
+    def enable_add_ons (self):
+        return (glibc.Glibc.enable_add_ons (self)
+                .replace ('--enable-add-ons=nptl', ''))
+    configure_variables = (glibc.Glibc.configure_variables
+                           + ' --without-fp')

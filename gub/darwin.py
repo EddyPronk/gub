@@ -138,10 +138,23 @@ def change_target_package (package):
                                                   (['zlib', 'zlib-devel'],))
     @context.subst_method
     def rpath (foo):
-        # ld has no -rpath on darwin [at least not darwin-ppc]
-        # FIXME: some equivalent here?
         return ''
     package.rpath = misc.MethodOverrider (package.nop, rpath)
+
+    @context.subst_method
+    def so_extension (foo):
+        return '.dylib'
+    package.so_extension = misc.MethodOverrider (package.nop, so_extension)
+
+    def autoupdate (foo):
+        # somehow retriggers autoconf?!?
+        # for i in ['configure.ac', 'configure']:
+        for i in ['configure']:
+            package.file_sub ([('-fpascal-strings ', ''),
+                               ('-I(/Developer/Headers/FlatCarbon)',
+                                r'-I%(system_root)s\1'),
+                               ], '%(srcdir)s/' + i)
+    package.autoupdate = misc.MethodOverrider (package.autoupdate, autoupdate)
 
     build.change_dict (package, {
 

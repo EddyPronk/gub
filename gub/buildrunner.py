@@ -45,6 +45,8 @@ def checksum_diff (a, b, fromfile='', tofile='',
                                             fromfiledate,
                                             tofiledate))
 
+logger = logging.default_logger
+
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
 
@@ -197,7 +199,7 @@ class BuildRunner:
         skip = []
         if self.options.offline:
             skip += ['download']
-        if not self.options.src_package:
+        if not self.options.build_source:
             skip += ['src_package']
         if self.options.keep_build:
             skip += ['clean']
@@ -222,7 +224,19 @@ class BuildRunner:
         if ((not checksum_fail_reason or self.options.lax_checksums)
             and not spec.install_after_build):
             return
-        logger = logging.default_logger
+        global logger
+        if self.options.log == 'build':
+            # This is expecially broken with multi-platform builds...
+            logger = logging.default_logger
+        else:
+            if self.options.log == 'platform':
+                log = os.path.join (spec.settings.logdir, 'build.log')
+            else:
+                log = os.path.join (spec.settings.logdir,
+                                    misc.strip_platform (spec_name)) + '.log'
+            if os.path.isfile (log):
+                misc.rename_append_time (log)
+            logger = logging.CommandLogger (log, logging.default_logger.threshold)
         if checksum_fail_reason:
             rebuild = 'must'
             if self.options.lax_checksums:
@@ -248,12 +262,13 @@ class BuildRunner:
             deferred_runner.execute_deferred_commands ()
             checksum_file = spec.expand ('%(checksum_file)s')
             if checksum_file:
-                if len (self.checksums[spec_name].split ('\n')) < 5 and not 'BOOTSTRAP' in os.environ.keys ():
+                if len (self.checksums[spec_name].split ('\n')) < 5:
                     # Sanity check.  This can't be right.  Do not
                     # overwrite precious [possibly correct] checksum.
                     raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
+                if os.path.isfile (checksum_file):
+                    misc.rename_append_time (checksum_file)
                 open (checksum_file, 'w').write (self.checksums[spec_name])
-            #spec.set_done ('')
             loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
         # Ugh, pkg_install should be stage
         if spec.install_after_build and not self.spec_all_installed (spec):
@@ -303,6 +318,8 @@ class BuildRunner:
         if not fail_str:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
+        if self.options.dry_run:
+            sys.exit (0)
         outdated_installed = [x for x in list (reversed (outdated))
                               if self.is_installed_spec (x)]
         if outdated_installed:
@@ -310,12 +327,12 @@ class BuildRunner:
             outdated_str = (' '.join (outdated_installed)
                             .replace (misc.with_platform ('', platform), ''))
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
-            if not 'BOOTSTRAP' in os.environ.keys ():
-                self.uninstall_specs (outdated_installed)
+            self.uninstall_specs (outdated_installed)
         global target
         for spec_name in deps:
             target = spec_name
             self.spec_build (spec_name)
+            logger = logging.default_logger
         target = None
 
 target = None

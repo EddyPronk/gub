@@ -1,14 +1,13 @@
 from gub import context
+from gub import gnome
 from gub import misc
 from gub import target
 from gub import tools
 
 class Libxml2 (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
-    def _get_build_dependencies (self):
-        return ['zlib']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    dependencies = ['zlib']
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-python
 '''))
@@ -17,8 +16,7 @@ class Libxml2 (target.AutoBuild):
         return 'xml2-config'
 
 class Libxml2__mingw (Libxml2):
-    def configure_command (self):
-        return (Libxml2.configure_command (self)
+    configure_flags = (Libxml2.configure_flags
                 + misc.join_lines ('''
 --without-threads
 '''))
@@ -28,10 +26,8 @@ class Libxml2__mingw (Libxml2):
         self.copy ('%(install_prefix)s/lib/libxml2.dll.a', '%(install_prefix)s/lib/libxml2-2.dll.a')
 
 class Libxml2__tools (tools.AutoBuild, Libxml2):
-    def _get_build_dependencies (self):
-        return Libxml2._get_build_dependencies (self) + ['libtool']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    dependencies = Libxml2.dependencies + ['libtool']
+    configure_flags = (tools.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-python
 '''))

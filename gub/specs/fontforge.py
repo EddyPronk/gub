@@ -4,10 +4,9 @@ from gub import tools
 class Fontforge__tools (tools.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
     patches = ['fontforge-20080927-noxml2.patch']
-    def _get_build_dependencies (self):
-        return ['freetype', 'libpng', 'libjpeg', 'libxml2']
-    def force_sequential_build (self):
-        return True
+    parallel_build_broken = True
+    srcdir_build_broken = True
+    dependencies = ['freetype', 'libpng', 'libjpeg', 'libxml2']
     def srcdir (self):
         return tools.AutoBuild.srcdir (self).replace ('_full', '')
     def patch (self):
@@ -34,19 +33,9 @@ class Fontforge__tools (tools.AutoBuild):
         # for tools is allowed...
         self.file_sub ([('"/lib/lib', '"%(system_prefix)s/lib/lib')],
                        '%(srcdir)s/configure')
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-freetype-src'
                 + ' --disable-libff '
                 # let's ignore python (and its dynamic link intracies
                 # for now).
                 + ' --without-python')
-    @context.subst_method
-    def LDFLAGS (self):
-        return '%(rpath)'
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
-    def wrap_executables (self):
-        # using rpath
-        pass

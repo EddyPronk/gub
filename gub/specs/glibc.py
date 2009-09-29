@@ -1,5 +1,6 @@
 import os
 #
+from gub import context
 from gub import cross
 from gub import misc
 from gub import repository
@@ -33,7 +34,7 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
-class Glibc (target.AutoBuild, cross.AutoBuild):
+class Glibc (target.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = [
         'glibc-2.3-powerpc-initfini.patch',
@@ -44,40 +45,48 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-assert-dl_next_tls_modid.patch',
         'glibc-2.3-binutils-2.19-i386.patch',
         ]
-    def _get_build_dependencies (self):
-        return ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
-    def get_conflict_dict (self):
-        return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
-    def patch (self):
-        cross.AutoBuild.patch (self)
-        if 'BOOTSTRAP' in os.environ.keys ():
-            # running in chroot: chmod: memory exhausted...
-            self.file_sub ([('chmod a-w,a\+x', 'chmod +x',)],
-                           '%(srcdir)s/Makefile')
-    def get_add_ons (self):
-        return ('linuxthreads', 'nptl')
-    def config_cache_overrides (self, str):
-        # Use default value fol slibdir so that fallback into /lib* can be used
-        return (str + '''
-use_default_libc_cv_slibdir=%(prefix_dir)s/slib
-libc_cv_rootsbindir=%(prefix_dir)s/sbin
-''')
-    def configure_command (self):    
-        add_ons = ''
-        for i in self.get_add_ons ():
-            add_ons += ' --enable-add-ons=' + i
-        return ('BUILD_CC=gcc '
-                + misc.join_lines (target.AutoBuild.configure_command (self) + '''
+    dependencies = ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
+    configure_flags = (target.AutoBuild.configure_flags + misc.join_lines ('''
 --disable-profile
 --disable-debug
 --without-cvs
 --without-gd
 --with-headers=%(system_prefix)s/include
 ''')
-                + add_ons)
+                + '%(enable_add_ons)s')
+    make_flags = ' SHELL=/bin/bash'
+    install_flags = (target.AutoBuild.install_flags
+                     + ' install_root=%(install_root)s'
+                     # glibc-2.3.6' Makerules file has a cross-compiling
+                     # check that changes symlink install behaviour.  ONLY
+                     # if $(cross_compiling)==no, an extra
+                     # `install-symbolic-link' target is created upon with
+                     # `install' is made to depend.  This means we do not
+                     # get symlinks with install-lib-all when it so happens
+                     # that build_architecture == target_architecture.  Try
+                     # to cater for both here: make the symlink as well as
+                     # append to the symlink.list file.
+                     + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
+    configure_command = 'BUILD_CC=gcc ' + target.AutoBuild.configure_command
+    config_cache_overrides = (target.AutoBuild.config_cache_overrides + '''
+use_default_libc_cv_slibdir=%(prefix_dir)s/slib
+libc_cv_rootsbindir=%(prefix_dir)s/sbin
+''')
+    def get_conflict_dict (self):
+        return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
+    def patch (self):
+        target.AutoBuild.patch (self)
+    def get_add_ons (self):
+        return ('linuxthreads', 'nptl')
+    @context.subst_method
+    def enable_add_ons (self):
+        add_ons = ''
+        for i in self.get_add_ons ():
+            add_ons += ' --enable-add-ons=' + i
+        return add_ons
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
-                                                self.expand ('ftp://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
+                                                self.expand ('http://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
     def download (self):
         target.AutoBuild.download (self)
         if self.version () == '2.3.6':
@@ -90,18 +99,3 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
     # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
     def LD_PRELOAD (self):
         return ''
-    def makeflags (self):
-        return ' SHELL=/bin/bash'
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
-                + ' install_root=%(install_root)s'
-                # glibc-2.3.6' Makerules file has a cross-compiling
-                # check that changes symlink install behaviour.  ONLY
-                # if $(cross_compiling)==no, an extra
-                # `install-symbolic-link' target is created upon with
-                # `install' is made to depend.  This means we do not
-                # get symlinks with install-lib-all when it so happens
-                # that build_architecture == target_architecture.  Try
-                # to cater for both here: make the symlink as well as
-                # append to the symlink.list file.
-                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')

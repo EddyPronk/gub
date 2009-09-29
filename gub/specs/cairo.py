@@ -5,8 +5,7 @@ class Cairo (target.AutoBuild):
     def patch (self):
         target.AutoBuild.patch (self)
         self.system ('rm -f %(srcdir)s/src/cairo-features.h')
-    def _get_build_dependencies (self):
-        return ['tools::libtool',
+    dependencies = ['tools::libtool',
                 'fontconfig-devel',
                 'ghostscript-devel',
                 'libpng-devel',
@@ -21,29 +20,25 @@ class Cairo (target.AutoBuild):
                 'zlib-devel']
 
 class Cairo_without_X11 (Cairo):
-    def configure_command (self):
-        return (Cairo.configure_command (self)
+    configure_flags = (Cairo.configure_flags
                 + ' --disable-xlib'
                 + ' --disable-xlib-xrender'
                 + ' --disable-xcb'
                 )
-    def _get_build_dependencies (self):
-        return ([x for x in Cairo._get_build_dependencies (self)
+    dependencies = ([x for x in Cairo.dependencies
                  if 'libx' not in x
                  and 'poppler' not in x] # poppler does not build for mingw
                 )
 
 class Cairo__mingw (Cairo_without_X11):
-    def configure_command (self):
-        return (Cairo_without_X11.configure_command (self)
+    configure_flags = (Cairo_without_X11.configure_flags
                 + ' --enable-win32=yes'
                 + ' --enable-win32-font=yes'
                 + ' --enable-ft'
                 + ' LDFLAGS=-lpthread'
                 )
-    def _get_build_dependencies (self):
-        return (Cairo_without_X11._get_build_dependencies (self)
-                + ['pthreads-w32-devel'])
+    dependencies = (Cairo_without_X11.dependencies
+                    + ['pthreads-w32-devel'])
 
 class Cairo__darwin (Cairo_without_X11):
     pass

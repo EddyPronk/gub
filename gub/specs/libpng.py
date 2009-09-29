@@ -4,8 +4,7 @@ from gub import tools
 class Libpng (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/libpng/libpng-1.2.8-config.tar.gz'
     patches = ['libpng-pngconf.h-setjmp.patch']
-    def _get_build_dependencies (self):
-        return ['zlib-devel', 'tools::autoconf', 'tools::automake', 'tools::libtool']
+    dependencies = ['zlib-devel', 'tools::autoconf', 'tools::automake', 'tools::libtool']
     def name (self):
         return 'libpng'
     def patch (self):
@@ -16,16 +15,13 @@ class Libpng (target.AutoBuild):
         self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@',
                 r'\1${DESTDIR}@PKGCONFIGDIR@')],
                '%(srcdir)s/Makefile.am')
-    def configure_command (self):
-        return ('LIBRESTRICT_ALLOW=/var/mail '
-                + target.AutoBuild.configure_command (self))
-    def compile_command (self):
-        c = target.AutoBuild.compile_command (self)
-        ## need to call twice, first one triggers spurious Automake stuff.
-        return '(%s) || (%s)' % (c,c)
+    configure_command = ('LIBRESTRICT_ALLOW=/var/mail '
+                         + target.AutoBuild.configure_command)
+    ## need to call twice, first one triggers spurious Automake stuff.
+    compile_command = '(%s) || (%s)' % (target.AutoBuild.compile_command,
+                                        target.AutoBuild.compile_command)
     
 class Libpng__tools (tools.AutoBuild, Libpng):
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
     def patch (self):
         Libpng.patch (self)

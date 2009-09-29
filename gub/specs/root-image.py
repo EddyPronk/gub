@@ -2,19 +2,19 @@ from gub import build
 
 class Root_image (build.NullBuild):
     source = 'url://host/root-image-1.0.tar.gz'
-    def _get_build_dependencies (self):
-        busybox = [
+    busybox = [
             'dhcp',
             'psmisc',
             'tinylogin',
             ]
-        return [
+    dependencies = [
             'base-files',
             'base-passwd',
             'busybox',
             'dropbear',
             'sysvinit',
             ]
+    subpackage_names = ['']
     def get_ipkg_dependencies (self):
         busybox = ['makedevs']
         return [
@@ -40,8 +40,6 @@ class Root_image (build.NullBuild):
             'tslib-conf',
             'update-rc.d',
             ]
-    def get_subpackage_names (self):
-        return ['']
     def install_ipkg (self, i):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
@@ -60,8 +58,7 @@ cd %(install_root)s && ar p %(fname)s data.tar.gz | tar%(_v)s -zxf -
             self.install_ipkg (i)
 
 class Root_image__linux__arm__vfp (Root_image):
-    def _get_build_dependencies (self):
-        return (Root_image._get_build_dependencies (self)
+    dependencies = (Root_image.dependencies
                 + ['csl-toolchain-binary',
                    'phone'])
     

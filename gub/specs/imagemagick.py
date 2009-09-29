@@ -5,10 +5,7 @@ from gub import tools
 
 class ImageMagick__tools (tools.AutoBuild):
     source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.4.5-4.tar.gz'
-#    source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.3.7-9.tar.gz'
-    def _get_build_dependencies (self):
-        return [
-#            'system::g++',
+    dependencies = [
             'automake',
             'bzip2',
             'fontconfig',
@@ -18,33 +15,16 @@ class ImageMagick__tools (tools.AutoBuild):
             'libtiff',
             'libxml2',
             'libtool',
-#            'perl-extutils-makemaker',
-            'perl', # extutils-makemaker is now in perl-5.10.0?  Weird.
+            'perl',
             'zlib',
             ]
-    def configure_flags (self):
-        return (tools.AutoBuild.configure_flags (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-magick-plus-plus
 --without-perl
 '''))
-    @context.subst_method
-    def LDFLAGS (self):
-        return '%(rpath)'
-    def configure (self):
-        # do *not* update libtool, GUB's 1.5.x is too old :-(
-        build.AutoBuild.configure (self)
-    def wrap_executables (self):
-        # using rpath
-        pass
 
 class ImageMagick__tools__autoupdate (ImageMagick__tools):
-    def XXforce_autoupdate (self):
-        # this does not work, ImageMagick adds cruft of its own in ./ltdl
-        # and somehow *needs* ./ltdl (1.5.22 will make ./libltdl)
-        return True
-    def XXaclocal_path (self):
-        return ['m4'] + tools.AutoBuild.aclocal_path (self)
     def autoupdate (self):
         self.system ('''
 cd %(autodir)s && libtoolize --copy --force --automake --ltdl

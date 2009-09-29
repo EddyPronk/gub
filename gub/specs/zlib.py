@@ -1,31 +1,25 @@
 import re
 #
-from gub import build
+from gub import context
 from gub import target
 from gub import tools
 
 class Zlib (target.AutoBuild):
     source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
     patches = ['zlib-1.2.3.patch']
-    def _get_build_dependencies (self):
-        return ['tools::autoconf']
-    def configure (self):
-        self.shadow ()
-        target.AutoBuild.configure (self)
-    def compile_command (self):
-        return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
-    def configure_command (self):
+    srcdir_build_broken = True
+    dependencies = ['tools::autoconf']
+    make_flags = ' ARFLAGS=r'
+    destdir_install_broken = True
+    install_flags = ' install'
+    @context.subst_method
+    def zlib_target (self):
         stripped_platform = self.settings.expand ('%(platform)s')
         stripped_platform = re.sub ('-.*', '', stripped_platform)
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
-        
-        zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
-        ## doesn't use autoconf configure.
-        return zlib_is_broken + ' %(srcdir)s/configure --shared '
-    def install_command (self):
-        return target.AutoBuild.broken_install_command (self)
-    def license_files (self):
-        return ['%(sourcefiledir)s/zlib.license']
+        return 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
+    configure_command = '%(zlib_target)s %(srcdir)s/configure --shared '
+    license_files = ['%(sourcefiledir)s/zlib.license']
 
 class Zlib_plain__mingw (Zlib):
     def patch (self):
@@ -34,11 +28,13 @@ class Zlib_plain__mingw (Zlib):
                         ('mgwz','libz'),
                         ],
                        '%(srcdir)s/configure')
-    def configure_command (self):
-        zlib_is_broken = 'target=mingw'
-        return zlib_is_broken + ' %(srcdir)s/configure --shared '
+    configure_command = '%(zlib_target)s %(srcdir)s/configure --shared '
+    def zlib_target (self):
+        return 'target=mingw'
 
 class Zlib_minizip__mingw (Zlib_plain__mingw):
+    configure_command = (''' CFLAGS='-I. -O3' '''
+                + Zlib_plain__mingw.configure_command)
     def patch_include_minizip (self):
         self.file_sub ([('(inffast.o)$', r'\1 ioapi.o iowin32.o mztools.o unzip.o zip.o\nVPATH= contrib/minizip\n')],
                    '%(srcdir)s/Makefile.in')
@@ -47,8 +43,6 @@ class Zlib_minizip__mingw (Zlib_plain__mingw):
     def patch (self):
         Zlib_plain__mingw.patch (self)
         self.patch_include_minizip ()
-    def configure_command (self):
-        return ''' CFLAGS='-I. -O3' ''' + Zlib_plain__mingw.configure_command (self)
     def install (self):
         Zlib_plain__mingw.install (self)
         self.install_include_minizip ()
@@ -63,17 +57,9 @@ no shared lib: gcc-4.2.1 says
 '''
 
 class Zlib__tools (tools.AutoBuild, Zlib):
-# FIXME: tools not the same as target: asking for trouble
-#    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.3.tar.gz'
-# FIXME: where lives 1.2.3.3 with gzopen64?
-    def _get_build_dependencies (self):
-        return ['autoconf']
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
-    def install_command (self):
-        return tools.AutoBuild.broken_install_command (self)
-    def configure_command (self):
-        return Zlib.configure_command (self)
-    def license_files (self):
-        return ['%(sourcefiledir)s/zlib.license']
+    srcdir_build_broken = True
+    dependencies = ['autoconf']
+    configure_command = Zlib.configure_command
+    destdir_install_broken = True
+    install_flags = ' install'
+    license_files = Zlib.license_files

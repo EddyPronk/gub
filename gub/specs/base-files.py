@@ -2,8 +2,7 @@ from gub import build
 
 class Base_files (build.BinaryBuild):
     source = 'ftp://ftp.nl.debian.org/debian/pool/main/b/base-files/base-files_4.0.0.tar.gz'
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def patch (self):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))

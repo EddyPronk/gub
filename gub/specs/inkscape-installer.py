@@ -17,10 +17,8 @@ class Inkscape_installer (target.AutoBuild):
         source.is_tracking = misc.bind_method (lambda x: True, source)
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
-    def _get_build_dependencies (self):
-        return [self.settings.target_platform + '::inkscape']
-    def get_subpackage_names (self):
-        return ['']
+    dependencies = [self.settings.target_platform + '::inkscape']
+    subpackage_names = ['']
     def stages (self):
         return ['compile', 'install', 'package']
     def compile (self):
@@ -32,5 +30,4 @@ bin/gib
 --branch=inkscape=%(inkscape_branch)s
 lilypond
 '''), locals ())
-    def install_command (self):
-        return 'true'
+    install_command = 'true'

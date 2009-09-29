@@ -2,8 +2,7 @@ from gub import target
 
 class Portaudio (target.AutoBuild):
     source = 'http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz'
-    def _get_build_dependencies (self):
-        return ['tools::automake', 'tools::pkg-config',]
+    dependencies = ['tools::automake', 'tools::pkg-config',]
 
 class Portaudio__mingw (Portaudio):
     def patch (self):
@@ -13,6 +12,9 @@ class Portaudio__mingw (Portaudio):
             self.file_sub ([('((src/os/win)/pa_win_util.o)',
                              r'\1 \2/pa_win_waveformat.o',)],
                            i)
+
+
+
 
 '''
 
@@ -58,6 +60,8 @@ collect2: ld returned 1 exit status
 '''
 
 class Portaudio__darwin (Portaudio):
+    configure_variables = (Portaudio.configure_variables
+                           + ''' CFLAGS='-DMACH_KERNEL=1 -Wno-multichar' ''')
     def patch (self):
         Portaudio.patch (self)
         # FIXME: this can't be right.  Move to darwin-sdk?
@@ -136,6 +140,3 @@ ln -sf %(system_root)s/System/Library/Frameworks/%(framework)s.framework/Headers
         for i in ['%(srcdir)s/configure.in',
                   '%(srcdir)s/configure']:
             self.file_sub ([('-arch i386 -arch ppc', '-I%(system_prefix)s/include -I%(builddir)s/include -I%(builddir)s/include/kernel'),], i)
-    def configure_command (self):
-        return (Portaudio.configure_command (self)
-                + ''' CFLAGS='-DMACH_KERNEL=1 -Wno-multichar' ''')

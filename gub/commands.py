@@ -362,17 +362,19 @@ class ForcedAutogenMagic (SerializedCommand):
         package = self.package
         autodir = package.expand ('%(autodir)s')
         PATH = package.expand ('%(PATH)s')
-        if os.path.exists (os.path.join (autodir, 'bootstrap')):
-            self.system ('cd %(autodir)s && ./bootstrap' % locals (), logger)
-        elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
-            self.system ('cd %(autodir)s && ./bootstrap.sh' % locals (), logger)
-        elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
+        if os.path.exists (os.path.join (autodir, 'autogen.sh')):
             s = open ('%(autodir)s/autogen.sh' % locals ()).read ()
             noconfigure = ' --help'
             if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
             self.system ('cd %(autodir)s && NOCONFIGURE=1 sh autogen.sh %(noconfigure)s' % locals (),
                          logger)
+        elif (os.path.exists (os.path.join (autodir, 'bootstrap'))
+              and not 'CC=' in open (os.path.join (autodir, 'bootstrap')).read ()):
+            self.system ('cd %(autodir)s && ./bootstrap' % locals (), logger)
+        elif (os.path.exists (os.path.join (autodir, 'bootstrap.sh'))
+              and not 'CC=' in open (os.path.join (autodir, 'bootstrap.sh')).read ()):
+            self.system ('cd %(autodir)s && ./bootstrap.sh' % locals (), logger)
         else:
             libtoolize = misc.path_find (PATH, 'libtoolize')
             if libtoolize:
@@ -392,15 +394,15 @@ class ForcedAutogenMagic (SerializedCommand):
                              % locals (), logger)
             aclocal_flags = ''
             for dir in package.aclocal_path ():
-                d = package.expand (os.path.join (autodir, dir))
+                d = package.expand (dir)
                 if os.path.exists (d):
-                    aclocal_flags += '-I%(d)s' % locals ()
+                    aclocal_flags += ' -I%(d)s' % locals ()
             headcmd = ''
-            configure = ''
+            configure_ac = ''
             for c in ('configure.in','configure.ac'):
                 try:
                     string = open ('%(autodir)s/%(c)s' % locals ()).read ()
-                    configure = c
+                    configure_ac = c
                     m = re.search ('A[CM]_CONFIG_HEADER', string)
                     string = 0   ## don't want to expand string
                     if m:
@@ -408,7 +410,7 @@ class ForcedAutogenMagic (SerializedCommand):
                         break
                 except IOError:
                     pass
-            if configure:
+            if configure_ac:
                 self.system ('''
 cd %(autodir)s && aclocal %(aclocal_flags)s
 %(headcmd)s

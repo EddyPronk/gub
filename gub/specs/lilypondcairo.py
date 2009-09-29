@@ -6,35 +6,31 @@ from gub.specs import lilypond
 # in.  Hmm.
 
 class Lilypondcairo (lilypond.Lilypond):
-    source = 'http://lilypond.org/download/source/v2.13/lilypond-2.13.3.tar.gz'
-    def _get_build_dependencies (self):
-        return [x.replace ('pango', 'pangocairo')
-                for x in lilypond.Lilypond._get_build_dependencies (self)]
+    source = 'http://lilypond.org/download/source/v2.13/lilypond-2.13.4.tar.gz'
+    dependencies = [x.replace ('pango', 'pangocairo')
+                for x in lilypond.Lilypond.dependencies]
     def get_conflict_dict (self):
         return {'': ['lilypond']}
 
 class Lilypondcairo__mingw (lilypond.Lilypond__mingw):
     source = Lilypondcairo.source
-    def _get_build_dependencies (self):
-        return [x.replace ('pango', 'pangocairo')
-                for x in lilypond.Lilypond__mingw._get_build_dependencies (self)]
+    dependencies = [x.replace ('pango', 'pangocairo')
+                for x in lilypond.Lilypond__mingw.dependencies]
     def get_conflict_dict (self):
         return {'': ['lilypond']}
 
 class Lilypondcairo__darwin (lilypond.Lilypond__darwin):
     source = Lilypondcairo.source
-    def _get_build_dependencies (self):
-        return [x.replace ('pango', 'pangocairo')
+    dependencies = [x.replace ('pango', 'pangocairo')
                 for x in lilypond.Lilypond__darwin
-                ._get_build_dependencies (self)]
+                .dependencies]
     def get_conflict_dict (self):
         return {'': ['lilypond']}
 
 class Lilypondcairo__darwin__ppc (lilypond.Lilypond__darwin__ppc):
     source = Lilypondcairo.source
-    def _get_build_dependencies (self):
-        return [x.replace ('pango', 'pangocairo')
+    dependencies = [x.replace ('pango', 'pangocairo')
                 for x in lilypond.Lilypond__darwin__ppc
-                ._get_build_dependencies (self)]
+                .dependencies]
     def get_conflict_dict (self):
         return {'': ['lilypond']}

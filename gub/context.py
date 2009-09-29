@@ -27,15 +27,22 @@ def is_subst_method (member):
                                                 function_class (member[OBJECT]))))
 
 def object_get_methods (object):
-    return filter (is_method, inspect.getmembers (object))
+    return list (filter (is_method, inspect.getmembers (object)))
 
 class _C (object):
     pass
 
 def is_class_subst_method (name, cls):
+    try:
+        if name in cls.__dict__:
+            classmethod (cls.__dict__[name])
+    except:
+        printf ('self:', cls)
+        printf ('name:', name)
+        raise
     if (name in cls.__dict__
-        and classmethod (cls.__dict__[name])
         and type (cls.__dict__[name]) != type (_C.__init__)
+        and classmethod (cls.__dict__[name])
         and 'substitute_me' in cls.__dict__[name].__dict__):
         return True
     return False
@@ -61,8 +68,16 @@ def recurse_substitutions (d):
         try:
             while v.index ('%(') >= 0:
                 v = v % d
-        except ValueError:
-            pass
+        except:
+            t, vv, b = sys.exc_info ()
+            if t == ValueError:
+                pass
+            elif t == KeyError or t == ValueError:
+                printf ('variable: >>>' + k + '<<<')
+                printf ('format string: >>>' + v + '<<<')
+                raise
+            else:
+                raise
         d[k] = v
     return d
 
@@ -118,7 +133,11 @@ class Context (object):
         string_vars = dict ((k, v) for (k, v) in members if type (v) == str)
         d.update (string_vars)
         d.update (member_substs)
-        d = recurse_substitutions (d)
+        try:
+            d = recurse_substitutions (d)
+        except KeyError:
+            printf ('self:', self)
+            raise
         return d
 
     def get_substitution_dict (self, env={}):

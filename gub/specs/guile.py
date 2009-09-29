@@ -14,6 +14,34 @@ class Guile (target.AutoBuild):
     patches = ['guile-reloc-1.8.6.patch',
                'guile-cexp.patch',
                'guile-1.8.6-test-use-srfi.patch']
+    dependencies = ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
+    guile_configure_flags = misc.join_lines ('''
+--without-threads
+--with-gnu-ld
+--enable-deprecated
+--enable-discouraged
+--disable-error-on-warning
+--enable-relocation
+--enable-rpath
+''')
+    configure_variables = (target.AutoBuild.configure_variables
+                           + misc.join_lines ('''
+CC_FOR_BUILD="
+C_INCLUDE_PATH=
+CPPFLAGS=
+LIBRARY_PATH=
+PATH_SEPARATOR=':'
+cc
+-I%(builddir)s
+-I%(srcdir)s
+-I%(builddir)s/libguile
+-I.
+-I%(srcdir)s/libguile"
+'''))
+    compile_flags_native = ''
+    configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
+                         + target.AutoBuild.configure_command
+                         + guile_configure_flags)
     @staticmethod
     def version_from_VERSION (self):
         return self.version_from_shell_script ('GUILE-VERSION',
@@ -27,10 +55,7 @@ class Guile (target.AutoBuild):
             source.version = misc.bind_method (Guile.version_from_VERSION,
                                                source)
         self.so_version = '17'
-    def _get_build_dependencies (self):
-        return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
+    subpackage_names = ['doc', 'devel', 'runtime', '']
     def patch (self):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
@@ -50,48 +75,13 @@ exec %(tools_prefix)s/bin/guile "$@"
             self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    def configure_flags (self):
-        return misc.join_lines ('''
---without-threads
---with-gnu-ld
---enable-deprecated
---enable-discouraged
---disable-error-on-warning
---enable-relocation
---enable-rpath
-''')
-    def configure_variables (self):
-        return misc.join_lines ('''
-CC_FOR_BUILD="
-C_INCLUDE_PATH=
-CPPFLAGS=
-LIBRARY_PATH=
-PATH_SEPARATOR=':'
-cc
--I%(builddir)s
--I%(srcdir)s
--I%(builddir)s/libguile
--I.
--I%(srcdir)s/libguile"
-''')
-    def configure_command (self):
-        return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + 'LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
-                + target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
-    def makeflags (self):
-        return '''LDFLAGS='%(rpath)s' '''
-    def compile_command (self):
-        return ('preinstguile=%(tools_prefix)s/bin/guile ' +
-                target.AutoBuild.compile_command (self))
-    @context.subst_method
-    def makeflags_for_build (self):
-        return ''
+    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
+                + target.AutoBuild.compile_command)
     def compile (self):
         ## Ugh: broken dependencies break parallel build with make -jX
-        self.system ('cd %(builddir)s/libguile && make %(makeflags_for_build)s gen-scmconfig guile_filter_doc_snarfage')
+        self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)s gen-scmconfig guile_filter_doc_snarfage')
         # Remove -L %(system_root)s from `guile-config link'
-        self.system ('cd %(builddir)s/libguile &&make %(makeflags_for_build)slibpath.h')
+        self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)slibpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
         target.AutoBuild.compile (self)
@@ -127,30 +117,15 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def _get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) +  ['regex-devel']
-    def configure_command (self):
-        return (Guile.configure_command (self)
-                # + ' --with-threads=pthread'
-                # checking whether pthread_attr_getstack works for the main thread... configure: error: cannot run test program while cross compiling
-                # also, gen-scmconfig.c has
-                #ifdef HAVE_STRUCT_TIMESPEC
-                # pf ("typedef struct timespec scm_t_timespec;\n");
-                # which breaks because __MINGW32__ needs #include <pthread.h>
-                # So, for now:
-                    + ' --without-threads'
-                + self.configure_variables ()
-                # Use PATH_SEPARATOR=; or it will breaks tools
-                # searching for the build platform.
-                .replace (':', ';'))
-                ###LDFLAGS=-L%(system_prefix)s/lib
-    def configure_variables (self):
-        return (Guile.configure_variables (self)
+    dependencies = Guile.dependencies +  ['regex-devel']
+    configure_flags = (Guile.configure_flags
+                       + ' --without-threads')
+    configure_variables = (Guile.configure_variables
+                           .replace (':', ';')
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))
-    def config_cache_overrides (self, str):
-        return str + '''
+    config_cache_overrides = Guile.config_cache_overrides + '''
 scm_cv_struct_timespec=${scm_cv_struct_timespec=no}
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
@@ -164,7 +139,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             self.file_sub ([('-mwindows', '')], libtool)
     def compile (self):
         ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile &&make %(makeflags_for_build)sgen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('''cd %(builddir)s/libguile &&make %(compile_flags_native)sgen-scmconfig guile_filter_doc_snarfage.exe''')
         self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
         Guile.compile (self)
     def install (self):
@@ -173,30 +148,19 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
         self.system ('''mv %(install_prefix)s/lib/lib*[0-9].la %(install_prefix)s/bin''')
 
 class Guile__linux (Guile):
-    def compile_command (self):
-        # FIXME: when not x-building, guile runs guile without
-        # setting the proper LD_LIBRARY_PATH.
-        # FIXME: try removing this and using cross_compiling=yes fix
-        return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
-                + Guile.compile_command (self))
+    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
+                + Guile.compile_command)
 
 class Guile__linux__ppc (Guile__linux):
-    def config_cache_overrides (self, str):
-        return str + "\nguile_cv_have_libc_stack_end=no\n"
+    config_cache_overrides = Guile__linux.config_cache_overrides + '''
+guile_cv_have_libc_stack_end=no
+'''
 
 class Guile__freebsd (Guile):
-    def config_cache_settings (self):
-        return (Guile.config_cache_settings (self)
-                + '''
+    config_cache_overrides = Guile.config_cache_overrides + '''
 ac_cv_type_socklen_t=yes
 guile_cv_use_csqrt="no"
-''')
-    def configure_command (self):
-        return (Guile.configure_command (self)
-                # FIXME: eradicate LD_LIBRARY_PATH from guile.py
-                .replace ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} ', '')
-                + Guile.configure_flags (self)
-                + Guile.configure_variables (self))
+'''
 
 class Guile__darwin (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
@@ -216,139 +180,39 @@ class Guile__darwin__x86 (Guile__darwin):
         self.file_sub ([('guile-readline', '')],
                        '%(srcdir)s/Makefile.in')
         Guile__darwin.configure (self)
-        
-class Guile__cygwin (Guile):
-    def category_dict (self):
-        return {'': 'Interpreters'}
-    # Using gub dependencies only would be nice, but
-    # we need to a lot of gup.gub_to_distro_deps ().
-    def GUB_get_dependency_dict (self):
-        d = Guile.get_dependency_dict (self)
-        d['runtime'].append ('cygwin')
-        return d
-    # Using gub dependencies only would be nice, but
-    # we need to a lot of gup.gub_to_distro_deps ().
-    def GUB_get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) + ['libiconv-devel']
-    # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self): #cygwin
-        d = Guile.get_dependency_dict (self)
-        d[''] += ['cygwin']
-        d['devel'] += ['cygwin'] + ['bash']
-        d['runtime'] += ['cygwin', 'crypt', 'libreadline6']
-        return d
-    # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self): # cygwin
-        return ['crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
-    def config_cache_overrides (self, str):
-        return str + '''
-guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
-guile_cv_exeext=${guile_cv_exeext=}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
-'''
-    def configure (self):
-        self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
-                       '%(srcdir)s/configure')
-        Guile.configure (self)
-        if 0:  # should be fixed in w32.py already
-            self.file_sub ([
-                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
-                           '%(builddir)s/libtool')
-            self.file_sub ([
-                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
-                           '%(builddir)s/guile-readline/libtool')
-    # C&P from Guile__mingw
-    def compile (self):
-        ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile &&make %(makeflags_for_build)sCFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
-        self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
-        Guile.compile (self)
-    def description_dict (self):
-        return {
-            '': """The GNU extension language and Scheme interpreter - executables
-Guile, the GNU Ubiquitous Intelligent Language for Extension, is a scheme
-implementation designed for real world programming, supporting a
-rich Unix interface, a module system, and undergoing rapid development.
-
-`guile' is a scheme interpreter that can execute scheme scripts (with a
-#! line at the top of the file), or run as an inferior scheme
-process inside Emacs.
-""",
-            'runtime': '''The GNU extension language and Scheme interpreter - runtime
-Guile shared object libraries and the ice-9 scheme module.  Guile is
-the GNU Ubiquitous Intelligent Language for Extension.
-''',
-            'devel': """The GNU extension language and Scheme interpreter - development
-`libguile.h' etc. C headers, aclocal macros, the `guile-snarf' and
-`guile-config' utilities, and static `libguile.a' libraries for Guile,
-the GNU Ubiquitous Intelligent Language for Extension.
-""",
-            'doc': """The GNU extension language and Scheme interpreter - documentation
-This package contains the documentation for guile, including both
-a reference manual (via `info guile'), and a tutorial (via `info
-guile-tut').
-""",
-    }
 
 class Guile__linux__x86 (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
-    def FIXED_in_1_8_7_configure_command (self):
-        return (Guile.configure_command (self)
-                .replace ('--without-threads', '--with-threads=pthread'))
-    # all of a sudden, with linux-x86 guile I get this, so let's try using
-    # threads?
-    '''
-/home/janneke/vc/gub/target/linux-x86/build/guile-1.8.6/pre-inst-guile -s /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/compile-psyntax.scm \
-                /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.ss /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.pp
-ERROR: Stack overflow
-make[3]: *** [psyntax.pp] Error 1
-'''
-    def FIXED_in_1_8_7_config_cache_overrides (self, string):
-        return string + '''
-ac_cv_pthread_attr_getstack_works=${ac_cv_pthread_attr_getstack_works=no}
-ac_cv_func_pthread_attr_getstack=${ac_cv_func_pthread_attr_getstack=yes}
-ac_cv_func_pthread_get_stackaddr_np=${ac_cv_func_pthread_get_stackaddr_np=no}
-ac_cv_func_pthread_getattr_np=${ac_cv_func_pthread_getattr_np=yes}
-ac_cv_func_pthread_sigmask=${ac_cv_func_pthread_sigmask=yes}
-'''
 
 class Guile__tools (tools.AutoBuild, Guile):
-    def _get_build_dependencies (self):
-        return (Guile._get_build_dependencies (self)
+    dependencies = (Guile.dependencies
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
-    def patch (self):
-        tools.AutoBuild.patch (self)
-        Guile.autopatch (self)
-    def configure_command (self):
-        # FIXME: when configuring, guile runs binaries linked against
-        # libltdl.
-        return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
-                + tools.AutoBuild.configure_command (self)
-                + Guile.configure_flags (self))
-    def compile_command (self):
-        # FIXME: when not x-building, guile runs gen_scmconfig, guile without
-        # setting the proper LD_LIBRARY_PATH.
-        return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
-                + Guile.compile_command (self))
-    def makeflags (self):
-        return Guile.makeflags (self)
-    def makeflags_for_build (self):
-        # Doing make gen-scmconfig, guile starts a configure recheck:
-        #    cd .. && make  am--refresh
-        #    /bin/sh ./config.status --recheck
-        # leading to
-        #    checking size of char... 0
-        # Great idea, let's re-check!  You never know... :-)
-        return misc.join_lines ('''
+    make_flags = Guile.make_flags
+    # Doing make gen-scmconfig, guile starts a configure recheck:
+    #    cd .. && make  am--refresh
+    #    /bin/sh ./config.status --recheck
+    # leading to
+    #    checking size of char... 0
+    # Great idea, let's re-check!  You never know... :-)
+    compile_flags_native = misc.join_lines ('''
 LD_LIBRARY_PATH=%(system_prefix)s/lib
 CFLAGS='-I%(system_prefix)s/include'
 LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
 ''')
+    configure_command = ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                         + tools.AutoBuild.configure_command
+                         + Guile.guile_configure_flags)
+    # FIXME: when configuring, guile runs binaries linked against
+    # libltdl.
+    # FIXME: when not x-building, guile runs gen_scmconfig, guile without
+    # setting the proper LD_LIBRARY_PATH.
+    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
+                + Guile.compile_command)
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        Guile.autopatch (self)
     def install (self):
         tools.AutoBuild.install (self)
         # Ugh: remove development stuff from tools
         # Make sure no tool GUILE headers can interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
-    def wrap_executables (self):
-        # using rpath
-        pass

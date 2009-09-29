@@ -1,3 +1,11 @@
+GUB the Grand Unified Builder
+
+  • Home
+  • Basics
+  • Applications
+  • History
+  • Links
+
 GUB -- Grand Unified Builder
 
 WHAT IS GUB
@@ -8,8 +16,40 @@ their dependencies and assembles them into a single installation package.
 
 GUB aims at correctness ie, be dependable and reproducible, while avoiding
 gratituous rebuilds. It was originally developed for turnkey building of all
-LilyPond binary installers. Currently it supports the following target
-platforms.
+LilyPond binary installers. Currently, GUB supports GNU/Linux, FreeBSD, MacOS-X
+and Microsoft Windows installation packages. All packages are fully relocatable
+and can be installed with user privileges.
+
+GUB uses plain Python classes to describe package build specifics. For
+reasonably well behaved packages, individual build specifications can stay very
+simple by extending the generic build specification classes.
+
+USAGE
+
+Run these programs with --help argument for instructions
+
+  bin/gpkg              - Gub Package Manager
+  bin/gub               - the Gub Universal Builder
+  bin/gib               - Gub (platform dependent) Installer Builder
+  bin/gub-tester        - build tester; integrates with
+                             Bazaar,CVS,Darcs,Git,SVN and gub
+  bin/gupdate           - check for and show or update new upstream releases
+  bin/cygwin-packager   - roll cygwin package
+
+BUGS
+
+Send bug reports and patches to lilypond-devel@gnu.org.
+
+Supported installer packages
+
+GNU Denemo
+Inkscape
+GNU LilyPond
+OpenOffice.org
+with all essential dependencies. Currently, 207 package build specifications
+are included in GUB.
+
+Supported installer platforms
 
 darwin-ppc
    tar.bz2 file for Darwin 7 (MacOS 10.3)/PowerPC
@@ -70,21 +110,13 @@ GUB home page
 INSTALLING
 
 * You need
-
   - about 9 GB of free space (for all platforms)
-
   - standard unix shell utilities: cat, cp, install, mv, rm, sed, ...
-
   - a standard unix development environment with GCC and G++
-
-  - Python 2.4 or newer (2.5, 3.0 are known to work)
-
-  - Perl
+  - Python 2.4 or newer (2.5, 2.6, 3.0 are known to work)
 
 * Try
-
   bin/gub --help
-
   make help
 
 Examples
@@ -121,53 +153,169 @@ Examples
 
     this leaves the Windows installer in uploads/
 
-See also GNU LilyPond, Inkscape, OpenOffice.org, and GNU Denemo.
+GUB the Grand Unified Builder
 
-USAGE
+  • Home
+  • Basics
+  • Applications
+  • History
+  • Links
 
-Run these programs with --help argument for instructions
+GUB BASICS
 
-  bin/gpkg              - Gub Package Manager
-  bin/gub               - the Gub Universal Builder
-  bin/gib               - Gub (platform dependent) Installer Builder
-  bin/gub-tester        - build tester; integrates with
-                             Bazaar,CVS,Darcs,Git,SVN and gub
-  bin/cygwin-packager   - roll cygwin package
+ROADMAP
 
-HISTORY
+       directory                            contents and use
+. (GNUmakefile, *.make)  make drivers (try: make help)
+bin/                     programs (gub, gpkg, gib, ...; try: bin/gub --help)
+gub/                     python library
+gub/specs/               build specifications (gub/specs/
+                         hello.py,bison.py,denemo.py,lilypond.py...)
+patches/                 patch files used in build specifications
+target/                  build trees
+log/ (gub.log, ...)      (build) log files
+uploads/                 installers
+target/<platform>/       working tree for <platform>
+target/linux-x86/src/    linux-x86 unpacked sources
+target/linux-64/build/   linux-64 build output
+target/darwin-x86/log/   darwin-x86 most recent lilypond build log
+lilypond.log
+target/mingw/packages/   .gup packages for mingw
+target/darwin-ppc/log/   status of partial darwin-ppc builds
+status/
+target/freebsd-x86/root/ freebsd-x86 build and install root
+target/tools/root/usr/   native tools used for build
+bin/
+sourcefiles/             non-patch files used in build specifications
+nsis/                    nsis windows installer scripts
 
-The story starts June 1999 with a crazy guy with an itch to run LilyPond on
-Windows. To get a feel for the times, this was LilyPond-1.1.47, requiring Egcs
-1.1, Python 1.5, Guile 1.3, discussing on help-gnu-music@gnu.org. Two years
-later Cygwin cross, our first cross build environment is released.
+BASIC USAGE
 
-This is evolved into a patch set for mknetrel. Spring 2005: In a bold move a
-set of patches for MinGW are created to build LilyPond and all its [17]
-dependencies. Simultaniously, a cross build environment and installer for
-MacOSX is created.
+Build package foo for platform bar
 
-Creating a cross build environment is not too difficult, esp. not if you know
-how to use Google. The problem is that they always break and never work on
-other machines. GUB starts as an effort to unify the Windows and MacOS builders
-and to make the process somewhat dependable and reproducible, i.e.: even more
-free time for the developers (if there is such a thing) as the builds always
-succeed. It uses Python instead of make and bash and adds checksums for the
-package build specs. The unification of cross builds greatly facilitates adding
-of new architectures and before long GUB supports cross building lilypond
-binaries for 9 different platforms.
+    bin/gub bar::foo
 
-GUB2 adds serialization of the Python build code before execution. This makes
-the build checksumming less coarse, ie, less gratuitous rebuilds and more
-reliable. Also, all Python code is executed before the build process starts,
-which means that there is less chance of silly run time errors. Lots of
-packages are added in an effort to replace the OpenEmbedded-based build system
-for the Samco 3G video phone at SES, Philips Research Eindhoven.
+Force a rebuild of package foo for all platforms
 
-In Novell's Hackweek-iii GUB enters into its Third Life with GUB3, adding
-cross-platform build dependencies and patches for an OpenOffice.org MinGW cross
-build, including all essential libraries. Later, Inkscape is added, exploring
-and implementing x.org dependencies.
+    rm -rf target/*/*/foo-*
 
+search from end back to `mismatch:' [F?mismatch:RET] Examine why package foo
+wants to rebuild
+
+    less target/bar/log/build.log
+
+search from end back to `mismatch:' [F?mismatch:RET] Prepare to rebuild entire
+platform bar
+
+    rm -rf target/bar
+
+Remove all build output
+
+    rm -rf target
+
+SPEC FILES
+
+Plain url builds
+
+<--no spec-->
+
+Well behaved packages can be built without spec file, straight from an url. For
+example, to build bison-2.2 as a build tool, do
+
+    bin/gub tools::http://ftp.gnu.org/pub/gnu/bison/bison-2.2.tar.gz
+
+
+This produces
+
+    target/tools/packages/bison-2.2.tools.gup
+    target/tools/packages/bison.tools.hdr
+    target/tools/packages/bison.checksum
+
+
+Check files installed under target/tools/root/ by doing
+
+    bin/gpkg -p tools files bison
+
+
+To build the very latest findutils for your architecture, do
+
+    bin/gub git://git.savannah.gnu.org/findutils.git
+
+
+Simple spec
+
+gub/specs/hello.py
+
+    from gub import target
+
+    class Hello (target.AutoBuild):
+        source = 'http://lilypond.org/download/gub-sources/hello-1.0.tar.gz'
+
+
+build it for mingw by doing
+
+    bin/gub mingw::hello
+
+
+__TOOLS package with dependencies
+
+gub/specs/autoconf.py
+
+    from gub import tools
+
+    class Autoconf__tools (tools.AutoBuild):
+        source = 'http://ftp.gnu.org/pub/gnu/autoconf/autoconf-2.63.tar.gz'
+        parallel_build_broken = True
+        dependencies = [
+            'm4',
+            'perl',
+            ]
+
+
+build it by doing
+
+    bin/gub tools::autoconf
+
+
+configure flags
+
+gub/specs/icoutils.py
+
+    from gub import tools
+
+    class Icoutils__tools (tools.AutoBuild):
+        dependencies = ['libpng-devel']
+        configure_flags = (tools.AutoBuild.configure_flags
+                           + ' --with-libintl-prefix=%(system_prefix)s'
+                           + ' --disable-nls')
+
+
+__<platform>__<arch>-specific instructions
+
+For platform specific instructions, append "__<platform>" to the class name.
+For platform+architecture-specific instructions, "__<platform>__<arch>" to the
+class name. gub/specs/pixman.py
+
+    from gub import target
+
+    class Glib (target.AutoBuild):
+        ...
+
+    class Glib__freebsd (Glib):
+        dependencies = Glib.dependencies + ['libiconv-devel']
+        configure_variables = Glib.configure_variables + ' CFLAGS=-pthread'
+
+    class Glib__freebsd__x86 (Glib__freebsd):
+        # Must include -pthread in lib flags, because our most beloved
+        # libtool (2.2.6a) thinks it knows best and blondly strips -pthread
+        # if it thinks it's a compile flag.
+        # FIXME: should add fixup to update_libtool ()
+        compile_flags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
+
+
+More examples
+
+See gub/specs/*.py for some more examples.
 GUB -- LilyPond
 
 INSTALLING
@@ -181,12 +329,6 @@ or
 In addition to the requirements for GUB, you need
 
   • A TeX installation
-  • A subversion client
-  • perl-ExtUtils-MakeMaker (imagemagick dep.)
-
-Optional: Prepare build environment
-
-  make -f lilypond.make bootstrap
 
 Build everything
 
@@ -228,6 +370,10 @@ More examples
     this leaves installers for GNU/Linux (x86, x86_64, powerpc),
     Windows, MacOSX (x86 and powerpc), FreeBSD (x86, x86_64) and
     documentation in uploads/
+
+  * Optional: Prepare build environment
+
+      make -f lilypond.make bootstrap
 
 TESTING
 
@@ -272,6 +418,46 @@ I have the following in my crontab
       --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org\
                       --smtp smtp.xs4all.nl --repository downloads/lilypond.git"\
       darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64 darwin-ppc
+
+GUB -- GNU Denemo
+
+INSTALLING
+
+Get GUB
+
+    git clone git://github.com/janneke/gub.git
+or
+    wget http://github.com/janneke/gub/tarball/master
+
+Build everything
+
+  make denemo
+
+this produces a windows installer in
+
+  uploads/denemo-x.y.z-b.mingw.exe
+
+More examples
+
+  * Build main Denemo installers
+
+      make PLATFORMS='mingw linux-x86 linux-64' denemo
+
+  * Build all Denemo installers
+
+      make 'PLATFORMS=mingw linux-x86 linux-64 linux-ppc darwin-ppc darwin-x86 freebsd-x86 freebsd-64' denemo
+
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    FreeBSD (x86, x86_64) and Windows, and documentation in uploads/
+
+    OR (old style)
+
+      bin/gub denemo
+      bin/gib denemo --branch=lilypond=git.sv.gnu.org--lilypond.git-master --branch=denemo=git.savannah.gnu.org--denemo.git-master
+
+  * Optional: Prepare build environment
+
+      make -f lilypond.make bootstrap
 
 GUB -- Inkscape
 
@@ -336,10 +522,6 @@ bits of the mingw32 cross build to openSUSE's osc build system.
 When jcorrius announces it works, his fixes will be incorporated in GUB to
 provide turnkey OpenOffice.org Windows binaries and installers.
 
-Optional: Prepare build environment
-
-  make -f openoffice.make bootstrap
-
 Build everything
 
   make openoffice
@@ -358,6 +540,10 @@ More examples
 
       bin/gib mingw::openoffice
 
+  * Optional: Prepare build environment
+
+      make -f lilypond.make bootstrap
+
 The package
 
   bin/gub tools::openoffice
@@ -367,5 +553,71 @@ the build tools.
 
 See also
 
-github.com/janneke/gub/tree/master/patches
+http://github.com/janneke/gub/tree/master/patches
+http://lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build
+GUB the Grand Unified Builder
+
+  • Home
+  • Basics
+  • Applications
+  • History
+  • Links
+
+GUB -- Grand Unified Builder -- HISTORY
+
+HISTORY
+
+The story starts June 1999 with a crazy guy with an itch to run LilyPond on
+Windows. To get a feel for the times, this was LilyPond-1.1.47, requiring Egcs
+1.1, Python 1.5, Guile 1.3, discussing on help-gnu-music@gnu.org. Two years
+later Cygwin cross, our first cross build environment is released.
+
+This is evolved into a patch set for mknetrel. Spring 2005: In a bold move a
+set of patches for MinGW are created to build LilyPond and all its [17]
+dependencies. Simultaniously, a cross build environment and installer for
+MacOSX is created.
+
+Creating a cross build environment is not too difficult, esp. not if you know
+how to use Google. The problem is that they always break and never work on
+other machines. GUB starts as an effort to unify the Windows and MacOS builders
+and to make the process somewhat dependable and reproducible, i.e.: even more
+free time for the developers (if there is such a thing) as the builds always
+succeed. It uses Python instead of make and bash and adds checksums for the
+package build specs. The unification of cross builds greatly facilitates adding
+of new architectures and before long GUB supports cross building lilypond
+binaries for 9 different platforms.
+
+GUB2 adds serialization of the Python build code before execution. This makes
+the build checksumming less coarse, ie, less gratuitous rebuilds and more
+reliable. Also, all Python code is executed before the build process starts,
+which means that there is less chance of silly run time errors. Lots of
+packages are added in an effort to replace the OpenEmbedded-based build system
+for the Samco 3G video phone at SES, Philips Research Eindhoven.
+
+In Novell's Hackweek-iii GUB enters into its Third Life with GUB3, adding
+cross-platform build dependencies and patches for an OpenOffice.org MinGW cross
+build, including all essential libraries. Later, Inkscape is added, exploring
+and implementing x.org dependencies. After that, building a windows installer
+for GNU Denemo took only one day, including all dependencies.
+
+GUB the Grand Unified Builder
+
+  • Home
+  • Basics
+  • Applications
+  • History
+  • Links
+
+Links
+
+autopackage.org
+openSUSE build service
+codesourcery.com
+pre-GUB LilyPond installers
+emdebian.org
+GUB build specifications
+GUB patches
 lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build
+openembedded.org
+scratchbox.org
+Scratbox2; sb2 Dan Kegel's crosstool

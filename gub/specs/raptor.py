@@ -5,33 +5,28 @@ from gub import target
 class Raptor (target.AutoBuild):
     source = 'http://download.librdf.org/source/raptor-1.4.18.tar.gz'
     patches = ['raptor-1.4.18-cross.patch']
-    def _get_build_dependencies (self):
-        return ['curl-devel', 'expat-devel', 'libxml2-devel', 'libxslt-devel', 'tools::flex', 'tools::autoconf', 'tools::automake', 'tools::libtool', 'tools::gtk_doc']
-    def autoupdate (self):
-        self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]
-                       , '%(srcdir)s/configure.ac')
-        self.runner._execute (commands.ForcedAutogenMagic (self))
-    def config_cache_overrides (self, str):
-        return str + '''
+    dependencies = ['curl-devel', 'expat-devel', 'libxml2-devel', 'libxslt-devel', 'tools::flex', 'tools::autoconf', 'tools::automake', 'tools::libtool', 'tools::gtk_doc']
+    config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
 ac_cv_vsnprint_result_c99=1
 ac_cv_libxmlparse_xml_parsercreate=no
 ac_cv_expat_xml_parsercreate=yes
 ac_cv_expat_initial_utf8_bom=yes
 '''
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-maintainer-mode
 '''))
+    def autoupdate (self):
+        self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]
+                       , '%(srcdir)s/configure.ac')
+        self.runner._execute (commands.ForcedAutogenMagic (self))
     def config_script (self):
         return 'raptor-config'
 
 class Raptor__mingw (Raptor):
-    def makeflags (self):
 #        return '''CFLAGS='-Dstrtok_r\(s,d,p\)=strtok\(s,d\)' '''
-        return '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    make_flags = '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-maintainer-mode
 --enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"
@@ -39,8 +34,7 @@ class Raptor__mingw (Raptor):
 #--enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"
 
 class Raptor__darwin (Raptor):
-    def _get_build_dependencies (self):
-        return [x for x in Raptor._get_build_dependencies (self)
+    dependencies = [x for x in Raptor.dependencies
                 if x.replace ('-devel', '') not in [
                 'libxml2', # Included in darwin-sdk, hmm?
                 ]]

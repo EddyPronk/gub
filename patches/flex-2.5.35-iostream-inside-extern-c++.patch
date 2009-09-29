@@ -1,0 +1,18 @@
+--- flex-2.5.35/FlexLexer.h~	2007-04-13 19:24:46.000000000 +0200
++++ flex-2.5.35/FlexLexer.h	2009-09-28 15:26:49.141042809 +0200
+@@ -48,13 +48,13 @@
+ // Never included before - need to define base class.
+ #define __FLEX_LEXER_H
+ 
++extern "C++" {
++
+ #include <iostream>
+ #  ifndef FLEX_STD
+ #    define FLEX_STD std::
+ #  endif
+ 
+-extern "C++" {
+-
+ struct yy_buffer_state;
+ typedef int yy_state_type;
+ 

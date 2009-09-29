@@ -9,5 +9,4 @@ class Urw_fonts (build.BinaryBuild):
         self.system ('cp %(srcdir)s/* %(install_prefix)s/share/fonts/default/Type1/')
     def package (self):
         build.AutoBuild.package (self)
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']

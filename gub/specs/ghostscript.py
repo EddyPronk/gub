@@ -24,6 +24,27 @@ models.'''
     # HEAD - need to load TTF fonts on fedora without crashing.
     revision = 'b35333cf3579e85725bd7d8d39eacc9640515eb8'
     source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
+    parallel_build_broken = True
+    # For --enable-compile-inits, see comment in compile()
+    configure_flags = (target.AutoBuild.configure_flags
+                       + misc.join_lines ('''
+--enable-debug
+--with-drivers=FILES
+--without-pdftoraster
+--disable-fontconfig 
+--disable-gtk
+--disable-cairo
+--without-x
+--disable-cups
+--without-ijs
+--without-omni
+--without-jasper
+--disable-compile-inits
+'''))
+    compile_flags = (' INCLUDE=%(system_prefix)s/include'
+                     + ' PSDOCDIR=%(prefix_dir)s/share/doc'
+                     + ' PSMANDIR=%(prefix_dir)s/share/man'
+                     + r''' XLDFLAGS='%(shell_rpath)s' ''')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -40,30 +61,19 @@ models.'''
         except:
             pass
         return '0.0'
-    def force_sequential_build (self):
-        return True
-    
-    def _get_build_dependencies (self):
-        return ['libjpeg-devel', 'libpng-devel']
-
-    def get_subpackage_names (self):
-        return ['doc', '']
-    
+    dependencies = ['libjpeg-devel', 'libpng-devel']
+    subpackage_names = ['doc', '']
     def srcdir (self):
         return re.sub ('-source', '',
                        target.AutoBuild.srcdir (self))
-
     def builddir (self):
         return re.sub ('-source', '',
                        target.AutoBuild.builddir (self))
-
     def name (self):
         return 'ghostscript'
-
     # FIXME: C&P.
     def ghostscript_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
-
     def autoupdate (self):
         # generate Makefile.in
         self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
@@ -73,7 +83,6 @@ models.'''
                                    'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
         self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
-        
     def fixup_arch (self):
         # FIXME: wow, this is broken, cross-compile-wise.  Use a compiled
         # c program to determine the size of basic types *after* an
@@ -119,32 +128,9 @@ models.'''
              ('#define ARCH_SIZEOF_PTR [0-9]',
               '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
              ], '%(builddir)s/obj/arch.h')
-
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
-
-    def configure_flags (self):
-        # For --enable-compile-inits, see comment in compile()
-        return misc.join_lines ('''
---enable-debug
---with-drivers=FILES
---without-pdftoraster
---disable-fontconfig 
---disable-gtk
---disable-cairo
---without-x
---disable-cups
---without-ijs
---without-omni
---without-jasper
---disable-compile-inits
-''')
-
     def configure (self):
         target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
-
     def makefile_fixup (self, file):
         self.file_sub ([
             ('-Dmalloc=rpl_malloc', ''),
@@ -174,15 +160,6 @@ models.'''
     def shell_rpath (self):
         return self.rpath ().replace (r'\$', r'\\\$')
 
-    def compile_flags (self):
-        return (' INCLUDE=%(system_prefix)s/include'
-                + ' PSDOCDIR=%(prefix_dir)s/share/doc'
-                + ' PSMANDIR=%(prefix_dir)s/share/man'
-                + r''' XLDFLAGS='%(shell_rpath)s' ''')
-
-    def compile_command (self):
-        return target.AutoBuild.compile_command (self) + self.compile_flags ()
-
     def compile (self):
         # obj/mkromfs is needed for --enable-compile-inits but depends on native -liconv.
         self.system ('''
@@ -192,8 +169,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
         self.fixup_arch ()
         target.AutoBuild.compile (self)
 
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
@@ -220,11 +196,9 @@ class Ghostscript__mingw (Ghostscript):
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
-    def config_cache_overrides (self, s):
-        return s + '''
+    config_cache_overrides = Ghostscript.config_cache_overrides + '''
 ac_cv_lib_pthread_pthread_create=no
 '''
-    
     def patch (self):
         self.symlink('base', self.expand('%(srcdir)s/src'))
         Ghostscript.patch (self)
@@ -251,136 +225,17 @@ include $(GLSRCDIR)/winplat.mak
              mode='a')
 
 class Ghostscript__freebsd (Ghostscript):
-    def _get_build_dependencies (self):
-        return Ghostscript._get_build_dependencies (self) + ['libiconv-devel']
-
-url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
-url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
-
-#8250
-class Ghostscript__cygwin (Ghostscript):
-    patches = ['ghostscript-8.15-windows-wb.patch',
-               'ghostscript-8.57-cygwin-esp.patch']
-    def __init__ (self, settings, source):
-        Ghostscript.__init__ (self, settings, source)
-        self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
-    def connect_command_runner (self, runner):
-        printf ('FIXME: deferred workaround: should support multiple sources')
-        if (runner):
-            self.fonts_source.connect_logger (runner.logger)
-        return Ghostscript.connect_command_runner (self, runner)
-    def download (self):
-        Ghostscript.download (self)
-        self.fonts_source.download ()
-    def autoupdate (self):
-        self.system ('''
-cd %(srcdir)s && sh ./autogen.sh --help
-cd %(srcdir)s && cp Makefile.in Makefile-x11.in
-''')
-    def patch (self):
-        from gub import cygwin
-        cygwin.libpng12_fixup (self)
-        Ghostscript.patch (self)
-    def category_dict (self):
-        return {'': 'Graphics'}
-    def get_build_dependencies (self): #cygwin
-        return ['jpeg', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib']
-    def get_dependency_dict (self): #cygwin
-        return {'': [
-                # REMOVE after first cygwin release.
-                'ghostscript-base',
-                'libjpeg62', 'libpng12', 'zlib'],
-                'x11': ['ghostscript', 'xorg-x11-base']}
-    def get_subpackage_names (self):
-        return ['doc', 'x11', '',
-                # REMOVE after first cygwin release.
-                'base']
-    # REMOVE after first cygwin release.
-    def get_subpackage_definitions (self):
-        d = Ghostscript.get_subpackage_definitions (self)
-        d['base'] = []
-        return d
-    def configure_command (self):
-        return (Ghostscript.configure_command (self)
-                .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
-    def compile (self):
-        self.system ('''
-mkdir -p %(builddir)s
-cd %(builddir)s && rm -f obj/*.tr
-''')
-        Ghostscript.compile (self)
-# X11 stuff
-    def stages (self):
-        return misc.list_insert_before (Ghostscript.stages (self),
-                                        'package',
-                                        ['configure_x11', 'compile_x11',
-                                         'install_x11', 'install_fonts'])
-    def config_cache (self):
-        Ghostscript.config_cache (self)
-        self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')
-    @context.subst_method
-    def configure_command_x11 (self):
-        return ('CONFIG_FILES=Makefile-x11'
-                + ' CONFIG_STATUS=config-x11.status'
-                + ' ' + self.configure_command ()
-                .replace ('--without-x', '--with-x')
-                .replace ('--config-cache', '--cache-file=config-x11.cache')
-                + ' --x-includes=%(system_prefix)s/X11R6/include'
-                + ' --x-libraries=%(system_prefix)s/X11R6/lib'
-                + ' Makefile')
-    def configure_x11 (self):
-        self.system ('''
-mkdir -p %(builddir)s
-cd %(builddir)s && %(configure_command_x11)s
-''')
-        self.makefile_fixup ('%(builddir)s/Makefile-x11')
-    @context.subst_method
-    def compile_command_x11 (self):
-        return Ghostscript.compile_command (self) + ' -f Makefile-x11 GS=gs-x11.exe'
-    def compile_x11 (self):
-        self.system ('''
-cd %(builddir)s && rm -f obj/*.tr
-cd %(builddir)s && %(compile_command_x11)s
-''')
-    @context.subst_method
-    def install_command_x11 (self):
-        return (Ghostscript.install_command (self)
-                .replace (' install ', ' install-exec ')
-                + ' -f Makefile-x11 GS=gs-x11.exe prefix=/usr/X11R6')
-    def install_x11 (self):
-        self.system ('''
-cd %(builddir)s && %(install_command_x11)s
-cd %(install_prefix)s && rm -rf usr/X11R6/share
-''')
-    def install_fonts (self):
-        printf ('FIXME: deferred workaround')
-#        deferred_dump (self.font_source.update_workdir (fontdir))
-        fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
-        def defer (logger):
-            self.fonts_source.update_workdir (fontdir)
-        self.func (defer)
-    def makeflags (self):
-        # Link to binmode to fix text mode mount problem
-        # http://cygwin.com/ml/cygwin/2002-07/msg02302.html
-        # although text mode mounts are considered evil...
-        return ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
-    # REMOVE after first cygwin release.
-    def description_dict (self):
-        return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
+    dependencies = Ghostscript.dependencies + ['libiconv-devel']
 
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
-    def _get_build_dependencies (self):
-        return ['libjpeg', 'libpng']
-    def force_sequential_build (self):
-        return True
-    def configure_flags (self):
-        return (tools.AutoBuild.configure_flags (self)
-                + Ghostscript.configure_flags (self))
+    parallel_build_broken = True
+    dependencies = ['libjpeg', 'libpng']
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + Ghostscript.configure_flags)
+    make_flags = Ghostscript.make_flags
     def configure (self):
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
-    def compile_command (self):
-        return tools.AutoBuild.compile_command (self) + self.compile_flags ()
     def compile (self):
         self.system ('''
 cd %(builddir)s && mkdir -p obj
@@ -391,13 +246,9 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
 ''')
 #        self.fixup_arch ()
         tools.AutoBuild.compile (self)
-    def install_command (self):
-        return (tools.AutoBuild.install_command (self)
+    install_command = (tools.AutoBuild.install_command
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
-    def wrap_executables (self):
-        # using rpath
-        pass

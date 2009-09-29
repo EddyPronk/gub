@@ -6,18 +6,16 @@ from gub import target
 from gub import tools
 
 class Gmp (target.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
         if 'stat' in misc.librestrict ():
             build.add_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash'})
-    def _get_build_dependencies (self):
-        return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + ' --disable-cxx ')
+    dependencies = ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
+    configure_flags = (target.AutoBuild.configure_flags
+                       + ' --disable-cxx ')
     def configure (self):
         target.AutoBuild.configure (self)
         # automake's Makefile.in's too old for new libtool,
@@ -43,11 +41,7 @@ class Gmp__darwin (Gmp):
                        '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
-
-class Gmp__cygwin (Gmp):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
-    patches = ['gmp-4.1.4-1.patch']
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__mingw (Gmp):
     patches = ['gmp-4.1.4-1.patch']
@@ -62,8 +56,7 @@ mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
 class Gmp__freebsd (Gmp):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__tools (tools.AutoBuild, Gmp):
-    def _get_build_dependencies (self):
-        return ['bison', 'flex', 'libtool']
+    dependencies = ['bison', 'flex', 'libtool']

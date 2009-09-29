@@ -8,19 +8,9 @@ from gub import misc
 from gub import loggedos
 
 class AutoBuild (build.AutoBuild):
-    def __init__ (self, settings, source):
-        build.AutoBuild.__init__ (self, settings, source)
-
-    @context.subst_method
-    def configure_command_native (self):
-        return build.AutoBuild.configure_command (self)
-
-    def configure_command (self):
-        SHELL = ''
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/sh'
-        return (misc.join_lines ('''%(configure_binary)s
---config-cache
+    configure_flags = (build.AutoBuild.configure_flags
+                       + misc.join_lines ('''
+--cache-file=config.cache
 --enable-shared
 --disable-static
 --disable-silent-rules
@@ -33,9 +23,25 @@ class AutoBuild (build.AutoBuild):
 --infodir=%(prefix_dir)s/share/info
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
-''')
-# --with-slibdir=%(prefix)s/slib
-                + SHELL)
+'''))
+    configure_command_native = build.AutoBuild.configure_command
+    compile_flags_native = ''
+    compile_command_native = 'make %(job_spec)s %(compile_flags_native)s '
+    def __init__ (self, settings, source):
+        build.AutoBuild.__init__ (self, settings, source)
+        if 'stat' in misc.librestrict ():
+            self.configure_variables += ' SHELL=%(tools_prefix)s/bin/sh'
+    @context.subst_method
+    def LD_PRELOAD (self):
+        return '%(tools_prefix)s/lib/librestrict.so'
+    def autoupdate (self):
+        build.AutoBuild.autoupdate (self)
+        def defer (logger):
+            if os.path.exists (self.expand ('%(configure_binary)s')):
+                loggedos.file_sub (logger, [('cross_compiling=(maybe|no|yes)',
+                                 'cross_compiling=yes')],
+                                   self.expand ('%(configure_binary)s'))
+        self.func (defer)
 
     def configure (self):
         build.AutoBuild.configure (self)
@@ -63,7 +69,7 @@ class AutoBuild (build.AutoBuild):
                         ('^includedir=/usr/include/*\s*$', 'includedir=%(system_prefix)s/include'),
                         ('^libdir=/usr/lib/*\s*$', 'libdir=%(system_prefix)s/lib'),],
                        '%(install_prefix)s%(cross_dir)s/bin/%(config_script)s',
-                       must_succeed=1)
+                       must_succeed=self.settings.target_platform != 'tools')
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.  libtool inserts -L/usr/lib
@@ -89,24 +95,10 @@ class AutoBuild (build.AutoBuild):
         self.map_locate (fixup, '%(builddir)s', '*.la')
 
     def config_cache_settings (self):
-        return self.config_cache_overrides (config_cache.config_cache['all']
-                                            + config_cache.config_cache[self.settings.platform])
+        return (config_cache.config_cache['all']
+                + config_cache.config_cache[self.settings.platform]
+                + self.config_cache_overrides)
 
-    @context.subst_method
-    def compile_command_native (self):
-        return 'make %(makeflags_native)s '
-
-    @context.subst_method
-    def makeflags_native (self):
-        return ''
-
-    def compile_command (self):
-        c = build.AutoBuild.compile_command (self)
-        if (not self.force_sequential_build () and self.settings.cpu_count_str):
-            c = re.sub (r'\bmake\b',
-                        'make -j%s '% self.settings.cpu_count_str, c)
-        return c
-            
     def get_substitution_dict_native (self):
         return build.AutoBuild.get_substitution_dict
 
@@ -186,35 +178,30 @@ class PythonBuild (AutoBuild):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
-    def install_command (self):
-        return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
+    install_command = 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
 class SConsBuild (AutoBuild):
+    scons_flags = ''
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
-    def compile_command (self):
         # SCons barfs on trailing / on directory names
-        return ('scons PREFIX=%(system_prefix)s'
-                ' PREFIX_DEST=%(install_root)s')
-    def install_command (self):
-        return self.compile_command () + ' install'
+    compile_command = ('scons PREFIX=%(system_prefix)s'
+                ' PREFIX_DEST=%(install_root)s'
+                ' %(compile_flags)s'
+                ' %(scons_flags)s')
+    install_command = compile_command + ' %(install_flags)s'
 
 class WafBuild (AutoBuild):
     def stages (self):
         #return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
         return [s.replace ('autoupdate', 'shadow') for s in AutoBuild.stages (self)]
-    def configure_binary (self):
-        return '%(autodir)s/waf'
-    def configure_command (self):
-        return '%(configure_binary)s configure --prefix=%(install_prefix)s'
-    def compile_command (self):
-        return '%(configure_binary)s build'
-    def install_command (self):
-        return '%(configure_binary)s install'
+    configure_binary = '%(autodir)s/waf'
+    configure_command = '%(configure_binary)s configure --prefix=%(install_prefix)s'
+    compile_command = '%(configure_binary)s build'
+    install_command = '%(configure_binary)s install'
 
 class BjamBuild_v2 (MakeBuild):
-    def _get_build_dependencies (self):
-        return ['tools::boost-jam']
+    dependencies = ['tools::boost-jam']
     def patch (self):
         MakeBuild.patch (self)
         '''http://goodliffe.blogspot.com/2008/05/cross-compiling-boost.html
@@ -232,8 +219,7 @@ using gcc : %(gcc_version)s : %(system_prefix)s%(cross_dir)s/bin/%(CXX)s ;
 ''',
                    '%(srcdir)s/tools/build/v2/user-config.jam',
                    env=locals ())
-    def compile_command (self):
-        return misc.join_lines ('''
+    compile_command = misc.join_lines ('''
 bjam
 -q
 --layout=system
@@ -252,15 +238,14 @@ runtime-link=shared
 threading=multi
 release
 ''')
-    def install_command (self):
-        return (self.compile_command ()
-                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+    install_command = (compile_command
+                       .replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+                       + ' install')
 
 class NullBuild (AutoBuild):
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install (self):
         self.system ('mkdir -p %(install_prefix)s')
 
@@ -272,8 +257,7 @@ class BinaryBuild (AutoBuild):
         _v = '' #self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
         
 class CpanBuild (AutoBuild):
     def stages (self):

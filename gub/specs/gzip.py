@@ -1,6 +1,5 @@
+#
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 no_patch = True # let's not use patch in a bootstrap package
 class Gzip__tools (tools.AutoBuild):

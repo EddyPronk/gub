@@ -1,5 +1,5 @@
 # -*-Makefile-*-
-.PHONY: all default distclean rest print-success print-branches
+.PHONY: all default distclean packages nsis rest print-success print-branches
 .PHONY: clean realclean
 .PHONY: test test-output test-clean
 .PHONY: update-versions unlocked-update-versions
@@ -95,6 +95,10 @@ download-cygwin:
 
 all: packages rest
 
+ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
+rest: nsis
+endif
+
 rest: installers test doc doc-export print-success
 
 test: dist-check test-output test-export
@@ -146,6 +150,9 @@ tools := $(shell $(GUB) --show-dependencies $(foreach p, $(PLATFORMS), $(p)::lil
 
 ptools:
 	$(GUB) --show-dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond $(p)::lilypond-doc $(p)::lilypond-installer) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::'
+
+nsis:
+	bin/gub tools::nsis
 
 ################################################################
 # docs

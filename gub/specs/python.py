@@ -31,51 +31,36 @@ class Python (target.AutoBuild):
         'python-2.4.5-native.patch',
         'python-2.4.5-db4.7.patch',
         ]
+    dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
+    force_autoupdate = True
+    subpackage_names = ['doc', 'devel', 'runtime', '']
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         self.CROSS_ROOT = '%(targetdir)s'
-
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
-
-    def _get_build_dependencies (self):
-        return ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
+        if 'stat' in misc.librestrict ():
+            self.install_command = ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
+                + target.AutoBuild.install_command)
 
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
-
-    def force_autoupdate (self):
-        return True
-
     def autoupdate (self):
         target.AutoBuild.autoupdate (self)
-        # FIXME: PROMOTEME to target.py?
+        # FIXME: REMOVEME/PROMOTEME to target.py?
         if self.settings.build_platform == self.settings.target_platform:
-            self.file_sub ([('cross_compiling=(maybe|yes)', 'cross_compiling=no')],
-                           '%(srcdir)s/configure')
-
-    def makeflags (self):
-       return misc.join_lines (r'''
+            self.file_sub ([('cross_compiling=(maybe|no|yes)',
+                             'cross_compiling=no')], '%(srcdir)s/configure')
+    make_flags = misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
-    def install_command (self):
-        relax = ''
-        if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
-        return (relax
-                + target.AutoBuild.install_command (self))
-    @context.subst_method
-    def SO_EXTENSION (self):
-        return '.so' #FIXME!
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
         def assert_fine (logger):
             dynload_dir = self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload')
-            so = self.SO_EXTENSION ()
+            so = self.expand ('%(so_extension)s')
             all = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*' + so)]
             failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed' + so)]
             if failed:
@@ -117,11 +102,18 @@ class Python__mingw (Python):
         'python-2.4.2-setup.py-selectmodule.patch',
         'python-2.4.5-disable-pwd-mingw.patch',
         ]
+    config_cache_overrides = (Python.config_cache_overrides
+                              #FIXME: promoteme? see Gettext/Python
+                              .replace ('ac_cv_func_select=yes',
+                                        'ac_cv_func_select=no')
+                              + '''
+ac_cv_pthread_system_supported=yes,
+ac_cv_sizeof_pthread_t=12
+''')
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
-    def _get_build_dependencies (self):
-        return Python._get_build_dependencies (self) + ['pthreads-w32-devel']
+    dependencies = Python.dependencies + ['pthreads-w32-devel']
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
@@ -131,20 +123,7 @@ class Python__mingw (Python):
                 ("import fcntl", ""),
                 ], "%(srcdir)s/Lib/subprocess.py",
                must_succeed=True)
-    def config_cache_overrides (self, str):
-        # Ok, I give up.  The python build system wins.  Once
-        # someone manages to get -lwsock32 on the
-        # sharedmodules link command line, *after*
-        # timesmodule.o, this can go away.
-        return (str.replace ('ac_cv_func_select=yes', 'ac_cv_func_select=no')
-                + '''
-ac_cv_pthread_system_supported=yes,
-ac_cv_sizeof_pthread_t=12
-''')
 ##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
-    @context.subst_method
-    def SO_EXTENSION (self):
-        return '.dll' #FIXME!
     def install (self):
         Python.install (self)
         self.file_sub ([('extra = ""', 'extra = "-L%(system_prefix)s/bin -L%(system_prefix)s/lib -lpython2.4 -lpthread"')],
@@ -169,21 +148,14 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__tools (tools.AutoBuild, Python):
 #    patches = ['python-2.4.2-fno-stack-protector.patch']
     patches = []
-    def _get_build_dependencies (self):
-        return ['autoconf', 'libtool']
-    def force_autoupdate (self):
-        return True
-    def makeflags (self):
-        return Python.makeflags (self)
-    def install_command (self):
-        relax = ''
+    dependencies = ['autoconf', 'libtool']
+    force_autoupdate = True
+    make_flags = Python.make_flags
+    def __init__ (self, settings, source):
+        Python.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
-        return (relax
-                + tools.AutoBuild.install_command (self))
-    def wrap_executables (self):
-        # using rpath
-        pass
+            self.install_command = ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
+                                    + tools.AutoBuild.install_command)
     def patch (self):
         tools.AutoBuild.patch (self)
         Python.patch (self)

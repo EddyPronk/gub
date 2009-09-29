@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link REL="stylesheet" TYPE="text/css" HREF="tab-menu.css">
+    <title>GUB -- Grand Unified Builder -- HISTORY</title>
+  </head>
+  <body>
+
+    <div id="tabmenuContainer">
+      <div id="tabmenu">
+	<p class="homeurl">GUB
+	  <span class="subtitle">the Grand Unified Builder</span>
+	</p>
+	
+	<ul>
+	  <li><a class="" href=".">Home</a></li>
+	  <li><a class="" href="basics">Basics</a></li>
+	  <li><a class="" href="applications">Applications</a></li>
+	  <li><a class="active" href="history">History</a></li>
+	  <li><a class="" href="links">Links</a></li>
+	</ul>
+      </div>
+    </div>
+    <div id="tabmenuContents">
+
+      <h1>GUB -- Grand Unified Builder -- HISTORY</h1>
+
+      <h2>HISTORY</h2>
+
+      The story starts June 1999 with a
+      <a href="http://www.sankey.ws/contact.html">crazy guy</a> with an itch
+      to <a href="http://www.sankey.ws/gnunt.html">run LilyPond on
+	Windows</a>.
+
+      To get <a href="http://www.sankey.ws/rpm.html">a feel</a> for the
+      times, this
+      was <a href="http://lilypond.org/download/source/v1.1/">LilyPond-1.1.47</a>,
+      requiring Egcs 1.1, Python 1.5, Guile 1.3, discussing on
+      help-gnu-music@gnu.org.
+
+      Two years later
+      <a href="http://lilypond.org/~janneke/software/cygwin-cross">Cygwin
+	cross</a>, our first cross build environment is released.
+
+      <p>
+	This is evolved into
+	a <a href="http://sourceware.org/ml/cygwin-apps/2002-07/msg00572.html">patch
+	  set for mknetrel</a>.  Spring 2005: In a bold move a
+	<a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/windows">set
+	  of patches for MinGW</a> are created to build LilyPond and all its
+	[17] dependencies.
+	<!--
+	   expat fontconfig freetype gettext ghostscript glib gmp guile
+	   jpeg libiconv libpng libtool lilypad lilypond mingw pango python
+	   regex zlib
+	   !-->
+	Simultaniously, a cross build environment and installer for
+	<a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/macos/">MacOSX</a>
+	is created.
+      </p>
+
+      <p>
+	Creating a cross build environment is not too difficult, esp. not if
+	you know how to use Google.  The problem is that they always break
+	and never work on other machines.  GUB starts as an effort to unify
+	the Windows and MacOS builders and to make the process somewhat
+	dependable and reproducible, i.e.: even more free time for the
+	developers (if there is such a thing) as the builds always succeed.
+	It uses Python instead of make and bash and adds checksums for the
+	package build specs.  The unification of cross builds greatly
+	facilitates adding of new architectures and before long GUB
+	supports cross building lilypond binaries for 9 different platforms.
+      </p>
+
+      <p>
+	GUB2 adds serialization of the Python build code before execution.
+	This makes the build checksumming less coarse, ie, less gratuitous
+	rebuilds and more reliable.  Also, all Python code is executed
+	before the build process starts, which means that there is less
+	chance of silly run time errors.  Lots of packages are added in an
+	effort to replace the OpenEmbedded-based build system for the Samco
+	3G video phone at SES, Philips Research Eindhoven.
+      </p>
+
+      <p>
+	In <a href="http://news.opensuse.org/2008/08/07/announcing-hack-week-iii">Novell's
+	  Hackweek-iii</a> GUB enters into its Third Life with
+	<a href="http://lilypond.org/gub">GUB3</a>, adding cross-platform
+	build dependencies and patches for an <a href="oo.o">OpenOffice.org
+	  MinGW cross build</a>, including all essential libraries.  Later,
+	<a href="inkscape">Inkscape</a> is added, exploring and
+	implementing x.org dependencies.  After that, building a
+	windows installer for <a href="denemo">GNU Denemo</a>
+	took only one day, including all dependencies.
+      </p>
+    </div>
+  </body>
+</html>

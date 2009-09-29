@@ -1,3 +1,4 @@
+from gub import context
 from gub import tools
 from gub import misc
 
@@ -9,8 +10,7 @@ class Librestrict_make__tools (tools.MakeBuild):
         return ['exec', 'open', 'stat']
     def BARFS_WITH_2_5_1_name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'tools::gcc'
             'system::gcc'
             ]
@@ -37,12 +37,12 @@ class Librestrict_make__tools (tools.MakeBuild):
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')
-    def makeflags (self):
-        return 'prefix=%(system_prefix)s'
+    make_flags = 'prefix=%(system_prefix)s'
     def LD_PRELOAD (self):
         return ''
 
 class Librestrict_nomake__tools (Librestrict_make__tools):
+    @context.subst_method
     def compile_command (self):
         # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
         # because glibc-[core-]2.3 will not install with LD_PRELOAD
@@ -64,8 +64,7 @@ class Librestrict_nomake__tools (Librestrict_make__tools):
                         + '\n')
         command += b + 'mv librestrict-all.so librestrict.so'
         return command
-    def install_command (self):
-        return (misc.join_lines ('''
+    install_command = (misc.join_lines ('''
 mkdir -p %(install_prefix)s/lib
 && cp -p librestrict*.so %(install_prefix)s/lib
 '''))

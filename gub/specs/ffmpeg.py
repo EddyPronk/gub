@@ -5,12 +5,10 @@ class Ffmpeg (target.AutoBuild):
     source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017'
     def version (self):
         return self.source.revision
-    def _get_build_dependencies (self):
-        return ['faac-devel', 'faad2-devel', 'a52dec-devel']
-    def configure_command (self):
+    dependencies = ['faac-devel', 'faad2-devel', 'a52dec-devel']
         #FIXME: this is autoconf
-        #target.AutoBuild.configure_command (self)
-        return misc.join_lines ('''
+        #target.AutoBuild.configure_command
+    configure_command = misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --prefix=%(prefix_dir)s
 --cross-prefix=%(cross_prefix)s/bin/%(toolchain_prefix)s
@@ -30,6 +28,5 @@ CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --disable-debug
 --disable-opts
 ''')
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' INSTALLSTRIP=')

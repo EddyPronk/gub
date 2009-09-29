@@ -15,6 +15,13 @@ class Configure (build.Build):
     install_after_build = False
     source = 'foo.tar.gz'
     vc_branch_suffix = ''
+    builddir = 'bar'
+    srcdir = 'foo'
+    configure_prefix = ''
+    configure_command = ''
+    install_prefix = ''
+    install_root = ''
+    job_spec = ''
     def __init__ (self, settings, source):
         build.Build.__init__ (self, settings, source)
         self._name, self._version = (self._created_name + '-').split ('-')[:2]

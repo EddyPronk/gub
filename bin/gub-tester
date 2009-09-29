@@ -21,6 +21,7 @@ import optparse
 import time
 
 from gub.syntax import printf
+from gub import misc
 from gub import repository
 from gub import logging
 from gub.db import bsd as db_bsd
@@ -81,15 +82,7 @@ In a previously git-tester'ed directory:
 gub-tester --update 'make all check'
 
 """
-
-    def format_examples (self):
-        return examples
-    if 'epilog'  in  p.__dict__:
-        p.formatter.format_epilog = format_examples
-        p.epilog = examples
-    else:
-        p.formatter.format_description = format_examples
-        p.description = examples
+    misc.optparse_epilog (p, examples)
     p.add_option ('-t', '--to',
                   action='append',
                   dest='address',
@@ -409,7 +402,12 @@ true' > foo.sh''')
     real_main (options, ['sh foo.sh'], print_results)
     
 def main ():
-    (options, args) = opt_parser ().parse_args ()
+    p = opt_parser ()
+    (options, args) = p.parse_args ()
+    if not args:
+        logging.error ('error: nothing to do\n')
+        p.print_help ()
+        sys.exit (2)
 
     if not os.path.isdir (options.result_dir):
         os.makedirs (options.result_dir)

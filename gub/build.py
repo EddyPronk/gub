@@ -22,13 +22,53 @@ class Build (context.RunnableContext):
     source = ''
     branch = ''
     patches = []
+    dependencies = []
+    config_cache_flag_broken = True
+    force_autoupdate = False
     install_after_build = True
-    
+    parallel_build_broken = False
+    srcdir_build_broken = False
+    autodir = '%(srcdir)s'
+    config_cache_overrides = ''
+    config_cache_file = '%(builddir)s/config.cache'
+    configure_binary = '%(autodir)s/configure'
+    configure_flags = ' --prefix=%(configure_prefix)s'
+    configure_variables = ''
+    compile_flags = ''
+    make_flags = ''
+    install_flags = ''' DESTDIR=%(install_root)s install'''
+    destdir_install_broken = False
+    install_flags_destdir_broken = misc.join_lines ('''
+bindir=%(install_prefix)s/bin
+aclocaldir=%(install_prefix)s/share/aclocal
+datadir=%(install_prefix)s/share
+exec_prefix=%(install_prefix)s
+gcc_tooldir=%(install_prefix)s
+includedir=%(install_prefix)s/include
+infodir=%(install_prefix)s/share/info
+libdir=%(install_prefix)s/lib
+libexecdir=%(install_prefix)s/lib
+mandir=%(install_prefix)s/share/man
+prefix=%(install_prefix)s
+sysconfdir=%(install_prefix)s/etc
+tooldir=%(install_prefix)s
+''')
+    configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+    compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+    compile_command_native = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+    install_command = 'make %(make_flags)s %(install_flags)s '
+    license_files = ['%(srcdir)s/COPYING',
+                     '%(srcdir)s/COPYING.LIB',
+                     '%(srcdir)s/LICENSE',
+                     '%(srcdir)s/LICENCE',]
+
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
         self.source = source
         self.settings = settings
         self.source.connect_logger (logging.default_logger)
+        if self.destdir_install_broken:
+            self.install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
 
     def connect_command_runner (self, runner):
         if runner:
@@ -86,9 +126,10 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
                 msg = self.expand ('''This compile has previously been interrupted.
 To ensure a repeatable build, this will not be packaged.
 
-Do
+Run with
 
-    rm %(stamp_file)s
+    --fresh # or issue
+              rm %(stamp_file)s
 
 to force a full package rebuild, or
 
@@ -111,13 +152,9 @@ to skip this check and risk a defective build.
                 self.set_done (stage)
 
     def get_build_dependencies (self):
-        return []
+        return self.dependencies
 
     def with_platform (self, name):
-        if 'BOOTSTRAP' in os.environ.keys ():
-            if 'tools::' in name:
-                return misc.with_platform (name.replace ('tools::', ''),
-                                           self.settings.build_platform)
         return misc.with_platform (name, self.settings.platform)
 
     def get_platform_build_dependencies (self):
@@ -170,12 +207,19 @@ class AutoBuild (Build):
 
     @context.subst_method
     def LD_PRELOAD (self):
-        return '%(tools_prefix)s/lib/librestrict.so'
+        return ''
+
+    @context.subst_method
+    def libs (self):
+        return ''
+
+    @context.subst_method
+    def so_extension (self):
+        return '.so'
 
     @context.subst_method
     def rpath (self):
-#        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib'
-        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib'
+        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,%(system_prefix)s/lib'
 
     def get_substitution_dict (self, env={}):
         dict = {
@@ -211,19 +255,9 @@ class AutoBuild (Build):
         # FIMXE: '' always depends on runtime?
         return {'': [], 'devel': [], 'doc': [], 'runtime': [], 'x11': []}
 
-    def force_sequential_build (self):
-        """Set to true if package can't handle make -jX """
-        return False
-
     @context.subst_method
     def source_checksum (self):
         return self.source.checksum ()
-
-    def license_files (self):
-        return ['%(srcdir)s/COPYING',
-                '%(srcdir)s/COPYING.LIB',
-                '%(srcdir)s/LICENSE',
-                '%(srcdir)s/LICENCE',]
 
     @context.subst_method
     def basename (self):
@@ -284,47 +318,23 @@ class AutoBuild (Build):
         return '%(installdir)s/%(name)s-%(version)s-root'
 
     @context.subst_method
+    def configure_prefix (self):
+        return '%(prefix_dir)s'
+
+    @context.subst_method
     def install_prefix (self):
         return '%(install_root)s%(prefix_dir)s'
 
-    @context.subst_method
-    def install_command (self):
-        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
-
-    @context.subst_method
-    def autodir (self):
-        return '%(srcdir)s'
-
     def aclocal_path (self):
-        return ['%(system_prefix)s/share/aclocal']
-
+        return [
+            '%(tools_prefix)s/share/aclocal',
+            '%(system_prefix)s/share/aclocal',
+            ]
     @context.subst_method
-    def configure_binary (self):
-        return '%(autodir)s/configure'
-
-    @context.subst_method
-    def configure_command (self):
-        return ' sh %(configure_binary)s --prefix=%(install_prefix)s'
-
-    @context.subst_method
-    def compile_command (self):
-        return 'make %(makeflags)s '
-
-    # what the heck is this?  Why would we not want to use
-    # -j x with multiple cpu's (compiling is often io bound)
-    # and why not when cross compiling (think icecc?).
-    @context.subst_method
-    def native_compile_command (self):
-        c = 'make'
-
-        job_spec = ' '
-        if (not self.force_sequential_build ()
-            and self.settings.cpu_count_str != '1'):
-
-            job_spec += ' -j%s ' % self.settings.cpu_count_str
-
-        c += job_spec
-        return c
+    def job_spec (self):
+        if not self.parallel_build_broken:
+            return '-j' + str (2 * int (self.settings.cpu_count_str))
+        return ''
 
     @context.subst_method
     def src_package_ball (self):
@@ -333,14 +343,6 @@ class AutoBuild (Build):
     @context.subst_method
     def src_package_uploads (self):
         return '%(packages)s'
-
-    @context.subst_method
-    def makeflags (self):
-        return ''
-
-    @context.subst_method
-    def cache_file (self):
-        return '%(builddir)s/config.cache'
 
     def get_done (self):
         done = []
@@ -360,29 +362,25 @@ class AutoBuild (Build):
     def patch (self):
         list (map (self.apply_patch, self.patches))
 
-    def force_autoupdate (self):
-        return False
-
     def autoupdate (self):
         # FIMXE: can we do this smarter?
-        if self.force_autoupdate ():
+        if self.force_autoupdate:
             self.runner._execute (commands.ForcedAutogenMagic (self))
         else:
             self.runner._execute (commands.AutogenMagic (self))
 
-    def config_cache_overrides (self, str):
-        return str
-
     def config_cache_settings (self):
-        return self.config_cache_overrides ('')
+        return self.config_cache_overrides
 
     def config_cache (self):
-        str = self.config_cache_settings ()
-        if str:
+        string = self.config_cache_settings ()
+        if string:
             self.system ('mkdir -p %(builddir)s || true')
-            self.dump (str, self.cache_file (), permissions=octal.o755)
+            self.dump (string, self.config_cache_file, permissions=octal.o755)
 
     def configure (self):
+        if self.srcdir_build_broken:
+            self.shadow ()
         self.config_cache ()
         self.system ('''
 mkdir -p %(builddir)s || true
@@ -390,34 +388,12 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
         self.map_locate (libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
-    def shadow (self):
-        self.system ('rm -rf %(builddir)s')
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    def broken_install_command (self):
-        """For packages that do not honor DESTDIR.
-        """
-
-        # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
-        # so, must also ./configure that way
-        return misc.join_lines ('''make %(makeflags)s install
-bindir=%(install_prefix)s/bin
-aclocaldir=%(install_prefix)s/share/aclocal
-datadir=%(install_prefix)s/share
-exec_prefix=%(install_prefix)s
-gcc_tooldir=%(install_prefix)s
-includedir=%(install_prefix)s/include
-infodir=%(install_prefix)s/share/info
-libdir=%(install_prefix)s/lib
-libexecdir=%(install_prefix)s/lib
-mandir=%(install_prefix)s/share/man
-prefix=%(install_prefix)s
-sysconfdir=%(install_prefix)s/etc
-tooldir=%(install_prefix)s
-''')
+    def shadow (self):
+        self.system ('rm -rf %(builddir)s')
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def update_config_guess_config_sub (self):
         guess = self.expand ('%(system_prefix)s/share/libtool/config/config.guess')
@@ -430,6 +406,7 @@ tooldir=%(install_prefix)s
 
     def pre_install (self):
         pass
+
     def install (self):
         '''Install package into %(install_root).
 
@@ -470,7 +447,7 @@ cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
                     loggedos.system (logger, cmd)
                     return
-        self.func (install, list (map (self.expand, self.license_files ())))
+        self.func (install, list (map (self.expand, self.license_files)))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (logger, la):
@@ -546,8 +523,7 @@ cp %(file)s %(install_root)s/license/%(name)s
             }
         return d
 
-    def get_subpackage_names (self):
-        return ['devel', 'doc', '']
+    subpackage_names = ['devel', 'doc', '']
 
     # FIXME: when only patched in via MethodOverride, the real descr_dict,
     # category_dict are not pickled and cygwin packaging fails
@@ -566,7 +542,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         descr_dict = self.description_dict ()
         category_dict = self.category_dict ()
 
-        for sub in self.get_subpackage_names ():
+        for sub in self.subpackage_names:
             filespecs = defs[sub]
 
             p = guppackage.GupPackage (self.runner)
@@ -681,17 +657,15 @@ class BinaryBuild (AutoBuild):
         _v = '' #self.os_interface.verbose_flag ()
         self.system ('cd %(srcdir)s && tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-    def get_subpackage_names (self):
         # FIXME: splitting makes that cygwin's gettext + -devel subpackage
         # gets overwritten by cygwin's gettext-devel + '' base package
-        return ['']
+    subpackage_names = ['']
 
 class NullBuild (AutoBuild):
     """Placeholder for downloads """
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install (self):
         self.system ('mkdir -p %(install_root)s')
 
@@ -818,4 +792,3 @@ def append_dict (package, add_dict):
         package.get_substitution_dict = Change_dict (package, add_dict).append_dict
     except AttributeError:
         pass
-

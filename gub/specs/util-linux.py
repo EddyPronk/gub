@@ -1,13 +1,10 @@
+#
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Util_linux__tools (tools.AutoBuild):
     source = 'http://www.nl.kernel.org/pub/linux/utils/util-linux-ng/v2.16/util-linux-ng-2.16.tar.gz'
-    def _get_build_dependencies (self):
-        return ['libtool']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    dependencies = ['libtool']
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --disable-tls'
                 + ' --disable-makeinstall-chown'
                 + ' SHELL=%(tools_prefix)s/bin/bash'

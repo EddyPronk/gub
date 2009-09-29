@@ -8,27 +8,22 @@ from gub import tools
 
 class Libjpeg (target.AutoBuild):
     source = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
+    config_cache_flag_broken = True
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
     def name (self):
         return 'libjpeg'
-    def _get_build_dependencies (self):
-        return ['libtool']
-    def get_subpackage_names (self):
-        return ['devel', '']
+    dependencies = ['libtool']
+    subpackage_names = ['devel', '']
     def srcdir (self):
         return re.sub (r'src\.v', '-', target.AutoBuild.srcdir (self))
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                .replace ('--config-cache', '--cache-file=config.cache'))
     def update_libtool (self):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
         target.AutoBuild.update_libtool (self)
-    def license_files (self):
-        return ['%(sourcefiledir)s/jpeg.license']
+    license_files = ['%(sourcefiledir)s/jpeg.license']
     def configure (self):
         self.update_config_guess_config_sub ()
         target.AutoBuild.configure (self)
@@ -38,8 +33,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
             r'\1 $(DESTDIR)\2'),
             ],
             '%(builddir)s/Makefile')
-    def install_command (self):
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_prefix)s/include %(install_prefix)s/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
@@ -64,13 +58,11 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
+    force_autoupdate = False
     def srcdir (self):
         return re.sub (r'src\.v', '-', tools.AutoBuild.srcdir (self))
-    def force_autoupdate (self):
         '''libtoolize: `configure.ac' does not exist'''
-        return False
     def update_libtool (self):
         pass
     def configure (self):
@@ -82,8 +74,7 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
                  r'\1 $(DESTDIR)\2'),
                 ],
             '%(builddir)s/Makefile')
-    def install_command (self):
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/include %(install_prefix)s/lib 
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')

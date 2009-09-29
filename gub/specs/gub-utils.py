@@ -1,7 +1,5 @@
+#
 from gub import build
-
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Gub_utils__tools (build.SdkBuild):
     source = 'url://host/gub-utils-1.0.tar.gz'

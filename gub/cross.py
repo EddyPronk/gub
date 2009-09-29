@@ -14,6 +14,18 @@ from gub import tools
 class AutoBuild (build.AutoBuild):
     """Package for cross compilers/linkers etc.
     """
+    configure_flags = (build.AutoBuild.configure_flags
+                       + misc.join_lines ('''
+--program-prefix=%(target_architecture)s-
+--prefix=%(cross_prefix)s
+--target=%(target_architecture)s
+--with-sysroot=%(system_root)s
+--disable-multilib
+--disable-silent-rules
+'''))
+#--with-slibdir=%(prefix_dir)s/slib
+    install_flags = ''' DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
+    subpackage_names = ['doc', '']
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(tools_prefix)s/include'
@@ -27,35 +39,6 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
-    def LD_PRELOAD (self):
-        # Makes no sense for cross.  Be it /usr/bin/gcc or tools::gcc,
-        # it needs to read /usr/include/stdlib.h etc.  How to, or why
-        # restrict reading other files from /?
-        # See LIBRESTRICT_IGNORE below, it would need to include every
-        # binary in system_prefix :-)
-        return ''
-    def configure_command (self):
-        return (
-            # BOOTSTRAP -- do we need this?
-            #'''LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed' '''
-            '''LDFLAGS=-L%(system_prefix)s/lib '''
-            + build.AutoBuild.configure_command (self)
-            + misc.join_lines ('''
---program-prefix=%(target_architecture)s-
---prefix=%(cross_prefix)s
---target=%(target_architecture)s
---with-sysroot=%(system_root)s
---disable-multilib
---disable-silent-rules
-'''))
-#--with-slibdir=%(prefix_dir)s/slib
-    def compile_command (self):
-        return self.native_compile_command () + ' %(makeflags)s'
-    def install_command (self):
-        return '''make %(makeflags)s DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
-#        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
-    def get_subpackage_names (self):
-        return ['doc', '']
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 
@@ -76,6 +59,7 @@ bootstrap_names = [
 #    'tools::binutils',
 #    'tools::gcc',
     'tools::make',
+    'tools::libtool',
     'tools::file',
     ]
 
@@ -91,8 +75,6 @@ def set_cross_dependencies (package_object_dict):
             'tools::grep',
             'tools::sed',
             ]
-    if 'BOOTSTRAP' in os.environ.keys ():
-        bootstrap_names += ['tools::gub-utils']
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]

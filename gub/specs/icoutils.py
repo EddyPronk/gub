@@ -1,17 +1,10 @@
-from gub import misc
 from gub import tools
 
 class Icoutils__tools (tools.AutoBuild):
-    def _get_build_dependencies (self):
-        return ['libpng-devel']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + misc.join_lines ('''
---with-libintl-prefix=%(system_prefix)s
---disable-nls
-''')
-                # PROMOTEME: rpath
-                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''')
+    dependencies = ['libpng-devel']
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + ' --with-libintl-prefix=%(system_prefix)s'
+                       + ' --disable-nls')
 
 class Icoutils__darwin (tools.AutoBuild):
     def patch (self):

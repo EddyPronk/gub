@@ -3,10 +3,8 @@ from gub import target
 
 class Redland (target.AutoBuild):
     source = 'http://download.librdf.org/source/redland-1.0.8.tar.gz'
-    def _get_build_dependencies (self):
-        return ['rasqal-devel', 'sqlite-devel']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    dependencies = ['rasqal-devel', 'sqlite-devel']
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
  --without-mysql
  --without-postgresql
@@ -44,8 +42,7 @@ Info: resolving _librdf_short_copyright_string by linking to __imp__librdf_short
                        '%(srcdir)s/Makefile.am')
         self.file_sub ([('^(SUBDIRS =.*) utils ', r'\1 ')],
                        '%(srcdir)s/Makefile.in')
-    def configure_command (self):
-        return (Redland.configure_command (self)
+    configure_flags = (Redland.configure_flags
                 # without wsock32.dll, no libdb*.la/dll, no shared redland
                 + misc.join_lines ('''
  --disable-shared

@@ -24,21 +24,14 @@ cp %(link)s %(file)s
 
 class Boost (target.BjamBuild_v2):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_38_0.tar.bz2'
-    def _get_build_dependencies (self):
-# the separately available boost-jam is terribly broken wrt building boost
-# *** Stage: compile (boost, linux-64)
-#invoking cd /home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 &&  bjam '-sTOOLS=gcc' '-sGCC=x86_64-linux-gcc -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/%(target_os)s.hpp\"' '-sGXX=x86_64-linux-g++ -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/%(target_os)s.hpp\"' '-sNO_BZIP2=1' '-sNO_ZLIB=1' '-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static' '-sPYTHON_VERSION=2.4' '-scxxflags=-fPIC' --without-python --without-test --with-python-root=/dev/null --layout=system --builddir=/home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 --with-python-root=/dev/null --prefix=/usr --exec-prefix=/usr --libdir=/usr/lib --includedir=/usr/include 
-#Jamfile:114: in module scope
-#rule unless unknown in module 
-        return []
+    dependencies = []
     def stages (self):
         return misc.list_insert_before (target.BjamBuild_v2.stages (self),
                                         'compile',
                                         ['build_bjam'])
     def build_bjam (self):
         self.system ('cd %(builddir)s/tools/jam/src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
-    def boost_modules (self):
-        return [
+    boost_modules = [
             'date_time',
             'filesystem',
             'function_types',
@@ -55,14 +48,12 @@ class Boost (target.BjamBuild_v2):
             'thread',
             #'wave'
             ]
-    def compile_command (self):
-        return (target.BjamBuild_v2.compile_command (self)
+    compile_command = (target.BjamBuild_v2.compile_command
                 .replace ('bjam ', '%(builddir)s/bjam ')
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
-                + ' --with-'.join ([''] + self.boost_modules ()))
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE_1_0.txt']
+                + ' --with-'.join ([''] + boost_modules))
+    license_files = ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
         target.BjamBuild_v2.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
@@ -74,8 +65,7 @@ class Boost (target.BjamBuild_v2):
         
 class Boost__freebsd__x86 (Boost):
     patches = ['boost-1.38.0-freebsd4.patch']
-    def compile_command (self):
-        return (Boost.compile_command (self)
+    compile_command = (Boost.compile_command
                 .replace ('--with-serialization', ''))
 
 class UGLYFIXBoost__mingw (Boost):
@@ -116,8 +106,7 @@ class BjamBuild_v1 (target.MakeBuild):
     @context.subst_method
     def CFLAGS (self):
         return ''
-    def compile_command (self):
-        return misc.join_lines ('''
+    compile_command = misc.join_lines ('''
 bjam
 -q
 '-sTOOLS=gcc'
@@ -134,9 +123,9 @@ bjam
 --includedir=%(prefix_dir)s/include
 --verbose
 ''')
-    def install_command (self):
-        return (self.compile_command ()
-                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+    install_command = (compile_command
+                       .replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+                       + ' install')
 
 class Boost_v1 (BjamBuild_v1):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'
@@ -148,10 +137,8 @@ class Boost_v1 (BjamBuild_v1):
         # the separately available boost-jam is terribly broken wrt
         # building boost: build included bjam
         self.system ('cd %(builddir)s/tools/build/jam_src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE_1_0.txt']
-    def boost_modules (self):
-        return [
+    license_files = ['%(srcdir)s/LICENSE_1_0.txt']
+    boost_modules = [
             'date_time',
             'filesystem',
             'function_types',
@@ -168,12 +155,11 @@ class Boost_v1 (BjamBuild_v1):
             'thread',
             #'wave'
             ]
-    def compile_command (self):
-        return (BjamBuild_v1.compile_command (self)
+    compile_command = (BjamBuild_v1.compile_command
                 .replace ('bjam ', '%(builddir)s/bjam ')
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
-                + ' --with-'.join ([''] + self.boost_modules ()))
+                + ' --with-'.join ([''] + boost_modules))
     def install (self):
         BjamBuild_v1.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
@@ -184,8 +170,7 @@ class Boost_v1 (BjamBuild_v1):
         self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')
 
 class Boost__mingw (Boost_v1):
-    def compile_command (self):
-        return (Boost_v1.compile_command (self)
+    compile_command = (Boost_v1.compile_command
                 .replace ('linux.hpp', 'win32.hpp'))
 
 class Boost__tools (tools.BjamBuild_v2, Boost):
@@ -198,12 +183,11 @@ class Boost__tools (tools.BjamBuild_v2, Boost):
         # the separately available boost-jam is terribly broken wrt
         # building boost: build included bjam
         self.system ('cd %(builddir)s/tools/jam/src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
-    def compile_command (self):
-        return (tools.BjamBuild_v2.compile_command (self)
+    compile_command = (tools.BjamBuild_v2.compile_command
                 .replace ('bjam ', '%(builddir)s/bjam ')
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
-                + ' --with-'.join ([''] + Boost.boost_modules (self)))
+                + ' --with-'.join ([''] + Boost.boost_modules))
     def install (self):
         tools.BjamBuild_v2.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?

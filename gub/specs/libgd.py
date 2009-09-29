@@ -3,8 +3,7 @@ from gub import tools
 
 class Libgd (target.AutoBuild):
     source = 'http://www.libgd.org/releases/gd-2.0.36RC1.tar.gz'
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::libtool',
             'fontconfig',
             'freetype',
@@ -12,8 +11,7 @@ class Libgd (target.AutoBuild):
             'libpng',
             'zlib',
             ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --with-fontconfig'
                 + ' --with-freetype'
                 + ' --with-jpeg'
@@ -22,8 +20,7 @@ class Libgd (target.AutoBuild):
                 )
 
 class Libgd__tools (tools.AutoBuild, Libgd):
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'fontconfig',
             'freetype',
             'libjpeg',
@@ -31,8 +28,7 @@ class Libgd__tools (tools.AutoBuild, Libgd):
             'libtool',
             'zlib',
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-fontconfig'
                 + ' --with-freetype'
                 + ' --with-jpeg'

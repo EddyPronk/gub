@@ -9,6 +9,17 @@ class Libicu (target.AutoBuild):
     source = 'http://download.icu-project.org/files/icu4c/3.8.1/icu4c-3_8_1-src.tgz'
     #http://download.icu-project.org/files/icu4c/4.0/icu4c-4_0-src.tgz
     patches = ['libicu-3.8.1-cross.patch']
+    autodir = '%(srcdir)s/source'
+    make_flags = misc.join_lines ('''
+BINDIR_FOR_BUILD='$(BINDIR)-native'
+LIBDIR_FOR_BUILD='$(LIBDIR)-native'
+PKGDATA_INVOKE_OPTS="TARGET='lib\$\$(LIBNAME).so' BINDIR_FOR_BUILD='\$\$(BINDIR)-native' LIBDIR_FOR_BUILD='\$\$(LIBDIR)-native'"
+''')
+    compile_flags_native = misc.join_lines ('''
+BINDIR='$(top_builddir)/bin-native'
+LIBDIR='$(top_builddir)/lib-native'
+PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_builddir)/lib-native'"
+''')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source._version = '3.8.1'
@@ -16,21 +27,6 @@ class Libicu (target.AutoBuild):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'configure',
                                         ['configure_native', 'compile_native'])
-    def autodir (self):
-        return '%(srcdir)s/source'
-    def makeflags (self):
-        return misc.join_lines ('''
-BINDIR_FOR_BUILD='$(BINDIR)-native'
-LIBDIR_FOR_BUILD='$(LIBDIR)-native'
-PKGDATA_INVOKE_OPTS="TARGET='lib\$\$(LIBNAME).so' BINDIR_FOR_BUILD='\$\$(BINDIR)-native' LIBDIR_FOR_BUILD='\$\$(LIBDIR)-native'"
-''')
-    @context.subst_method
-    def makeflags_native (self):
-        return misc.join_lines ('''
-BINDIR='$(top_builddir)/bin-native'
-LIBDIR='$(top_builddir)/lib-native'
-PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_builddir)/lib-native'"
-''')
     def compile_native (self):
         target.AutoBuild.compile_native (self)
         def rm (logger, file):
@@ -43,8 +39,7 @@ PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_bui
 
 class Libicu__mingw (Libicu):
     patches = Libicu.patches + ['libicu-3.8.1-uintptr-t.patch', 'libicu-3.8.1-cross-mingw.patch', 'libicu-3.8.1-mingw.patch']
-    def configure_command (self):
-        return (Libicu.configure_command (self)
+    configure_flags = (Libicu.configure_flags
                 + misc.join_lines ('''
 --disable-threads
 '''))

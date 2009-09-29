@@ -3,16 +3,13 @@ from gub import tools
 
 class Libtiff (target.AutoBuild):
     source = 'http://dl.maptools.org/dl/libtiff/tiff-3.8.2.tar.gz'
-    def _get_build_dependencies (self):
-        return ['tools::libtool', 'libjpeg-devel']
+    dependencies = ['tools::libtool', 'libjpeg-devel']
 
 class Libtiff__tools (tools.AutoBuild, Libtiff):
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'libtool',
             'libjpeg-devel',
 #            'system::g++',
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --disable-cxx')

@@ -12,8 +12,7 @@ class Libgphoto2 (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/gphoto/libgphoto2-2.3.1.tar.gz'
 # Does not compile
 #    source = mirrors.with_template (name='libgphoto2', version='2.1.6', mirror=sf_gphoto)
-    def _get_build_dependencies (self):
-        return ['libexif-devel', 'libjpeg-devel', 'libusb-devel']
+    dependencies = ['libexif-devel', 'libjpeg-devel', 'libusb-devel']
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\
@@ -35,9 +34,7 @@ class Libgphoto2 (target.AutoBuild):
     def patch (self):
         self.wrap_pkg_config ()
         self.wrap_libusb_config ()
-    def configure_command (self):
-        return ('PATH=%(srcdir)s:$PATH '
-                + target.AutoBuild.configure_command (self))
-    def makeflags (self):
-        return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym' LDFLAGS='%(rpath)s'"""
+    configure_command = ('PATH=%(srcdir)s:$PATH '
+                + target.AutoBuild.configure_command)
+    make_flags = """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym'"""
 

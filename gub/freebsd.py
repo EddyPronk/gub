@@ -1,10 +1,17 @@
+from gub import context
 from gub import cross
+from gub import misc
 
 def get_cross_build_dependencies (settings):
     return ['cross/gcc', 'freebsd-runtime']
 
 def change_target_package (package):
     cross.change_target_package (package)
+
+    @context.subst_method
+    def rpath (foo):
+        return ''
+    package.rpath = misc.MethodOverrider (package.nop, rpath)
 
 # FIXME: download from sane place; or rather download only kernel
 # headers and build full toolchain from source?

@@ -1,5 +1,6 @@
 import os
 #
+from gub import context
 from gub import misc
 from gub import loggedos
 from gub import system
@@ -11,30 +12,11 @@ class Gcc__system (system.Configure):
 
 class Gcc__tools (tools.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'binutils',
             ]
-    def patch (self):
-        tools.AutoBuild.patch (self)
-        do_not_look_in_slash_usr (self)
-    def languages (self):
-        return ['c', 'c++']
-    def configure_variables (self):
-        return ''
-    def configure_command (self):
-        # FIXME: using --prefix=%(tooldir)s makes this
-        # uninstallable as a normal system package in
-        # /usr/i686-mingw/
-        # Probably --prefix=/usr is fine too
-        enable_libstdcxx_debug = ''
-        if 'c++' in self.languages ():
-            enable_libstdcxx_debug = ' --enable-libstdcxx-debug'
-        return (tools.AutoBuild.configure_command (self)
-                + ' --enable-languages=' + ','.join (self.languages ())
-# python2.5-ism
-#                + ' --enable-libstdcxx-debug' if 'c++' in self.languages () else ''
-                + enable_libstdcxx_debug
+    configure_flags = (tools.AutoBuild.configure_flags
+                + '%(enable_languages)s'
                 + ' --disable-multilib'
                 + ' --enable-static'
                 + ' --enable-shared'
@@ -42,8 +24,18 @@ class Gcc__tools (tools.AutoBuild):
                 + ' --with-ld=%(tools_prefix)s/bin/ld'
                 + ' --with-nm=%(tools_prefix)s/bin/nm'
                 )
-    def makeflags (self):
-        return misc.join_lines ('''
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        do_not_look_in_slash_usr (self)
+    def languages (self):
+        return ['c', 'c++']
+    @context.subst_method
+    def enable_languages (self):
+        flags = ' --enable-languages=' + ','.join (self.languages ()) 
+        if 'c++' in self.languages ():
+            flags += ' --enable-libstdcxx-debug'
+        return flags
+    make_flags = misc.join_lines ('''
 tooldir='%(cross_prefix)s/%(target_architecture)s'
 gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 ''')

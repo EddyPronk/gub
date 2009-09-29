@@ -7,6 +7,8 @@ class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
         self.system ('''
 # blocks installing db, and runtime lacks binary libdb.*
 rm -f %(srcdir)s%(prefix_dir)s/include/db.h
+# blocks installing flex, and runtime lacks binary flex, liby.*
+rm -f %(srcdir)s%(prefix_dir)s/include/FlexLexer.h
 ''')
 
 class Freebsd_runtime__freebsd__x86 (Freebsd_runtime):

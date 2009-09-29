@@ -148,7 +148,7 @@ class Repository:
             return os.path.exists (os.path.join (tools_bin, self.vc_system[1:]))
         return False
     def migrate (self, dir, dir_slash_vcs):
-        self.info ('migrate not implemented for: ' + self.vc_system + '\n')
+        self.info ('migrate not implemented for: ' + self.vc_system)
     def __init__ (self, dir, source):
         self.settings = None
         self.source = source
@@ -211,6 +211,10 @@ class Repository:
         self.logger = logger
     def info (self, message):
         self.logger.write_log (message + '\n', 'info')
+    def error (self, message):
+        self.logger.write_log (message + '\n', 'error')
+    def warning (self, message):
+        self.logger.write_log (message + '\n', 'warning')
     def filter_branch_arg (self, branch):
         if '=' in branch:
             (name, branch) = tuple (branch.split ('='))
@@ -419,7 +423,6 @@ class TarBall (Repository):
 
         self._version = version
         if not version:
-            #print misc.split_ball (url)
             x, v, f = misc.split_ball (url)
             self._version = '.'.join (map (str, v[:-1]))
 
@@ -467,7 +470,10 @@ class TarBall (Repository):
         #if self.oslog:  #urg, will be fixed when .source is mandatory
         #    _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
-        self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals ())
+        status = self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals (), ignore_errors=True)
+        if status:
+            self.error ('retry using gzip pipe')
+            self.system ('gzip -dc %(tarball)s | tar -C %(destdir)s/.. %(_v)s -xf-' % locals ())
 
     def version (self):
         return self._version
@@ -529,7 +535,7 @@ class Git (Repository):
 
     def migrate (self, dir, dir_slash_vcs):
         if os.path.isdir (os.path.join (dir, 'objects')):
-            self.info ('migrating %(dir)s --> %(dir_slash_vcs)s\n' % locals ())
+            self.info ('migrating %(dir)s --> %(dir_slash_vcs)s' % locals ())
             self.system ('''
 mkdir -p %(dir_slash_vcs)s
 mv %(dir)s/* %(dir_slash_vcs)s
@@ -896,7 +902,7 @@ class SimpleRepo (Repository):
             self._checkout ()
         elif self._current_revision () != self.revision:
             self._update (self.revision)
-        self.info ('downloaded version: ' + self.version () + '\n')
+        self.info ('downloaded version: ' + self.version ())
 
     def _copy_working_dir (self, dir, copy):
         vc_system = self.vc_system

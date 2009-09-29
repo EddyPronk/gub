@@ -14,14 +14,12 @@ class Qtopia_core (target.AutoBuild):
         #'LINK': '%(toolchain_prefix)sg++',
         }
     build.change_dict (self, dict)
-    def _get_build_dependencies (self):
-        return ['freetype-devel', 'tslib-devel']
+    dependencies = ['freetype-devel', 'tslib-devel']
     def patch (self):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')
-    def configure_command (self):
 #unset CC CXX; bash -x %(srcdir)s/configure
-        return misc.join_lines ('''
+    configure_command = misc.join_lines ('''
 unset CC CXX; bash %(srcdir)s/configure
 -prefix %(prefix_dir)s
 -bindir %(prefix_dir)s/bin
@@ -62,11 +60,9 @@ unset CC CXX; bash %(srcdir)s/configure
                                [('-I/usr', self.expand ('-I%(system_prefix)s'))],
                                fname)
         self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' INSTALL_ROOT=%(install_root)s')
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE.GPL']
+    license_files = ['%(srcdir)s/LICENSE.GPL']
     def install (self):
         target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')

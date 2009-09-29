@@ -19,9 +19,11 @@ or
 
 In addition to the requirements for GUB, you need
 <ul>
-    <li>wine: to run regcomp.exe and lngconvex.exe and possibly other
+    <li>
+      wine: to run regcomp.exe and lngconvex.exe and possibly other
       cross-build ignorant build tools that are compile-time tied
-      to the build platform</a>
+      to the build platform
+    </li>
 </ul>
 
 <h4>Ongoing work</h4>
@@ -58,12 +60,6 @@ When
   provide turnkey OpenOffice.org Windows binaries and installers.
 </p>
 
-<h3>Optional: Prepare build environment</h3>
-
-<pre>
-  make -f openoffice.make bootstrap
-</pre>
-
 <h3>Build everything</h3>
 
 <pre>
@@ -85,6 +81,10 @@ this produces a windows installer in
   * Make the nsis installer
 
       bin/gib mingw::openoffice
+
+  * Optional: Prepare build environment
+
+      make -f lilypond.make bootstrap
 </pre>
 
 The package
@@ -97,10 +97,8 @@ openoffice for the build tools.
 
 <h3>See also</h3>
 
-<a href="http://github.com/janneke/gub/tree/master/patches">github.com/janneke/gub/tree/master/patches</a>
-<br>
-<a href="http://lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build">lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build</a>
-<br>
+<a href="http://github.com/janneke/gub/tree/master/patches">http://github.com/janneke/gub/tree/master/patches</a><br>
+<a href="http://lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build">http://lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build</a><br>
 
 </div>
 </body>

@@ -24,6 +24,8 @@ from gub import loggedos
 from gub import misc
 import gub.settings
 from gub import target
+from gub import cygwin
+from gub import debian
 
 class GupException (Exception):
     pass
@@ -118,15 +120,17 @@ class FileManager:
                          # http://lists.gnu.org/archive/html/lilypond-devel/2009-03/msg00304.html
                          'cd %(root)s && tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
                          % locals ())
+        for f in lst:
+            if f.endswith ('.la'):
+                self.libtool_la_fixup (root, f)
+            if f.endswith ('.pc'):
+                self.pkgconfig_pc_fixup (root, f, prefix_dir)
+
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
             # ignore directories.
             if not f.endswith ('/'):
                 self._file_package_db[f] = name
-            if f.endswith ('.la'):
-                self.libtool_la_fixup (root, f)
-            if f.endswith ('.pc'):
-                self.pkgconfig_pc_fixup (root, f, prefix_dir)
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
@@ -177,10 +181,8 @@ class FileManager:
             else:
                 files.append (f)
 
-        if not 'BOOTSTRAP' in os.environ.keys ():
-            # let's not remove everything from below ourselves...
-            for f in files:
-                os.unlink (f)
+        for f in files:
+            os.unlink (f)
 
         for d in reversed (dirs):
             try:
@@ -413,18 +415,19 @@ def gub_to_distro_deps (deps, gub_to_distro_dict):
     return distro
 
 def get_base_package_name (name):
+    # FIXME: rename packages, fragile
+    if [True for x in [
+            'freebsd-runtime',
+            'mingw-runtime',
+            'lilypond-doc',
+            'cygwin::',
+            ] if x in name]:
+        return name
+    name = re.sub ('gcc-c[+][+]-runtime', 'gcc', name)
     name = re.sub ('-devel$', '', name)
-
-    # breaks mingw dep resolution, mingw-runtime
-    ##name = re.sub ('-runtime$', '', name)
-    # breaks building of lilypond-doc package
-    ##name = re.sub ('-doc$', '', name)
+    name = re.sub ('-runtime$', '', name)
+    name = re.sub ('-doc$', '', name)
     return name
-
-# FIXME: how to assign to outer var?
-# FIXME: make this more plugin-ish
-cygwin_resolver = None
-debian_resolver = None
 
 def get_source_packages (settings, const_todo):
     """TODO is a list of (source) builds.
@@ -446,8 +449,6 @@ def get_source_packages (settings, const_todo):
 
     def name_to_dependencies_via_gub (url):
         platform, url = split_platform (url)
-        if 'BOOTSTRAP' in os.environ.keys () and platform == 'tools':
-            platform = settings.build_platform
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)
             name = (os.path.basename (base)
@@ -492,23 +493,16 @@ def get_source_packages (settings, const_todo):
             else:
                 spec = distro_packages[name]
             specs[key] = spec
-        return spec.get_platform_build_dependencies ()
+        return list (map (get_base_package_name, spec.get_platform_build_dependencies ()))
 
-    # FIXME: how to assign to outer var?
-    # cygwin_resolver = None
     def name_to_dependencies_via_cygwin (name):
-        global cygwin_resolver #ugh
-        if not cygwin_resolver:
-            from gub import cygwin
-            cygwin_resolver = cygwin.init_dependency_resolver (settings)
+        if not cygwin.dependency_resolver:
+            cygwin.init_dependency_resolver (settings, const_todo[:])
         return name_to_dependencies_via_distro (cygwin.get_packages (), name)
 
-    #debian_resolver = None
     def name_to_dependencies_via_debian (name):
-        global debian_resolver #ugh
-        if not debian_resolver:
-            from gub import debian
-            debian_resolver = debian.init_dependency_resolver (settings)
+        if not debian.dependency_resolver:
+            debian.init_dependency_resolver (settings, const_todo[:])
         return name_to_dependencies_via_distro (debian.get_packages (), name)
 
     name_to_dependencies = {
@@ -541,13 +535,9 @@ def get_source_packages (settings, const_todo):
         if name != spec.platform_name ():
             specs[spec.platform_name ()] = spec
 
-    if settings.is_distro:
-        def obj_to_dependency_objects (obj):
-            return [specs[n] for n in obj.get_platform_build_dependencies ()]
-    else:
-        def obj_to_dependency_objects (obj):
-            return [specs[get_base_package_name (n)]
-                    for n in obj.get_platform_build_dependencies ()]
+    def obj_to_dependency_objects (obj):
+        return [specs[get_base_package_name (n)]
+                for n in obj.get_platform_build_dependencies ()]
 
     sorted_specs = topologically_sorted (list (specs.values ()), {},
                                          obj_to_dependency_objects)

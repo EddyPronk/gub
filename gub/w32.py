@@ -1,8 +1,15 @@
 from gub import build
+from gub import context
 from gub import cross
 from gub import loggedos
 from gub import misc
 from gub import target
+
+configure_no_threads = (''
+    + ' --disable-threads' # libicu
+    + ' --without-threads' # libxml2
+    + ' --disable-posixmutexes --disable-mutexsupport --disable-pthread_api' # db
+)
 
 def libtool_fix_allow_undefined (logger, file):
     '''libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries'''
@@ -20,6 +27,11 @@ def change_target_package (package):
     def install (whatsthis):
         package.post_install_smurf_exe ()
     package.install = misc.MethodOverrider (package.install, install)
+
+    @context.subst_method
+    def so_extension (foo):
+        return '.dll'
+    package.so_extension = misc.MethodOverrider (package.nop, so_extension)
 
     # FIXME (cygwin): [why] do cross packages get here too?
     if isinstance (package, cross.AutoBuild):

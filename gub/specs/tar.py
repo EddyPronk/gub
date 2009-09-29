@@ -1,12 +1,10 @@
+#
+from gub import repository
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Tar__tools (tools.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/tar/tar-1.20.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/tar/tar-1.20.tar.gz'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
-        self.source._unpack = self.source._unpack_promise_well_behaved
-    def wrap_executables (self):
-        # no dynamic executables [other than /lib:libc]
-        pass
+        if isinstance (self.source, repository.TarBall):
+            self.source._unpack = self.source._unpack_promise_well_behaved

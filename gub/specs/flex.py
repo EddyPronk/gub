@@ -1,12 +1,30 @@
+from gub import target
 from gub import tools
 
-class Flex__tools (tools.AutoBuild):
-    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.33.tar.gz'
+class Flex (target.AutoBuild):
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.35.tar.gz'
+    def patch (self):
+        target.AutoBuild.patch (self)
+        self.file_sub ([('-I@includedir@', '')], '%(srcdir)s/Makefile.in')
+    config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
+ac_cv_func_malloc_0_nonnull=yes
+ac_cv_func_realloc_0_nonnull=yes
+'''
 
-class Flex_old__tools (tools.AutoBuild):
-    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.4a.tar.gz'
-    patches = ['flex-2.5.4a-FC4.patch']
-    def _get_build_dependencies (self):
-        return ['bison']
-    def install_command (self):
-        return self.broken_install_command (self)
+class Flex__mingw (Flex):
+    dependencies = ['regex']
+    configure_variables = (Flex.configure_variables
+                           + ' CPPFLAGS=-I%(srcdir)s'
+                           + ' LIBS=-lregex')
+    def patch (self):
+        self.system ('''
+mkdir -p %(srcdir)s/sys
+cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
+''')
+        Flex.configure (self)
+
+class Flex__darwin__ppc (Flex):
+    patches = ['flex-2.5.35-iostream-inside-extern-c++.patch']
+
+class Flex__tools (tools.AutoBuild):
+    source = Flex.source

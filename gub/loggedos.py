@@ -75,7 +75,7 @@ for name, func in list ({'read_file': misc.read_file,
 
 def test ():
     import unittest
-    import logging
+    from gub import logging
 
     # This is not a unittest, it only serves as a smoke test
 

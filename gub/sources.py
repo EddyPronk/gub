@@ -13,7 +13,7 @@
 from os.path import join
 from gub import mirrors
 
-gnu = 'ftp://ftp.gnu.org/pub/gnu'
+gnu = 'http://ftp.gnu.org/pub/gnu'
 nongnu = 'http://download.savannah.nongnu.org/releases'
 sf = 'http://surfnet.dl.sourceforge.net/sourceforge'
 gub = 'http://lilypond.org/download/gub-sources'
@@ -23,7 +23,7 @@ freedesktop = '.freedesktop.org/releases'
 ltool = mirrors.gnu % { 'name': 'libtool', 'version': '1.5.22', 'format': 'gz'}
 
 libtool = join (gnu, 'libtool/libtool-1.5.22.tar.gz')
-# libtool = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
+# libtool = 'http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
 
 # foo__PLATFORM should also work here
 

@@ -36,8 +36,8 @@ def test_version (lst, full_name, minimal, description='', package=None, logger=
                  'not installed'))
         return 0
     logger.write ('.'.join (actual) + '\n')
-    if (map (string.atoi, actual)
-        < map (string.atoi, minimal.split ('.'))):
+    if (list (map (string.atoi, actual))
+        < list (map (string.atoi, minimal.split ('.')))):
         entry = (description, package, minimal, program, '.'.join (actual))
         if not entry in lst:
             lst.append (entry)

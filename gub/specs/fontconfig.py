@@ -22,7 +22,21 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
-
+    dependencies = ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
+        # FIXME: system dir vs packaging install
+        ## UGH  - this breaks  on Darwin!
+        ## UGH2 - the added /cross/ breaks Cygwin; possibly need
+        ## Freetype_config package (see Guile_config, Python_config)
+        # FIXME: this is broken.  for a sane target development package,
+        # we want /usr/bin/fontconfig-config must survive.
+        # While cross building, we create an  <toolprefix>-fontconfig-config
+        # and prefer that.
+    configure_flags = (target.AutoBuild.configure_flags
+                + misc.join_lines ('''
+--with-arch=%(target_architecture)s
+--with-freetype-config="%(system_prefix)s%(cross_dir)s/bin/freetype-config
+--prefix=%(system_prefix)s
+"'''))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
@@ -31,11 +45,6 @@ specified by applications.'''
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
-    def autoupdate (self):
-        target.AutoBuild.autoupdate (self)
-        # FIXME: PROMOTEME to target.py? -- yes, but in/after autoupdate stage
-        self.file_sub ([('cross_compiling=(maybe|no)', 'cross_compiling=yes')],
-                       '%(srcdir)s/configure')
     @context.subst_method
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version
@@ -55,24 +64,6 @@ specified by applications.'''
         logging.command ('pipe %s\n' % cmd)
         # return misc.read_pipe (cmd).strip ()
         return '-lfreetype -lz'
-    def _get_build_dependencies (self):
-        return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
-    def configure_command (self):
-        # FIXME: system dir vs packaging install
-        ## UGH  - this breaks  on Darwin!
-        ## UGH2 - the added /cross/ breaks Cygwin; possibly need
-        ## Freetype_config package (see Guile_config, Python_config)
-        # FIXME: this is broken.  for a sane target development package,
-        # we want /usr/bin/fontconfig-config must survive.
-        # While cross building, we create an  <toolprefix>-fontconfig-config
-        # and prefer that.
-        return (target.AutoBuild.configure_command (self) 
-                + misc.join_lines ('''
---with-arch=%(target_architecture)s
---with-freetype-config="%(system_prefix)s%(cross_dir)s/bin/freetype-config
---prefix=%(system_prefix)s
-"'''))
-
     def configure (self):
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
@@ -80,8 +71,7 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         target.AutoBuild.configure (self)
         self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
                        '%(builddir)s/Makefile')
-    def makeflags (self):
-        return ('man_MANS=' # either this, or add something like tools::docbook-utils
+    make_flags = ('man_MANS=' # either this, or add something like tools::docbook-utils
                 # librestrict: stuff in fc-case, fc-lang,
                 # fc-glyphname, fc-arch' is FOR-BUILD and has
                 # dependencies .deps/*.Po /usr/include/stdio.h: 
@@ -124,11 +114,8 @@ class Fontconfig__mingw (Fontconfig):
                    mode='a')
 
 class Fontconfig__darwin (Fontconfig):
-    def configure_command (self):
-        cmd = Fontconfig.configure_command (self)
-        cmd += ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts '
-        return cmd
-
+    configure_flags = (Fontconfig.configure_flags
+                         + ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts ')
     def configure (self):
         Fontconfig.configure (self)
         self.file_sub ([('-Wl,[^ ]+ ', '')],
@@ -150,60 +137,12 @@ class Fontconfig__linux (Fontconfig):
 class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
-class Fontconfig__cygwin (Fontconfig):
-    source = 'http://www.fontconfig.org/release/fontconfig-2.4.1.tar.gz'
-    def __init__ (self, settings, source):
-        Fontconfig.__init__ (self, settings, source)
-        self.so_version = '1'
-
-    def get_subpackage_definitions (self):
-        d = dict (Fontconfig.get_subpackage_definitions (self))
-        # urg, must remove usr/share. Because there is no doc package,
-        # runtime iso '' otherwise gets all docs.
-        d['runtime'] = [self.settings.prefix_dir + '/lib']
-        return d
-
-    def get_subpackage_names (self):
-        #return ['devel', 'doc', '']
-        return ['devel', 'runtime', '']
-
-    def get_build_dependencies (self): #cygwin
-        return ['libtool', 'libfreetype2-devel', 'expat']
-
-    def get_dependency_dict (self): #cygwin
-        return {
-            '': ['libfontconfig1'],
-            'devel': ['libfontconfig1', 'libfreetype2-devel'],
-            'runtime': ['expat', 'libfreetype26', 'zlib'],
-            }
-
-    def category_dict (self):
-        return {'': 'Libs'}
-
-    def configure_command (self):
-        return (Fontconfig.configure_command (self)
-                + ' --sysconfdir=/etc --localstatedir=/var')
-
-    def install (self):
-        self.pre_install_smurf_exe ()
-        Fontconfig.install (self)
-        name = 'fontconfig-postinstall.sh'
-        postinstall = '''#! /bin/sh
-# cleanup silly symlink of previous packages
-rm -f /usr/X11R6/bin/fontconfig-config
-'''
-        self.dump (postinstall,
-                   '%(install_root)s/etc/postinstall/%(name)s',
-                   env=locals ())
-
 class Fontconfig__tools (tools.AutoBuild):
     # FIXME: use mi to get to source?
     source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         tools.AutoBuild.patch (self)
-    def _get_build_dependencies (self):
-        return ['libtool', 'freetype', 'expat', 'pkg-config']
-    def makeflags (self):
-        return ('man_MANS=' # either this, or add something like tools::docbook-utils
+    dependencies = ['libtool', 'freetype', 'expat', 'pkg-config']
+    make_flags = ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

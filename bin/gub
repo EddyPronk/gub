@@ -68,48 +68,35 @@ Examples:
   gub mingw::openoffice
 '''
 
-    def format_examples (self):
-        return examples
-    if 'epilog'  in  p.__dict__:
-        p.formatter.format_epilog = format_examples
-        p.epilog = examples
-    else:
-        p.formatter.format_description = format_examples
-        p.description = examples
+    misc.optparse_epilog (p, examples)
 
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
                   help='Leave build and src dir for inspection')
-
-    p.add_option ('-s', '--src-package', action='store_true',
-                  default=None,
-                  help='Also roll source packages')
-
+    p.add_option ('-l', '--log',
+                  default='package',
+                  help='select log file granularity',
+                  choices=['build','package','platform'])
     p.add_option ('-p', '--platform', action='store',
                   type='choice',
                   default=None,
                   help='select target platform',
                   choices=list (gub.settings.platforms.keys ()))
-
     p.add_option ('--inspect', action='store',
                   dest='inspect_key',
                   default=None,
                   help='Key of package to inspect')
-
     p.add_option ('--inspect-output', action='store',
                   default=None,
                   help='Where to write result of inspection')
-
     p.add_option ('--download-only', action='store_true',
                   default=False,
                   help='Exit after downloading.')
-
     p.add_option ('--offline', action='store_true',
                   dest='offline',
                   default=False,
                   help='Do not attempt to download anything')
-
     p.add_option ('--online', action='store_false',
                   dest='offline',
                   default=False,
@@ -124,64 +111,40 @@ Examples:
     p.add_option ('--stage', action='callback', callback=set_stage,
                   dest='stage', type='string', default=None,
                   help='Force rebuild of stage')
-
     p.add_option ('--fresh', action='store_true',
                   dest='fresh', default=False,
                   help='Restart all builds')
-
-    p.add_option ('--cross-distcc-host', action='append',
-                  dest='cross_distcc_hosts', default=[],
-                  help='Add another cross compiling distcc host')
-
-    p.add_option ('--native-distcc-host', action='append',
-                  dest='native_distcc_hosts', default=[],
-                  help='Add another native distcc host')
-
     p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
-
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
-
     p.add_option ('--lilypond-versions', action='store',
                   default='uploads/lilypond.versions',
                   dest='lilypond_versions')
-
     p.add_option ('--force-package', action='store_true',
                   default=False,
                   help='allow packaging of tainted compiles' )
-
     p.add_option ('--build-source', action='store_true',
                   default=False,
                   help='build source packages')
-
     p.add_option ('--lax-checksums',
                   action='store_true',
                   default=False,
                   help="do not rebuild packages with failing checksums")
-
     p.add_option ('-n', '--dry-run',
                   action='store_true',
                   default=False,
                   help='Print action, do not run.')
-
     p.add_option ('--show-dependencies',
                   action='store_true',
                   default=False,
                   help='Print dependencies.')
-
     p.add_option ('-x', '--no-dependencies',
                   action='store_true',
                   default=False,
                   help='Ignore dependencies.')
-
-    p.add_option ('-l', '--skip-if-locked',
+    p.add_option ('--skip-if-locked',
                   default=False,
                   action="store_true",
                   help="Return successfully if another build is already running")
-
-    p.add_option ('-j', '--jobs',
-                  default="1", action='store',
-                  help='set number of simultaneous jobs')
-
     return p
 
 #FIXME: move to BuildRunner?
@@ -213,7 +176,7 @@ def build (settings, options, files):
     platform = settings.platform
     dep_str = ' '.join (names)
     if options.show_dependencies:
-        logging.stage ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
+        printf ('dependencies[%(platform)s]: %(dep_str)s' % locals ())
         sys.exit (0)
     dep_str.replace (misc.with_platform ('', platform), '')
     logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
@@ -224,17 +187,6 @@ def build (settings, options, files):
             if os.path.exists (status):
                 logging.info ('Removing status file: %(status)s\n' % locals ())
                 os.unlink (status)
-
-    # TODO: figure out how to patch src_package from
-    # stages. Simpleminded solution does not work
-    # and causes mingw runtime to run autogenmagic       
-
-    # TODO: patch out clean if --keep was specified.
-
-    # TODO: move taint check in special stage, and patch out --force
-    # was specified.
-
-    # TODO: patch out checksum comparison if --lax-checksum was specified.
 
     if options.download_only:
         options.offline = False
@@ -264,7 +216,7 @@ def build (settings, options, files):
         sys.exit (0)
 
     b.calculate_checksums ()
-    if options.dry_run:
+    if False and huh_what_is_this_aboutoptions.dry_run:
         for name in sorted (b.checksums):
             printf (b.checksums[name])
         sys.exit (0)
@@ -279,19 +231,20 @@ def exceptional_build (settings, options, files, logger):
     except:
         t, v, b = sys.exc_info ()
         if not (t == SystemExit and not v.code):
-            sys.stderr.write ('\n')
-            logger.dump_tail (sys.stderr)
-            sys.stderr.write ('\n')
+            log = buildrunner.logger
+            if os.path.exists (log.log_file_name):
+                sys.stderr.write ('\n')
+                log.dump_tail (sys.stderr)
+                sys.stderr.write ('\n')
+            exception_verbosity = 'stage'
             if t == misc.SystemFailed:
                 # Log the python exception, and only print cluttering
                 # output when using -v; what we want to see is the
                 # command error.
-                logger.write_log (misc.exception_string (), 'warning')
-            else:
-                # We have a python exception, print that.
-                logger.write_log (misc.exception_string (), 'error')
+                exception_verbosity = 'warning'
+            log.write_log (misc.exception_string (), 'warning')
             if buildrunner.target:
-                sys.stderr.write ('*** Failed target: %s\n' % buildrunner.target)
+                logger.write_log ('*** Failed target: %s\n' % buildrunner.target, 'stage')
             # Using "raise" here has this exception's stack trace at
             # the tail of GUB's output.  Most of the time, it's more
             # helpful [for users] to see the actual error, rather
@@ -304,12 +257,17 @@ def exceptional_build (settings, options, files, logger):
     return 0
 
 def logged_build (settings, options, files):
-    logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
-                                      options.verbosity)
-    
+    # EXPENSIVE: 
+    #log_dir = settings.expand ('%(alllogdir)s')
+    log_dir = settings.expand ('%(workdir)s/log')
+    if not os.path.isdir (log_dir):
+        os.makedirs (log_dir)
+    log = os.path.join (log_dir, 'gub.log')
+    if os.path.isfile (log):
+        misc.rename_append_time (log)
+    logger = logging.set_default_log (log, options.verbosity)
     logger.write_log ('root: %s\n' % settings.system_root, 'verbose')
     logger.write_log ('platform: %s\n' % settings.platform, 'verbose')
-
     sys.exit (exceptional_build (settings, options, files, logger))
 
 def main ():
@@ -331,7 +289,7 @@ def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
     options.verbosity -= options.quiet
-    options.src_package = options.src_package or options.platform == 'cygwin'
+    options.build_source = options.build_source or options.platform == 'cygwin'
 
     logging.default_logger.threshold = options.verbosity
     logging.info ('files: %(files)s\n' % locals ())

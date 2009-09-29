@@ -2,11 +2,30 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-    <!-- link rel="stylesheet" type="text/css" href="blog.css" !-->
+    <link rel="stylesheet" type="text/css" href="tab-menu.css">
     <title>GUB -- Grand Unified Builder</title>
   </head>
   <body>
+
+    <div id="tabmenuContainer">
+      <div id="tabmenu">
+	<p class="homeurl">GUB
+	<span class="subtitle">the Grand Unified Builder</span>
+	</p>
+	
+	<ul>
+	  <li><a class="active" href=".">Home</a></li>
+	  <li><a class="" href="basics">Basics</a></li>
+	  <li><a class="" href="applications">Applications</a></li>
+	  <li><a class="" href="history">History</a></li>
+	  <li><a class="" href="links">Links</a></li>
+	</ul>
+      </div>
+    </div>
+    <div id="tabmenuContents">
+
 <h1>GUB -- Grand Unified Builder</h1>
+
 
 <h2>WHAT IS GUB</h2>
 
@@ -20,9 +39,48 @@ them into a single installation package.
 
 GUB aims at correctness ie, be dependable and reproducible, while
 avoiding gratituous rebuilds.  It was originally developed for turnkey
-building of all LilyPond binary installers.  Currently it supports the
-following target platforms.
+building of all LilyPond binary installers.  Currently, GUB supports
+GNU/Linux, FreeBSD, MacOS-X and Microsoft Windows installation
+packages.  All packages are fully relocatable and can be installed
+with user privileges.
 
+<p></p>
+
+GUB uses plain Python classes to describe package build specifics.
+For reasonably well behaved packages, individual build specifications
+can stay very simple by extending the generic build specification
+classes.
+
+<h2>USAGE</h2>
+
+Run these programs with --help argument for instructions
+
+<pre>
+  bin/gpkg              - Gub Package Manager 
+  bin/gub               - the Gub Universal Builder
+  bin/gib               - Gub (platform dependent) Installer Builder
+  bin/gub-tester        - build tester; integrates with
+  			     Bazaar,CVS,Darcs,Git,SVN and gub
+  bin/gupdate           - check for and show or update new upstream releases
+  bin/cygwin-packager   - roll cygwin package
+</pre>
+
+<h2>BUGS</h2>
+
+Send bug reports and patches
+to <a href="mailto:lilypond-devel@gnu.org">lilypond-devel@gnu.org</a>.
+  
+<h2>Supported installer packages</h2>
+
+<a href="denemo">GNU Denemo</a><br>
+<a href="inkscape">Inkscape</a><br>
+<a href="lilypond">GNU LilyPond</a><br>
+<a href="oo.o">OpenOffice.org</a><br>
+
+with all essential dependencies.  Currently, 207 package build
+specifications are included in GUB.
+
+<h2>Supported installer platforms</h2>
 <pre>
 darwin-ppc
    tar.bz2 file for Darwin 7 (MacOS 10.3)/PowerPC
@@ -63,7 +121,6 @@ debian
 GUB is distributed under the terms of the GNU General Public License,
 version 2 or later.   Gub comes with NO WARRANTY.
 
-
 <h2>ACQUIRING</h2>
 
 The Git repository is at 
@@ -92,21 +149,13 @@ GUB home page
 
 <pre>
 * You need 
-
   - about 9 GB of free space (for all platforms)
-
   - standard unix shell utilities: cat, cp, install, mv, rm, sed, ...
-
   - a standard unix development environment with GCC and G++
-
-  - Python 2.4 or newer (2.5, 3.0 are known to work)
-
-  - Perl
+  - Python 2.4 or newer (2.5, 2.6, 3.0 are known to work)
 
 * Try
-
   bin/gub --help
-
   make help
 </pre>
 
@@ -145,94 +194,6 @@ GUB home page
 
     this leaves the Windows installer in uploads/
 </pre>
-
-See also
-<a href="lilypond">GNU LilyPond</a>,
-<a href="inkscape">Inkscape</a>,
-<a href="oo.o">OpenOffice.org</a>,
-and <a href="denemo">GNU Denemo</a>.
-
-<h2>USAGE</h2>
-
-Run these programs with --help argument for instructions
-
-<pre>
-  bin/gpkg              - Gub Package Manager 
-  bin/gub               - the Gub Universal Builder
-  bin/gib               - Gub (platform dependent) Installer Builder
-  bin/gub-tester        - build tester; integrates with
-  			     Bazaar,CVS,Darcs,Git,SVN and gub
-  bin/cygwin-packager   - roll cygwin package
-</pre>
-
-
-<h2>HISTORY</h2>
-
-The story starts June 1999 with a
-<a href="http://www.sankey.ws/contact.html">crazy guy</a> with an itch
-to <a href="http://www.sankey.ws/gnunt.html">run LilyPond on
-Windows</a>.
-
-To get <a href="http://www.sankey.ws/rpm.html">a feel</a> for the
-times, this
-was <a href="http://lilypond.org/download/source/v1.1/">LilyPond-1.1.47</a>,
-requiring Egcs 1.1, Python 1.5, Guile 1.3, discussing on
-help-gnu-music@gnu.org.
-
-Two years later
-<a href="http://lilypond.org/~janneke/software/cygwin-cross">Cygwin
-cross</a>, our first cross build environment is released.
-
-<p>
-  This is evolved into
-  a <a href="http://sourceware.org/ml/cygwin-apps/2002-07/msg00572.html">patch
-  set for mknetrel</a>.  Spring 2005: In a bold move a
-  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/windows">set
-  of patches for MinGW</a> are created to build LilyPond and all its
-  [17] dependencies.
-  <!--
-      expat fontconfig freetype gettext ghostscript glib gmp guile
-      jpeg libiconv libpng libtool lilypad lilypond mingw pango python
-      regex zlib
-      !-->
-  Simultaniously, a cross build environment and installer for
-  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/macos/">MacOSX</a>
-  is created.
-</p>
-
-<p>
-  Creating a cross build environment is not too difficult, esp. not if
-  you know how to use Google.  The problem is that they always break
-  and never work on other machines.  GUB starts as an effort to unify
-  the Windows and MacOS builders and to make the process somewhat
-  dependable and reproducible, i.e.: even more free time for the
-  developers (if there is such a thing) as the builds always succeed.
-  It uses Python instead of make and bash and adds checksums for the
-  package build specs.  The unification of cross builds greatly
-  facilitates adding of new architectures and before long GUB
-  supports cross building lilypond binaries for 9 different platforms.
-</p>
-
-<p>
-  GUB2 adds serialization of the Python build code before execution.
-  This makes the build checksumming less coarse, ie, less gratuitous
-  rebuilds and more reliable.  Also, all Python code is executed
-  before the build process starts, which means that there is less
-  chance of silly run time errors.  Lots of packages are added in an
-  effort to replace the OpenEmbedded-based build system for the Samco
-  3G video phone at SES, Philips Research Eindhoven.
-</p>
-
-<p>
-  In <a "http://news.opensuse.org/2008/08/07/announcing-hack-week-iii">Novell's
-  Hackweek-iii</a> GUB enters into its Third Life with
-  <a href="http://lilypond.org/gub">GUB3</a>, adding cross-platform
-  build dependencies and patches for an <a href="oo.o">OpenOffice.org
-  MinGW cross build</a>, including all essential libraries.  Later,
-  <a href="inkscape">Inkscape</a> is added, exploring and implementing
-  x.org dependencies.
-</p>
-
 </div>
 </body>
 </html>
