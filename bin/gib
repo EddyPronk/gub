@@ -141,12 +141,13 @@ def build_installer (installer_obj):
                 available[s] ()
         installer_file = installer_obj.installer_file ().replace (os.getcwd () + '/', '')
         logger.write_log ('installer left in: %(installer_file)s\n' % locals (), 'info')
-    except installer.ChecksumShortCircuit, exc:
-        logger.write_log ('*** checksum matches: no rebuild necessary\n', 'stage')
-        checksum_file = exc.file
-        logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')
-        return
-    
+    except:
+	t, v, b = sys.exc_info ()
+	if t == installer.ChecksumShortCircuit:
+            logger.write_log ('*** checksum matches: no rebuild necessary\n', 'stage')
+            checksum_file = v.file
+            logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')
+            return
     installer_obj.connect_command_runner (None)
 
 def main ():
@@ -171,9 +172,9 @@ def main ():
     installer_obj = installer.get_installer (settings, args, db, branch_dict)
     try:
         build_installer (installer_obj)
-    except locker.LockedError, locked:
+    except locker.LockedError:
+        logging.error ('another build in progress.  Skipping.')
         if options.skip_if_locked:
-            logging.error ('skipping build; install_root is locked\n')
             sys.exit (0)
         raise
     logging.stage ('done\n')

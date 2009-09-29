@@ -16,8 +16,8 @@ xdvi_cv_func_good_vsnprintf=${xdvi_cv_func_good_vsnprintf=yes}
 ac_cv_func_vfork_works=${ac_cv_func_vfork_works=yes}
 xdvi_cv_setsid_in_vfork=${xdvi_cv_setsid_in_vfork=yes}
 lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
-''')
-    dependencies = gup.gub_to_distro_deps (lilypond.LilyPond.dependencies,
+'''
+    dependencies = gup.gub_to_distro_deps (texlive.Texlive.dependencies,
                                            cygwin.gub_to_distro_dict)
     def patch (self):
         # FIXME: duh: cross-compile auto-enables t1lib

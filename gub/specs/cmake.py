@@ -1,3 +1,4 @@
+'''
 %_mingw32_cmake %{_mingw32_env} ; \
 cmake
 -DCMAKE_SYSTEM_NAME="Windows"
@@ -24,3 +25,4 @@ cmake
 	-DQT_INCLUDE_DIR="%{_mingw32_includedir}"
 	-DQT_QTCORE_INCLUDE_DIR="%{_mingw32_includedir}/QtCore"
 	-DQT_QTGUI_INCLUDE_DIR="%{_mingw32_includedir}/QtGui"
+'''

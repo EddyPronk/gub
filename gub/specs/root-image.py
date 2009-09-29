@@ -2,7 +2,7 @@ from gub import build
 
 class Root_image (build.NullBuild):
     source = 'url://host/root-image-1.0.tar.gz'
-        busybox = [
+    busybox = [
             'dhcp',
             'psmisc',
             'tinylogin',
@@ -14,6 +14,7 @@ class Root_image (build.NullBuild):
             'dropbear',
             'sysvinit',
             ]
+    subpackage_names = ['']
     def get_ipkg_dependencies (self):
         busybox = ['makedevs']
         return [
@@ -39,7 +40,6 @@ class Root_image (build.NullBuild):
             'tslib-conf',
             'update-rc.d',
             ]
-    subpackage_names = ['']
     def install_ipkg (self, i):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))

@@ -8,6 +8,8 @@ import sys
 import time
 import traceback
 import urllib2
+if sys.version.startswith ('3'):
+    from functools import reduce
 #
 from gub.syntax import printf, function_get_class, function_set_class, next
 from gub import octal

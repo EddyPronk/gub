@@ -1,3 +1,4 @@
+from gub import misc
 from gub import target
 
 class Dhcp (target.AutoBuild):
@@ -6,7 +7,6 @@ class Dhcp (target.AutoBuild):
     srcdir_build_broken = True
     subpackage_names = ['']
     configure_command = '%(srcdir)s/configure linux-2.2'
-        from gub import misc
     make_flags = misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc
 AR=%(toolchain_prefix)sar

@@ -43,6 +43,60 @@ packages.'''
             'tools::t1utils',
             'zlib',
             ]
+##--with-system-kpathsea
+    common_configure_flags = misc.join_lines ('''
+--disable-cjkutils
+--disable-dvi2tty
+--disable-dvipdfmx
+--disable-dvipng
+--disable-lcdf-typetools
+--disable-multiplatform
+--disable-native-texlive-build
+--disable-psutils
+--disable-t1utils
+--disable-texinfo
+--disable-xdvipdfmx
+--disable-xetex
+--enable-ipc
+--enable-omega
+--enable-oxdvik
+--enable-pdflatex
+--enable-pdftex
+--enable-shared
+--enable-web2c
+--with-dialog
+--with-etex
+--with-freetype2-include=%(system_prefix)s/include/freetype2
+--with-pnglib-include=%(system_prefix)s/include/libpng12
+--with-system-freetype2
+--with-system-gd
+--with-system-ncurses
+--with-system-pnglib
+--with-system-t1lib
+--with-system-tifflib
+--with-system-zlib
+--without-freetype
+--without-icu
+--without-sam2p
+--without-system-freetype
+--without-texi2html
+--without-ttf2pk
+--without-xdvipdfmx
+--without-xetex
+''')
+    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
+                         + target.AutoBuild.configure_command)
+    configure_flags = (target.AutoBuild.configure_flags
+                       + '%(common_configure_flags)s'
+                       + misc.join_lines ('''
+--with-x
+--with-mf-x-toolkit=xaw
+--with-xdvi-x-toolkit=xaw
+--x-includes=%(system_prefix)s/X11R6/include
+--x-libraries=%(system_prefix)s/X11R6/lib
+'''))
+    destdir_install_broken = True
+    license_files = ['%(srcdir)s/LICENSE.TL']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         def fixed_version (self):
@@ -98,67 +152,12 @@ packages.'''
             if texmf_dist:
                 self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.func (defer)
-    def common_configure_flags (self):
-##--with-system-kpathsea
-        return misc.join_lines ('''
---disable-cjkutils
---disable-dvi2tty
---disable-dvipdfmx
---disable-dvipng
---disable-lcdf-typetools
---disable-multiplatform
---disable-native-texlive-build
---disable-psutils
---disable-t1utils
---disable-texinfo
---disable-xdvipdfmx
---disable-xetex
---enable-ipc
---enable-omega
---enable-oxdvik
---enable-pdflatex
---enable-pdftex
---enable-shared
---enable-web2c
---with-dialog
---with-etex
---with-freetype2-include=%(system_prefix)s/include/freetype2
---with-pnglib-include=%(system_prefix)s/include/libpng12
---with-system-freetype2
---with-system-gd
---with-system-ncurses
---with-system-pnglib
---with-system-t1lib
---with-system-tifflib
---with-system-zlib
---without-freetype
---without-icu
---without-sam2p
---without-system-freetype
---without-texi2html
---without-ttf2pk
---without-xdvipdfmx
---without-xetex
-''')
-    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                target.AutoBuild.configure_command)
-    configure_flags = (target.AutoBuild.configure_flags
-                       + '%(common_configure_flags)s'
-                       + misc.join_lines ('''
---with-x
---with-mf-x-toolkit=xaw
---with-xdvi-x-toolkit=xaw
---x-includes=%(system_prefix)s/X11R6/include
---x-libraries=%(system_prefix)s/X11R6/lib
-'''))
-    destdir_install_broken = True
     def install (self):
         target.AutoBuild.install (self)
         self.system ('''
 rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
 ''')
-    license_files = ['%(srcdir)s/LICENSE.TL']
     # FIXME: shared for all vc packages
     def srcdir (self):
         return '%(allsrcdir)s/%(name)s-%(version)s'

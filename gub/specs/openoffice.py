@@ -1,6 +1,9 @@
 import operator
 import os
 import re
+import sys
+if sys.version.startswith ('3'):
+    from functools import reduce
 #
 from gub.syntax import printf
 from gub import context

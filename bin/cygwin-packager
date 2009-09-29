@@ -34,6 +34,9 @@ argv0_relocation ()
 import optparse
 import os
 import re
+import sys
+if sys.version.startswith ('3'):
+    from functools import reduce
 #
 from gub import context
 from gub import cygwin

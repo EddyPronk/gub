@@ -12,4 +12,4 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-linux-2.4.23-arm-bus-isa.pat
         return (glibc.Glibc.enable_add_ons (self)
                 .replace ('--enable-add-ons=nptl', ''))
     configure_variables = (glibc.Glibc.configure_variables
-                           ' --without-fp')
+                           + ' --without-fp')
