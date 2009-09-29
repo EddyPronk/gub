@@ -242,9 +242,7 @@ class Dependency_resolver:
             os.makedirs (self.settings.downloads + '/cygwin')
         self.packages = {}
         self.source = libtool_source + map (misc.strip_platform, todo)
-        print 'load packages'
         self.load_packages ()
-        print 'done'
 
     def grok_setup_ini (self, file, skip=[]):
         for p in get_cygwin_packages (self.settings, file, skip):
