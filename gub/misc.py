@@ -359,7 +359,7 @@ def _download_url (url, dest_dir, dest_name='', progress=None):
     if not dest_name:
         dest_name = os.path.basename (url)
     if size:
-        progress ('renaming: ' + tmpfile + '-> ' + os.path.join (dest_dir, dest_name))
+        # progress ('renaming: ' + tmpfile + '-> ' + os.path.join (dest_dir, dest_name) + '\n')
         os.rename (tmpfile, os.path.join (dest_dir, dest_name))
         if progress:
             progress ('done (%(size)s)\n' % locals ())
