@@ -4,7 +4,8 @@ from gub import misc
         
 class Gcc_core (gcc.Gcc__from__source):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    dependencies = gcc.Gcc.dependencies
+    dependencies = [x for x in gcc.Gcc__from__source.dependencies
+                    if x != 'glibc-core']
     subpackage_names = ['']
     def name (self):
         return 'cross/gcc-core'

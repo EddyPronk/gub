@@ -57,7 +57,7 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 
 class Gcc__from__source (Gcc):
     dependencies = (Gcc.dependencies
-                + ['cross/gcc-core', 'glibc-core'])
+                    + ['cross/gcc-core', 'glibc-core'])
     #FIXME: merge all configure_command settings with Gcc
     configure_flags = (Gcc.configure_flags
                 + misc.join_lines ('''
