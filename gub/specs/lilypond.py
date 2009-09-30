@@ -219,7 +219,8 @@ class LilyPond_base (target.AutoBuild):
         source.is_tracking = misc.bind_method (lambda x: True, source)
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
-        self.dependencies = [self.settings.build_platform + '::lilypond']
+        self.dependencies = (self.__class__.dependencies
+                             + [settings.build_platform + '::lilypond'])
         self.GS_VERSION = '8.70' # FIXME
     subpackage_names = ['']
     def stages (self):
