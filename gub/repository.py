@@ -673,7 +673,7 @@ fatal: The remote end hung up unexpectedly
         if self.git_pipe ('diff' % locals (), dir=destdir):
             self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
         self.system ('cd %(destdir)s && git checkout %(HEAD)s' % locals ())
-        self.system ('cd %(destdir)s && (git checkout %(branch)s || git checkout -b %(branch)s)' % locals ())
+        self.system ('cd %(destdir)s && (git branch -D %(branch)s; git checkout -b %(branch)s)' % locals ())
     def _update_workdir (self, destdir):
         checkout_dir = self.dir
         branch = self.get_ref ()
