@@ -13,6 +13,7 @@ class LilyPond_doc (lilypond.LilyPond_base):
                 'tools::rsync', # ugh, we depend on *rsync* !?
                 #'tools::texlive',
                 ])
+    parallel_build_broken = True
     make_flags = misc.join_lines ('''
 CROSS=no
 DOCUMENTATION=yes
