@@ -6,5 +6,6 @@ class Rsync__tools (tools.AutoBuild):
     # adding libpopt build depependency not really necessary, as rsync
     # bundles it.
     configure_flags = (tools.AutoBuild.configure_flags
-                + ' --with-included-popt'
-                + r''' 'CFLAGS=-DPREFIX=\"%(system_prefix)s\"' ''')
+                + ' --with-included-popt')
+    configure_variables = (tools.AutoBuild.configure_variables
+                           + r''' 'CPPFLAGS=-DPREFIX=\"%(system_prefix)s\"' ''')
