@@ -12,6 +12,7 @@ from gub import tools
 #  - mingw untested
 #  - obj/sobj
 shared = False
+dynamic = False
 
 class Ghostscript (target.AutoBuild):
     '''The GPL Ghostscript PostScript interpreter
@@ -29,7 +30,6 @@ models.'''
     parallel_build_broken = True
     # For --enable-compile-inits, see comment in compile()
     configure_flags = (target.AutoBuild.configure_flags
-                       .replace ('--disable-static', '--enable-dynamic')
                        + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
@@ -44,6 +44,9 @@ models.'''
 --without-jasper
 --disable-compile-inits
 '''))
+    if dynamic:
+        configure_flags = (configure_flags
+                           .replace ('--disable-static', '--enable-dynamic'))
     compile_flags = (' INCLUDE=%(system_prefix)s/include'
                      + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                      + ' PSMANDIR=%(prefix_dir)s/share/man'
@@ -217,8 +220,13 @@ ac_cv_lib_pthread_pthread_create=no
         Ghostscript.patch (self)
     def configure (self):
         Ghostscript.configure (self)
-        self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
-                       '%(builddir)s/Makefile')        
+        if dynamic: # Dynamic is a configure cross-compile disaster area,
+            # it uses BUILD's uname to determine HOST libraries.
+            self.file_sub ([('^(EXTRALIBS *=.*)(-ldl )', r'\1'),
+                            ('^(EXTRALIBS *=.*)(-rdynamic )', r'\1')],
+                           '%(builddir)s/Makefile')
+        self.file_sub ([('^(EXTRALIBS *=.*)', r'\1 -lwinspool -lcomdlg32 -lz')],
+                       '%(builddir)s/Makefile')
         self.file_sub ([('^unix__=.*', misc.join_lines ('''unix__=
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
