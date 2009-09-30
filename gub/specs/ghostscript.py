@@ -7,6 +7,12 @@ from gub import repository
 from gub import target
 from gub import tools
 
+# FIXME: static for now
+#  - shell_rpath hack does not work anymore
+#  - mingw untested
+#  - obj/sobj
+shared = False
+
 class Ghostscript (target.AutoBuild):
     '''The GPL Ghostscript PostScript interpreter
 Ghostscript is used for PostScript preview and printing.  It can
@@ -16,17 +22,14 @@ Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
     #source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
-
-    ## We prefer git: downloading is faster and atomic.
-    # T42 fix for lilypond
-    #revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
-
     # HEAD - need to load TTF fonts on fedora without crashing.
     revision = 'b35333cf3579e85725bd7d8d39eacc9640515eb8'
-    source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
+    #source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
+    source = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs870/ghostscript-8.70.tar.gz'
     parallel_build_broken = True
     # For --enable-compile-inits, see comment in compile()
     configure_flags = (target.AutoBuild.configure_flags
+                       .replace ('--disable-static', '--enable-dynamic')
                        + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
@@ -45,6 +48,17 @@ models.'''
                      + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                      + ' PSMANDIR=%(prefix_dir)s/share/man'
                      + r''' XLDFLAGS='%(shell_rpath)s' ''')
+    install_command = (target.AutoBuild.install_command
+                + ' install_prefix=%(install_root)s'
+                + ' mandir=%(prefix_dir)s/share/man/ '
+                + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
+                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples ')
+    obj = 'obj'
+    if shared:
+        obj = 'sobj'
+        compile_flags = compile_flags + ' so'
+        install_flags = (target.AutoBuild.install_flags
+                         .replace (' install', ' soinstall'))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -112,11 +126,16 @@ models.'''
             log2_sizeof_long = 3
             sizeof_ptr = 8
 
+        # obsolete
         self.file_sub (
             [('#define ARCH_CAN_SHIFT_FULL_LONG .',
               '#define ARCH_CAN_SHIFT_FULL_LONG %(can_shift)d' % locals ()),
              ('#define ARCH_CACHE1_SIZE [0-9]+',
               '#define ARCH_CACHE1_SIZE %(cache_size)d' % locals ()),
+             ], '%(builddir)s/%(obj)s/arch.h')
+        
+        # cannot use: must_succeed=5, they may be okay..
+        self.file_sub ([
              ('#define ARCH_IS_BIG_ENDIAN [0-9]',
               '#define ARCH_IS_BIG_ENDIAN %(big_endian)d' % locals ()),
              ('#define ARCH_ALIGN_LONG_MOD [0-9]',
@@ -127,7 +146,8 @@ models.'''
               '#define ARCH_LOG2_SIZEOF_LONG %(log2_sizeof_long)d' % locals ()),
              ('#define ARCH_SIZEOF_PTR [0-9]',
               '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
-             ], '%(builddir)s/obj/arch.h')
+             ], '%(builddir)s/%(obj)s/arch.h')
+
     def configure (self):
         target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
@@ -163,30 +183,23 @@ models.'''
     def compile (self):
         # obj/mkromfs is needed for --enable-compile-inits but depends on native -liconv.
         self.system ('''
-cd %(builddir)s && mkdir -p obj
-cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= OBJ=build-o obj/genconf obj/echogs obj/genarch obj/arch.h 
+cd %(builddir)s && mkdir -p %(obj)s
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= OBJ=build-o %(obj)s/genconf %(obj)s/echogs %(obj)s/genarch %(obj)s/arch.h 
 ''')
         self.fixup_arch ()
         target.AutoBuild.compile (self)
-
-    install_command = (target.AutoBuild.install_command
-                + ' install_prefix=%(install_root)s'
-                + ' mandir=%(prefix_dir)s/share/man/ '
-                + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
-                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples ')
 
     def install (self):
         target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/etc/relocate/')
         self.dump ('''
-
 prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/ghostscript/%(version)s/fonts
 prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/gs/fonts
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource
-prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource/Init
-
 ''', '%(install_prefix)s/etc/relocate/gs.reloc')
+        if shared:
+            self.system ('mv %(install_prefix)s/bin/gsc %(install_prefix)s/bin/gs')
 
 class Ghostscript__mingw (Ghostscript):
     # source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
