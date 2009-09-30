@@ -220,6 +220,7 @@ class LilyPond_base (target.AutoBuild):
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
         self.dependencies = [self.settings.build_platform + '::lilypond']
+        self.GS_VERSION = '8.70' # FIXME
     subpackage_names = ['']
     def stages (self):
         return ['compile', 'install', 'package']
@@ -240,9 +241,10 @@ class LilyPond_base (target.AutoBuild):
         return misc.join_lines ('''
 LILYPOND_EXTERNAL_BINARY=%(system_prefix)s/bin/lilypond
 PATH=%(tools_prefix)s/bin:%(system_prefix)s/bin:$PATH
-GS_LIB=%(system_prefix)s/share/ghostscript/*/lib
 MALLOC_CHECK_=2
 LD_LIBRARY_PATH=%(tools_prefix)s/lib:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe}
+GS_FONTPATH=%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/fonts:%(system_prefix)s/share/gs/fonts
+GS_LIB=%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/Resource/Init:%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/Resource
 ''')
     compile_command = ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
