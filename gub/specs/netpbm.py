@@ -33,7 +33,7 @@ X11LIB=NONE
         # It's a feature! :-)
         self.system ('rmdir %(install_prefix)s')
 
-        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s %(compile_flags)s')
+        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s %(make_flags)s')
         # Huh, we strip stuff in installer.py, no?  Hmm.
         self.system ('''rm -rf %(install_prefix)s/misc 
 rm -rf %(install_prefix)s/README
