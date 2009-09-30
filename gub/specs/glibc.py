@@ -34,7 +34,12 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
-class Glibc (target.AutoBuild):
+# FIXME: also cross.
+# cross/gcc can only depend on glibc-core if glibc-core is also a
+# cross package.  With glibc as cross package, all packages
+# automagically depend on it, which is nice.
+# See cross.py:set_cross_dependencies ()
+class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = [
         'glibc-2.3-powerpc-initfini.patch',
