@@ -40,7 +40,7 @@ TARGET_PYTHON=/usr/bin/python
         target.AutoBuild.install (self) 
         self.system ('''
 LD_PRELOAD= cp -f sourcefiles/dir %(install_root)s/share/info/dir
-cd %(install_root)s/share/info && %(doc_relocation)s install-info --info-dir=. lilypond.info
+cd %(install_root)s/share/info && %(doc_relocation)s install-info --info-dir=. lilypond-notation.info
 LD_PRELOAD= tar -C %(install_root)s -cjf %(doc_ball)s .
 LD_PRELOAD= tar --exclude '*.signature' -C %(builddir)s/out-www/online-root -cjf %(web_ball)s .
 ''')
