@@ -56,6 +56,9 @@ models.'''
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples ')
+    @staticmethod
+    def static_version ():
+        return misc.version_from_url (Ghostscript.source)
     obj = 'obj'
     if shared:
         obj = 'sobj'
@@ -88,9 +91,6 @@ models.'''
                        target.AutoBuild.builddir (self))
     def name (self):
         return 'ghostscript'
-    # FIXME: C&P.
-    def ghostscript_version (self):
-        return '.'.join (self.ball_version.split ('.')[0:2])
     def autoupdate (self):
         # generate Makefile.in
         self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
@@ -273,3 +273,9 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
+
+def test ():
+    printf ('Ghostscript.static_version:', Ghostscript.static_version ())
+
+if __name__ =='__main__':
+    test ()

@@ -180,6 +180,12 @@ def name_from_url (url):
         name, version_tuple, format = split_ball (name)
     return name
 
+def version_from_url (url):
+    plain_url, params = dissect_url (url)
+    if is_ball (plain_url):
+        return version_to_string (split_ball (plain_url)[1])
+    return '0.0'
+        
 def list_append (lists):
     return reduce (lambda x,y: x+y, lists, [])
 

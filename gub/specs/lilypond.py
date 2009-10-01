@@ -5,6 +5,7 @@ from gub import misc
 from gub import repository
 from gub import target
 from gub import versiondb
+from gub.specs import ghostscript
 
 class LilyPond (target.AutoBuild):
     '''A program for printing sheet music
@@ -212,6 +213,7 @@ class LilyPond__darwin__ppc (LilyPond__darwin):
 class LilyPond_base (target.AutoBuild):
     source = LilyPond.source
     install_after_build = False
+    ghostscript_version = ghostscript.Ghostscript.static_version ()
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source.dir = source.dir.replace (self.name (), 'lilypond')
@@ -221,7 +223,6 @@ class LilyPond_base (target.AutoBuild):
         source.update_workdir = misc.bind_method (lambda x: True, source)
         self.dependencies = (self.__class__.dependencies
                              + [settings.build_platform + '::lilypond'])
-        self.GS_VERSION = '8.70' # FIXME
     subpackage_names = ['']
     def stages (self):
         return ['compile', 'install', 'package']
@@ -244,8 +245,8 @@ LILYPOND_EXTERNAL_BINARY=%(system_prefix)s/bin/lilypond
 PATH=%(tools_prefix)s/bin:%(system_prefix)s/bin:$PATH
 MALLOC_CHECK_=2
 LD_LIBRARY_PATH=%(tools_prefix)s/lib:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe}
-GS_FONTPATH=%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/fonts:%(system_prefix)s/share/gs/fonts
-GS_LIB=%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/Resource/Init:%(system_prefix)s/share/ghostscript/%(GS_VERSION)s/Resource
+GS_FONTPATH=%(system_prefix)s/share/ghostscript/%(ghostscript_version)s/fonts:%(system_prefix)s/share/gs/fonts
+GS_LIB=%(system_prefix)s/share/ghostscript/%(ghostscript_version)s/Resource/Init:%(system_prefix)s/share/ghostscript/%(ghostscript_version)s/Resource
 ''')
     compile_command = ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
