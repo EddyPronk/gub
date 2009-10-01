@@ -6,12 +6,6 @@
 *pats
 *~
 .\#*
-/BINARIES
-/BOOT
-/BOOTSTRAP
-/GUB
-/PRECIOUS
-/ROOT
 0[0-9][0-9][0-9]-*.patch
 TAGS
 \#*
