@@ -16,7 +16,6 @@ class LilyPond (target.AutoBuild):
 
     source = 'git://git.sv.gnu.org/lilypond.git'
     branch = 'master'
-    parallel_build_broken = True
     subpackage_names = ['']
     dependencies = ['cross/gcc-c++-runtime',
                     'flex',
