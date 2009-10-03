@@ -50,7 +50,7 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-assert-dl_next_tls_modid.patch',
         'glibc-2.3-binutils-2.19-i386.patch',
         ]
-    dependencies = ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
+    dependencies = ['cross/gcc', 'glibc-core', 'tools::bison', 'tools::gzip', 'tools::perl', 'linux-headers']
     configure_flags = (target.AutoBuild.configure_flags + misc.join_lines ('''
 --disable-profile
 --disable-debug
