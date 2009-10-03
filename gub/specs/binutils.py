@@ -37,3 +37,12 @@ def install_librestrict_stat_helpers (self):
         '%(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin',
         ]:
         self.map_find_files (add_g_file_names, d, '(^|.*/)([^/g][^-/]*|.*-[^/g][^-/]*)$')
+
+def install_missing_plain_binaries (self):
+    def copy (logger, full_name):
+        base_name = (os.path.basename (self.expand (full_name))
+                     .replace (self.expand ('%(toolchain_prefix)s'), ''))
+        plain_name = self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin/%(base_name)s', env=locals ())
+        if not os.path.exists (plain_name):
+            loggedos.system (logger, 'cp %(full_name)s %(plain_name)s' % locals ())
+    self.map_find_files (copy, '%(install_prefix)s%(cross_dir)s/bin', self.expand ('%(toolchain_prefix)s.*'))

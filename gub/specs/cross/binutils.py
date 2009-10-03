@@ -16,6 +16,7 @@ class Binutils (cross.AutoBuild):
     make_flags = 'MULTIOSDIR=../../lib'
     def install (self):
         cross.AutoBuild.install (self)
+        binutils.install_missing_plain_binaries (self)
         binutils.install_librestrict_stat_helpers (self)
         binutils.remove_fedora9_untwanted_but_mysteriously_built_libiberies (self)
 
