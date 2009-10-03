@@ -63,18 +63,18 @@ bootstrap_names = [
     'tools::file',
     ]
 
+if 'stat' in misc.librestrict ():
+    bootstrap_names += [
+        'tools::bash',
+        'tools::coreutils',
+        'tools::diff',
+        'tools::findutils',
+        'tools::gawk',
+        'tools::grep',
+        'tools::sed',
+        ]
+
 def set_cross_dependencies (package_object_dict):
-    global bootstrap_names
-    if 'stat' in misc.librestrict ():
-        bootstrap_names += [
-            'tools::bash',
-            'tools::coreutils',
-            'tools::diff',
-            'tools::findutils',
-            'tools::gawk',
-            'tools::grep',
-            'tools::sed',
-            ]
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]

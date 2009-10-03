@@ -12,6 +12,11 @@ class Libtool (target.AutoBuild):
     dependencies = ['tools::libtool']
     configure_variables = (target.AutoBuild.configure_variables
                            .replace ('SHELL=', 'CONFIG_SHELL='))
+    if 'stat' in misc.librestrict ():
+        configure_command = ('CONFIG_SHELL=%(tools_prefix)s/bin/sh; '
+                             'LD_PRELOAD=%(tools_prefix)s/usr/lib/librestrict-open.so; '
+                             + target.AutoBuild.configure_command
+                             .replace ('SHELL=', 'CONFIG_SHELL='))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # repository patched in method.
@@ -23,9 +28,6 @@ class Libtool (target.AutoBuild):
         Libtool.set_sover (self)
         if isinstance (self.source, repository.Git):
             self.dependencies += ['tools::libtool', 'tools::automake']
-        if 'stat' in misc.librestrict ():
-            self.configure_command = ('CONFIG_SHELL=%(tools_prefix)s/bin/sh '
-                                      + target.AutoBuild.configure_command)
     def autoupdate (self):
         # automagic works, but takes forever
         if isinstance (self.source, repository.Git):
