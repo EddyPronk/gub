@@ -1,6 +1,4 @@
 #
-from gub import build
-from gub import context
 from gub import misc
 from gub import repository
 from gub import target
@@ -13,9 +11,10 @@ class Libtool (target.AutoBuild):
     configure_variables = (target.AutoBuild.configure_variables
                            .replace ('SHELL=', 'CONFIG_SHELL='))
     if 'stat' in misc.librestrict ():
-        configure_command = ('CONFIG_SHELL=%(tools_prefix)s/bin/sh; '
-                             'LD_PRELOAD=%(tools_prefix)s/usr/lib/librestrict-open.so; '
+        configure_command = ('CONFIG_SHELL=%(tools_prefix)s/bin/bash '
+                             'LD_PRELOAD=%(tools_prefix)s/lib/librestrict-open.so '
                              + target.AutoBuild.configure_command
+                             .replace ('/sh', '/bash')
                              .replace ('SHELL=', 'CONFIG_SHELL='))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -32,6 +31,7 @@ class Libtool (target.AutoBuild):
         # automagic works, but takes forever
         if isinstance (self.source, repository.Git):
             self.system ('cd %(srcdir)s && reconfdirs=". libltdl" ./bootstrap')
+#        target.AutoBuild.autoupdate (self)
     @staticmethod
     def set_sover (self):
         # FIXME: how to automate this?
@@ -71,3 +71,6 @@ class Libtool__tools (tools.AutoBuild, Libtool):
         self.file_sub ([(' (/usr/lib/*[" ])', r' %(system_prefix)s/lib \1'),
                         ('((-L| )/usr/lib/../lib/* )', r'\2%(system_prefix)s/lib \1')],
                        '%(install_prefix)s/bin/libtool')
+    if 'stat' in misc.librestrict ():
+        configure_command = ('SHELL=/bin/bash CONFIG_SHELL=/bin/bash '
+                             + tools.AutoBuild.configure_command)

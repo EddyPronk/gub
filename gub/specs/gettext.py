@@ -1,3 +1,6 @@
+#
+from gub import loggedos
+from gub import misc
 from gub import target
 from gub import tools
 
@@ -5,8 +8,6 @@ class Gettext (target.AutoBuild):
     # 0.16.1 makes gcc barf on ICE.
     source = 'http://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
     dependencies = ['libtool']
-    def LD_PRELOAD (self):
-        return '' # give up
     config_cache_overrides = (target.AutoBuild.config_cache_overrides + '''
 ac_cv_prog_YACC=${ac_cv_prog_YACC=no}
 ac_cv_prog_INTLBISON=${ac_cv_prog_INTLBISON=no}
@@ -23,6 +24,28 @@ ac_cv_prog_HAVE_JIKES_IN_PATH=${ac_cv_prog_HAVE_JIKES_IN_PATH=no}
                 + ' --disable-csharp'
                 + ' --disable-java'
                 )
+#    if 'stat' in misc.librestrict (): # too broken to fix
+#        def LD_PRELOAD (self):
+#            return '%(tools_prefix)s/lib/librestrict-open.so'
+    if 'stat' in misc.librestrict (): # OPENs /USR/include/libexpat.la
+        def LD_PRELOAD (self):
+            return ''
+#
+#    if 'stat' in misc.librestrict (): # too broken to fix
+#        # configure [gettext, flex] blindly look for /USR/include/libi*
+#        configure_variables = (target.configure_variables
+#                               + ' --without-libiconv-prefix'
+#                               + ' --without-libintl-prefix')
+#    def autoupdate (self):
+#        target.AutoBuild.autoupdate (self)
+#        if 'stat' in misc.librestrict ():
+#            def defer (logger, file):
+#                loggedos.file_sub (logger, [
+#                        # blindly stats /USR/share/locale/fr*
+#                        # /USR/lib/jdk -- never mind --disable-java
+#                        (' /usr(/share/locale|/lib/jdk)',
+#                         self.expand (r'%(system_prefix)s/\1'))], file)
+#            self.map_find_files (defer, '%(srcdir)s', '^configure$')
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([

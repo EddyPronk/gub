@@ -1,4 +1,6 @@
+import os
 #
+from gub import build
 from gub import context
 from gub import loggedos
 from gub import misc
@@ -65,6 +67,18 @@ class LilyPond (target.AutoBuild):
                                  + ' -I%(srcdir)s/lily/out' % locals ())
         if isinstance (source, repository.Git):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
+        if 'stat' in misc.librestrict ():
+            build.append_dict (self, {'PATH': os.environ['PATH']}) # need mf, mpost from system
+    if 'stat' in misc.librestrict ():
+        def patch (self):
+            target.AutoBuild.patch (self)
+            # How weird is this?  With LIBRESTRICT=open:stat [see
+            # TODO] the set -eux carry over into autoconf and
+            # configure runs.
+            for i in ('smart-autogen.sh', 'smart-configure.sh'):
+                self.file_sub ([
+                        ('^([$][{]?srcdir[}]?/.*$)', r'(set +eux; \1) || exit 1'),
+                        ], '%(srcdir)s/' + i)
     def get_conflict_dict (self):
         return {'': ['lilypondcairo']}
     def autoupdate (self):

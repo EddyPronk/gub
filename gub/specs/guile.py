@@ -31,6 +31,7 @@ C_INCLUDE_PATH=
 CPPFLAGS=
 LIBRARY_PATH=
 PATH_SEPARATOR=':'
+PATH=/usr/bin:$PATH
 cc
 -I%(builddir)s
 -I%(srcdir)s
@@ -38,10 +39,13 @@ cc
 -I.
 -I%(srcdir)s/libguile"
 '''))
-    compile_flags_native = ''
+    compile_flags_native = ' LD_PRELOAD= '
     configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                          + target.AutoBuild.configure_command
                          + guile_configure_flags)
+    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
+                + target.AutoBuild.compile_command)
+    subpackage_names = ['doc', 'devel', 'runtime', '']
     @staticmethod
     def version_from_VERSION (self):
         return self.version_from_shell_script ('GUILE-VERSION',
@@ -55,7 +59,6 @@ cc
             source.version = misc.bind_method (Guile.version_from_VERSION,
                                                source)
         self.so_version = '17'
-    subpackage_names = ['doc', 'devel', 'runtime', '']
     def patch (self):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
@@ -69,14 +72,14 @@ exec %(tools_prefix)s/bin/guile "$@"
                        '%(srcdir)s/Makefile.am')
         # Guile [doc] does not compile with dash *and* not with
         # librestrict-stat.so; patch out.
-        self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
-        if not isinstance (self.source, repository.Git):
+        if isinstance (self.source, repository.Git):
+            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
+            self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.am')
+        else:
             self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.in')
             self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
-                + target.AutoBuild.compile_command)
     def compile (self):
         ## Ugh: broken dependencies break parallel build with make -jX
         self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)s gen-scmconfig guile_filter_doc_snarfage')
@@ -186,7 +189,7 @@ class Guile__linux__x86 (Guile):
 
 class Guile__tools (tools.AutoBuild, Guile):
     dependencies = (Guile.dependencies
-                + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
+                    + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     make_flags = Guile.make_flags
     # Doing make gen-scmconfig, guile starts a configure recheck:
     #    cd .. && make  am--refresh

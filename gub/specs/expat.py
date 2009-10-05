@@ -1,4 +1,3 @@
-import os
 #
 from gub import misc
 from gub import target
@@ -13,6 +12,8 @@ CFLAGS='-O2 -DHAVE_EXPAT_CONFIG_H'
 EXEEXT=
 RUN_FC_CACHE_TEST=false
 ''')
+    if 'stat' in misc.librestrict (): # 40 lines of sh code from 1993 implementing `mkdir -p', statting components of DESTDIR: /home, ...
+        make_flags = make_flags + ''' 'mkinstalldirs=mkdir -p' '''
     def patch (self):
         target.AutoBuild.patch (self)
         #FIXME: should have configure.ac/in vs configure timestamp test
@@ -20,7 +21,7 @@ RUN_FC_CACHE_TEST=false
         self.system ('touch %(srcdir)s/tests/xmltest.sh.in')
 
 class Expat__mingw (Expat):
-        # mingw's expat libtool build breaks with DASH
+    # mingw's expat libtool build breaks with DASH
     configure_variables = (Expat.configure_variables
                 .replace ('SHELL=', 'XSHELL='))
 

@@ -151,11 +151,6 @@ class Python__tools (tools.AutoBuild, Python):
     dependencies = ['autoconf', 'libtool']
     force_autoupdate = True
     make_flags = Python.make_flags
-    def __init__ (self, settings, source):
-        Python.__init__ (self, settings, source)
-        if 'stat' in misc.librestrict ():
-            self.install_command = ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
-                                    + tools.AutoBuild.install_command)
     def patch (self):
         tools.AutoBuild.patch (self)
         Python.patch (self)

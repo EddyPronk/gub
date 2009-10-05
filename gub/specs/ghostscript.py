@@ -187,7 +187,7 @@ models.'''
         # obj/mkromfs is needed for --enable-compile-inits but depends on native -liconv.
         self.system ('''
 cd %(builddir)s && mkdir -p %(obj)s
-cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= OBJ=build-o %(obj)s/genconf %(obj)s/echogs %(obj)s/genarch %(obj)s/arch.h 
+cd %(builddir)s && make PATH=/usr/bin:$PATH CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= OBJ=build-o %(obj)s/genconf %(obj)s/echogs %(obj)s/genarch %(obj)s/arch.h 
 ''')
         self.fixup_arch ()
         target.AutoBuild.compile (self)

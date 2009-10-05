@@ -72,6 +72,17 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
         build.AutoBuild.__init__ (self, settings, source)
         if self.config_cache_settings ():
             self.configure_flags += ' --cache-file=config.cache'
+        if 'stat' in misc.librestrict ():
+            self.LD_PRELOAD = misc.bind_method (build.AutoBuild.LD_PRELOAD,
+                                                self)
+            from gub.cross import bootstrap_names
+            if self.platform_name () not in bootstrap_names + [
+                'tools::git',
+                'tools::gettext',
+                'tools::tar'
+                ]:
+                self.configure_variables = (self.configure_variables
+                                            + ' SHELL=%(tools_prefix)s/bin/sh ')
     # FIXME: MI-hacks
     # must not set cross-compiling, a config cache or update libtool
     def autoupdate (self):

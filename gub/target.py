@@ -31,6 +31,9 @@ class AutoBuild (build.AutoBuild):
         build.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
             self.configure_variables += ' SHELL=%(tools_prefix)s/bin/sh'
+            # configure [gettext, flex] blindly look for /USR/include/libi*
+            self.configure_flags += (' --without-libiconv-prefix'
+                                     + ' --without-libintl-prefix')
     @context.subst_method
     def LD_PRELOAD (self):
         return '%(tools_prefix)s/lib/librestrict.so'
@@ -39,10 +42,15 @@ class AutoBuild (build.AutoBuild):
         def defer (logger):
             if os.path.exists (self.expand ('%(configure_binary)s')):
                 loggedos.file_sub (logger, [('cross_compiling=(maybe|no|yes)',
-                                 'cross_compiling=yes')],
+                                             'cross_compiling=yes')],
                                    self.expand ('%(configure_binary)s'))
         self.func (defer)
-
+        if 'stat' in misc.librestrict ():
+            def defer (logger, file):
+                loggedos.file_sub (logger, [
+                        (' (/etc/ld.so.conf)',
+                         self.expand (r'%(system_prefix)s/\1'))], file)
+            self.map_find_files (defer, '%(srcdir)s', '^configure$')
     def configure (self):
         build.AutoBuild.configure (self)
         self.update_libtool ()
@@ -153,6 +161,11 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'RANLIB': '%(toolchain_prefix)sranlib',
             'SED': 'sed', # libtool (expat mingw) fixup
             }
+
+        if 'stat' in misc.librestrict ():
+            dict['PATH'] = '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:%(cross_prefix)s/%(target_architecture)s/bin'
+            dict['CC_FOR_BUILD'] = 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= PATH=/usr/bin:$PATH cc'
+            dict['CCLD_FOR_BUILD'] = 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH=/usr/bin:$PATH cc'
 
         # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
         # FIXME: how to move this to cygwin.py/mingw.py?

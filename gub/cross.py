@@ -71,6 +71,7 @@ if 'stat' in misc.librestrict ():
         'tools::findutils',
         'tools::gawk',
         'tools::grep',
+#        'tools::gub-utils',
         'tools::sed',
         ]
 

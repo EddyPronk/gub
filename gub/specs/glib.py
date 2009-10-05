@@ -11,6 +11,9 @@ class Glib (target.AutoBuild):
     config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
+    if 'stat' in misc.librestrict (): # stats for /USR/include/glib/...
+        install_flags = (target.AutoBuild.install_flags
+                         + ' LD_PRELOAD=%(tools_prefix)s/lib/librestrict-open.so')
     def update_libtool (self): # linux-x86, linux-ppc, freebsd-x86
         target.AutoBuild.update_libtool (self)
         self.map_locate (w32.libtool_disable_relink, '%(builddir)s', 'libtool')
@@ -63,6 +66,7 @@ class Glib__tools (tools.AutoBuild, Glib):
     dependencies = [
             'gettext',
             'libtool',
+            'pkg-config',
             ]            
     def install (self):
         tools.AutoBuild.install (self)
