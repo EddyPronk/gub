@@ -1,3 +1,4 @@
+import os
 #
 from gub.syntax import printf
 from gub import context
@@ -16,7 +17,7 @@ license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
 # get the whole /usr/share/texmf-dist too?
 # FIXME: resurrect texmf-minimal from old build scripts in simple tar ball
-texmf_dist = False
+texmf_dist = True
 
 class Texlive (target.AutoBuild):
     '''The TeX Live text formatting system
@@ -29,10 +30,14 @@ The distribution also includes extensive general documentation about
 TeX, as well as the documentation accompanying the included software
 packages.'''
 
-    source = texlive_svn + '&branch=trunk&branchmodule=Build/source&revision=HEAD'
+#    source = texlive_svn + '&branch=trunk&branchmodule=Build/source&revision=HEAD'
+    source = 'http://lilypond.org/download/gub-sources/texlive/texlive-15644.tar.gz'
     config_cache_flag_broken = True
+    parallel_build_broken = True
     dependencies = [
             'tools::automake',
+            'tools::texlive',
+            'tools::t1utils',
             'libtool',
 #            'fontconfig',
             'freetype',
@@ -40,7 +45,6 @@ packages.'''
             'libpng',
             'libtiff',
             'libt1',
-            'tools::t1utils',
             'zlib',
             ]
 ##--with-system-kpathsea
@@ -84,7 +88,7 @@ packages.'''
 --without-xdvipdfmx
 --without-xetex
 ''')
-    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
+    configure_command = ('export TEXMF=%(tools_prefix)s/share/texmf;'
                          + target.AutoBuild.configure_command)
     configure_flags = (target.AutoBuild.configure_flags
                        + '%(common_configure_flags)s'
@@ -97,37 +101,43 @@ packages.'''
 '''))
     destdir_install_broken = True
     license_files = ['%(srcdir)s/LICENSE.TL']
+    subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
+
+    def init_repos (self):
+        if isinstance (self.source, repository.Subversion):
+            def fixed_version (self):
+                return '2009'
+            self.source.version = misc.bind_method (fixed_version, self.source)
+            self.texmf_repo = repository.Subversion (
+                dir=self.get_repodir () + '-texmf',
+                source=texlive_svn,
+                branch='trunk',
+                branchmodule='Master/texmf',
+                revision='HEAD')
+            self.texmf_dist_repo = repository.Subversion (
+                dir=self.get_repodir () + '-texmf-dist',
+                source=texlive_svn,
+                branch='trunk',
+                branchmodule='Master/texmf-dist',
+                revision='HEAD')
+        else:
+            self.texmf_repo = repository.get_repository_proxy (self.get_repodir ().replace ('texlive', 'texlive-texmf-tiny'),
+                                                               Texlive.source.replace ('texlive', 'texlive-texmf-tiny'))
+            self.texmf_dist_repo = repository.get_repository_proxy (self.get_repodir ().replace ('texlive', 'texlive-texmf-dist-tiny'),
+                                                               Texlive.source.replace ('texlive', 'texlive-texmf-dist-tiny'))
+
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        def fixed_version (self):
-            return '2009'
-        source.version = misc.bind_method (fixed_version, source)
+        init_repos (self)
 
-        self.texmf_repo = repository.Subversion (
-# FIXME: module should be used in checkout dir name.
-            dir=self.get_repodir () + '-texmf',
-#            dir=self.get_repodir () + 'source._checkout_dir (),
-            source=texlive_svn,
-            branch='trunk',
-            branchmodule='Master/texmf',
-            revision='HEAD')
-
-        self.texmf_dist_repo = repository.Subversion (
-# FIXME: module should be used in checkout dir name.
-            dir=self.get_repodir () + '-texmf-dist',
-#            dir=self.get_repodir () + 'source._checkout_dir (),
-            source=texlive_svn,
-            branch='trunk',
-            branchmodule='Master/texmf-dist',
-            revision='HEAD')
     def version (self):
         return '2009'
-    subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
     def get_subpackage_definitions (self):
         d = target.AutoBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
+        d['doc'] += [self.settings.prefix_dir + '/share/texmf-dist/doc']
         d['base'] = [self.settings.prefix_dir + '/share/texmf']
-#        d['bin'] = ['/']
+        d['base'] = [self.settings.prefix_dir + '/share/texmf-dist']
         d['bin'] = ['/etc', self.settings.prefix_dir]
         return d
     def connect_command_runner (self, runner):
@@ -141,16 +151,17 @@ packages.'''
         self.texmf_repo.download ()
         if texmf_dist:
             self.texmf_dist_repo.download ()
-        # ugh.
-        if self.source.have_client ():
-            loggedos.download_url (logging.default_logger,
-                                   license_url, self.source._checkout_dir ())
     def untar (self):
         target.AutoBuild.untar (self)
         def defer (logger):
             self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
             if texmf_dist:
                 self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+            # ugh.
+            if self.source.have_client ():
+                loggedos.download_url (logging.default_logger,
+                                       license_url,
+                                       self.expand ('%(srcdir)s'))
         self.func (defer)
     def install (self):
         target.AutoBuild.install (self)
@@ -183,14 +194,42 @@ class Texlive__tools (tools.AutoBuild, Texlive):
             'libt1',
             'libtiff',
             't1utils',
+#            'texlive-texmf-tiny',
+#            'texlive-texmf-dist-tiny',
             'zlib',
             ]
     configure_flags = (tools.AutoBuild.configure_flags
                        + Texlive.common_configure_flags
                        + ' --without-x')
+    def __init__ (self, settings, source):
+        tools.AutoBuild.__init__ (self, settings, source)
+        Texlive.init_repos (self)
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''
+mkdir -p %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
 ''')
+
+def system (cmd, env={}, ignore_errors=False):
+    call_env = os.environ.copy ()
+    call_env.update (env)
+    for i in cmd.split ('\n'):
+        if i:
+            loggedos.system (logging.default_logger, i % env, call_env, ignore_errors)
+
+def main ():
+    version = '15644'
+    logging.default_logger.threshold = '1'
+    for texmf in ['texlive-texmf', 'texlive-texmf-dist']:
+        system ('''
+mkdir -p downloads/%(texmf)s-tiny
+LANG= tar -C downloads/%(texmf)s-tiny -xvzf downloads/%(texmf)s/%(texmf)s-%(version)s.tar.gz $(sed -e s/^texmf/%(texmf)s-%(version)s/ sourcefiles/texmf-tiny.list) 1> %(texmf)s.list 2> %(texmf)s.missing || :
+cd downloads/%(texmf)s-tiny && mv %(texmf)s-%(version)s %(texmf)s-tiny-%(version)s
+tar -C downloads/%(texmf)s-tiny -czf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s.tar.gz %(texmf)s-tiny-%(version)s
+rm -rf downloads/%(texmf)s-tiny/%(texmf)s-%(version)s
+''', locals ())
+
+if __name__ =='__main__':
+    main ()
