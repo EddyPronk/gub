@@ -132,6 +132,10 @@ class FileManager:
             if not f.endswith ('/'):
                 self._file_package_db[f] = name
 
+        if os.path.exists ('%(root)s/usr/etc/postinstall/%(name)s' % locals ()):
+            loggedos.system (logging.default_logger,
+                             '%(root)s/usr/etc/postinstall/%(name)s && mv %(root)s/usr/etc/postinstall/%(name)s %(root)s/usr/etc/postinstall/%(name)s.done' % locals ())
+
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
         # %(system_root)s
