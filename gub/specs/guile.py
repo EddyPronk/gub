@@ -27,12 +27,13 @@ class Guile (target.AutoBuild):
     configure_variables = (target.AutoBuild.configure_variables
                            + misc.join_lines ('''
 CC_FOR_BUILD="
+LD_PRELOAD=
 C_INCLUDE_PATH=
 CPPFLAGS=
 LIBRARY_PATH=
 PATH_SEPARATOR=':'
 PATH=/usr/bin:$PATH
-cc
+/usr/bin/cc
 -I%(builddir)s
 -I%(srcdir)s
 -I%(builddir)s/libguile
@@ -124,7 +125,7 @@ class Guile__mingw (Guile):
     configure_flags = (Guile.configure_flags
                        + ' --without-threads')
     configure_variables = (Guile.configure_variables
-                           .replace (':', ';')
+                           .replace ("':'", "';'")
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))

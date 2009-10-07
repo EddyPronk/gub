@@ -26,7 +26,7 @@ class Flex__mingw (Flex):
     def patch (self):
         self.system ('''
 mkdir -p %(srcdir)s/sys
-cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
+LD_PRELOAD= cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
 ''')
         Flex.configure (self)
 
