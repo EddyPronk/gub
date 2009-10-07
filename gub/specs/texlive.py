@@ -5,6 +5,7 @@ from gub import context
 from gub import logging
 from gub import loggedos
 from gub import misc
+from gub import octal
 from gub import repository
 from gub import target
 from gub import tools
@@ -99,7 +100,7 @@ packages.'''
 --x-includes=%(system_prefix)s/X11R6/include
 --x-libraries=%(system_prefix)s/X11R6/lib
 '''))
-    destdir_install_broken = True
+#    destdir_install_broken = True
     license_files = ['%(srcdir)s/LICENSE.TL']
     subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
@@ -201,16 +202,62 @@ class Texlive__tools (tools.AutoBuild, Texlive):
     configure_flags = (tools.AutoBuild.configure_flags
                        + Texlive.common_configure_flags
                        + ' --without-x')
+    install_flags = (tools.AutoBuild.install_flags
+                     + ''' 'btdocdir=$(datadir)/texmf/doc/bibtex8' '''
+                     + ''' 'cmapdatadir=$(datadir)/texmf/fonts/cmap/dvipdfmx' '''
+                     + ''' 'configdatadir=$(datadir)/texmf/dvipdfmx' '''
+                     + ''' 'csfdir=$(datadir)/texmf-dist/bibtex/csf/base' '''
+                     + ''' 'encdir=$(datadir)/texmf-dist/fonts/enc/dvips/base' '''
+                     + ''' 'glyphlistdatadir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
+                     + ''' 'glyphlistdir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
+                     + ''' 'gsftopkpsheaderdir=$(datadir)/texmf/dvips/gsftopk' '''
+                     + ''' 'infodir=$(datadir)/info' '''
+                     + ''' 'mandir=$(datadir)/man' '''
+                     + ''' 'mapdatadir=$(datadir)/texmf/fonts/map/dvipdfm/dvipdfmx' '''
+                     + ''' 'prologdir=$(datadir)/texmf/dvips/base' '''
+                     + ''' 'scriptdir=$(datadir)/texmf-dist/scripts' '''
+                     + ''' 'scriptxdir=$(datadir)/texmf/scripts' '''
+                     + ''' 'tetexdocdir=$(datadir)/texmf/doc/tetex' '''
+                     + ''' 'tex4htdir=$(datadir)/$(tex4ht_subdir)' '''
+                     + ''' 'texconfigdir=$(datadir)/texmf/texconfig' '''
+                     + ''' 'web2cdir=$(datadir)/texmf/web2c' '''
+                     )
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Texlive.init_repos (self)
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        self.file_sub ([(' REL=[.][.] ', ' REL=../share'),],
+                       '%(srcdir)s/texk/texlive/linked_scripts/Makefile.in')
+        self.file_sub ([
+#                ('[{]/share', '{%(prefix_dir)s/share'),
+                (' [$]SELFAUTOPARENT/texmf-var', ' $SELFAUTOPARENT/var/lib/texmf'),
+                (' [$]SELFAUTOPARENT/texmf-config', ' $SELFAUTODIR/etc/texmf'),
+                (' [$]SELFAUTOPARENT/texmf-dist', ' $SELFAUTODIR/share/texmf-dist'),
+                (' [$]SELFAUTOPARENT/texmf', ' $SELFAUTODIR/share/texmf'),
+                ],
+                       '%(srcdir)s/texk/kpathsea/texmf.cnf')
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''
 mkdir -p %(install_prefix)s/share/
+(cd %(install_prefix)s && tar -cf- texmf* | tar -C share -xf-)
+rm -rf %(install_prefix)s/texmf*
 rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
+(cd %(install_prefix)s/bin && ln -s pdftex latex)
+(cd %(install_prefix)s/bin && ln -s pdftex pdflatex)
+rm -f %(install_prefix)s/bin/man
 ''')
+        self.dump ('''#! %(tools_prefix)s/bin/bash
+texconfig-sys rehash
+texconfig-sys confall
+texconfig-sys rehash
+texconfig-sys init
+texconfig-sys dvips printcmd -
+''',
+                   '%(install_prefix)s/etc/postinstall/texlive',
+                   permissions=octal.o755)
 
 def system (cmd, env={}, ignore_errors=False):
     call_env = os.environ.copy ()
@@ -228,8 +275,13 @@ mkdir -p downloads/%(texmf)s-tiny
 LANG= tar -C downloads/%(texmf)s-tiny -xvzf downloads/%(texmf)s/%(texmf)s-%(version)s.tar.gz $(sed -e s/^texmf/%(texmf)s-%(version)s/ sourcefiles/texmf-tiny.list) 1> %(texmf)s.list 2> %(texmf)s.missing || :
 cd downloads/%(texmf)s-tiny && mv %(texmf)s-%(version)s %(texmf)s-tiny-%(version)s
 tar -C downloads/%(texmf)s-tiny -czf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s.tar.gz %(texmf)s-tiny-%(version)s
-rm -rf downloads/%(texmf)s-tiny/%(texmf)s-%(version)s
+rm -rf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s
 ''', locals ())
+    system ('''
+sed s@.*/@@ sourcefiles/texmf-tiny.list | sort > sourcefiles/tiny.list
+sed s@.*/@@ texlive-texmf.list texlive-texmf-dist.list | sort > tiny.list
+echo diff -purN sourcefiles/tiny.list tiny.list
+''')
 
 if __name__ =='__main__':
     main ()
