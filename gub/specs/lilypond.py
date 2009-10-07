@@ -41,6 +41,12 @@ class LilyPond (target.AutoBuild):
                     'system::mf', 
                     'system::mpost', 
                     ]
+    if 'stat' in misc.librestrict ():
+        dependencies = [x for x in dependencies
+                        if x not in ['system::mf', 'system::mpost']
+                        ] + [
+            'tools::texlive'
+            ]
     configure_binary = '%(srcdir)s/smart-configure.sh'
     configure_flags = (target.AutoBuild.configure_flags
                        + ' --enable-relocation'
@@ -50,6 +56,10 @@ class LilyPond (target.AutoBuild):
                        )
     make_flags = ' TARGET_PYTHON=/usr/bin/python'
 
+    if 'stat' in misc.librestrict ():
+        home = os.environ['HOME']
+        make_flags = (make_flags
+                      + ' LIBRESTRICT_ALLOW=%(home)s/.texlive2009/:%(home)s/texmf/' % locals ())
     @staticmethod
     def version_from_VERSION (self):
         return self.version_from_shell_script (
@@ -67,7 +77,7 @@ class LilyPond (target.AutoBuild):
                                  + ' -I%(srcdir)s/lily/out' % locals ())
         if isinstance (source, repository.Git):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
-        if 'stat' in misc.librestrict ():
+        if 'stat' in misc.librestrict () and not 'tools::texlive' in self.dependencies:
             build.append_dict (self, {'PATH': os.environ['PATH']}) # need mf, mpost from system
     if 'stat' in misc.librestrict ():
         def patch (self):
