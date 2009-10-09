@@ -129,7 +129,7 @@ packages.'''
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        init_repos (self)
+        self.init_repos ()
 
     def version (self):
         return '2009'

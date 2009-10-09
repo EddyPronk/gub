@@ -1,3 +1,4 @@
+from gub import misc
 from gub import target
 from gub import tools
 
@@ -9,6 +10,20 @@ class Libt1 (target.AutoBuild):
             'tools::libtool',
             ]
     make_flags = ''' without_doc 'VPATH:=$(srcdir)' '''
+    configure_flags = (target.AutoBuild.configure_flags
+                       + ' --without-athena'
+                       + ' --without-x'
+                       + ' --x-includes='
+                       + ' --x-libraries='
+                       )
+    def autoupdate (self):
+        target.AutoBuild.autoupdate (self)
+        # Cross ...WHAT?
+        self.file_sub ([(' (/usr|/opt)', r' %(system_prefix)s\1')],
+                       '%(srcdir)s/configure')
+    if 'stat' in misc.librestrict ():
+        def LD_PRELOAD (self):
+            return '%(tools_prefix)s/lib/librestrict-open.so'
 
 class Libt1__tools (tools.AutoBuild, Libt1):
     parallel_build_broken = True

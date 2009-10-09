@@ -1,3 +1,4 @@
+from gub import misc
 from gub import target
 from gub import tools
 
@@ -12,12 +13,17 @@ class Libgd (target.AutoBuild):
             'zlib',
             ]
     configure_flags = (target.AutoBuild.configure_flags
-                + ' --with-fontconfig'
-                + ' --with-freetype'
-                + ' --with-jpeg'
-                + ' --with-png'
-                + ' --without-xpm'
-                )
+                       + ' --with-fontconfig'
+                       + ' --with-freetype'
+                       + ' --with-jpeg'
+                       + ' --with-png'
+                       + ' --without-xpm'
+                       + ' --x-includes='
+                       + ' --x-libraries='
+                       )
+    if 'stat' in misc.librestrict ():
+        def LD_PRELOAD (self):
+            return '%(tools_prefix)s/lib/librestrict-open.so'
 
 class Libgd__tools (tools.AutoBuild, Libgd):
     dependencies = [
