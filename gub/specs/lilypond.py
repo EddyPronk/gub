@@ -9,7 +9,13 @@ from gub import target
 from gub import versiondb
 from gub.specs import ghostscript
 
-class LilyPond (target.AutoBuild):
+VERSION='v2.13'
+def url (version=VERSION):
+    url = 'http://lilypond.org/download/source/%(version)s/' % locals ()
+    raw_version_file = 'lilypond-%(version)s.index' % locals ()
+    return misc.latest_url (url, 'lilypond', raw_version_file)
+
+class LilyPond__simple (target.AutoBuild):
     '''A program for printing sheet music
     LilyPond lets you create music notation.  It produces beautiful
     sheet music from a high-level description file.'''
@@ -46,7 +52,6 @@ class LilyPond (target.AutoBuild):
                         ] + [
             'tools::texlive'
             ]
-    configure_binary = '%(srcdir)s/smart-configure.sh'
     configure_flags = (target.AutoBuild.configure_flags
                        + ' --enable-relocation'
                        + ' --enable-rpath'
@@ -78,20 +83,8 @@ class LilyPond (target.AutoBuild):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
         if 'stat' in misc.librestrict () and not 'tools::texlive' in self.dependencies:
             build.append_dict (self, {'PATH': os.environ['PATH']}) # need mf, mpost from system
-    if 'stat' in misc.librestrict ():
-        def patch (self):
-            target.AutoBuild.patch (self)
-            # How weird is this?  With LIBRESTRICT=open:stat [see
-            # TODO] the set -eux carry over into autoconf and
-            # configure runs.
-            for i in ('smart-autogen.sh', 'smart-configure.sh'):
-                self.file_sub ([
-                        ('^([$][{]?srcdir[}]?/.*$)', r'(set +eux; \1) || exit 1'),
-                        ], '%(srcdir)s/' + i)
     def get_conflict_dict (self):
         return {'': ['lilypondcairo']}
-    def autoupdate (self):
-        self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
     def build_version (self):
         v = self.source.version ()
         self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
@@ -125,6 +118,23 @@ class LilyPond (target.AutoBuild):
 <cachedir>~/.lilypond-fonts.cache-2</cachedir>
 </fontconfig>
 ''', '%(install_prefix)s/etc/fonts/local.conf', 'w', locals ())
+
+class LilyPond__smart (LilyPond__simple):
+    configure_binary = '%(srcdir)s/smart-configure.sh'
+    if 'stat' in misc.librestrict ():
+        def patch (self):
+            LilyPond__simple.AutoBuild.patch (self)
+            # How weird is this?  With LIBRESTRICT=open:stat [see
+            # TODO] the set -eux carry over into autoconf and
+            # configure runs.
+            for i in ('smart-autogen.sh', 'smart-configure.sh'):
+                self.file_sub ([
+                        ('^([$][{]?srcdir[}]?/.*$)', r'(set +eux; \1) || exit 1'),
+                        ], '%(srcdir)s/' + i)
+    def autoupdate (self):
+        self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
+
+LilyPond = LilyPond__smart
 
 class LilyPond__freebsd (LilyPond):
     dependencies = LilyPond.dependencies + ['cross/gcc-runtime']
@@ -289,9 +299,3 @@ Lilypond__debian_arm = LilyPond__debian
 Lilypond__freebsd = LilyPond__freebsd
 Lilypond__mingw = LilyPond__mingw
 Lilypond__mipsel = LilyPond__debian
-
-VERSION='v2.13'
-def url (version=VERSION):
-    url = 'http://lilypond.org/download/source/%(version)s/' % locals ()
-    raw_version_file = 'lilypond-%(version)s.index' % locals ()
-    return misc.latest_url (url, 'lilypond', raw_version_file)
