@@ -8,7 +8,7 @@ class Nsis (tools.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.45-src.tar.bz2'
     #source = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     dependencies = ['mingw::cross/gcc']
-    make_flags = misc.join_lines ('''
+    scons_flags = misc.join_lines ('''
 DEBUG=yes
 NSIS_CONFIG_LOG=yes
 SKIPUTILS="NSIS Menu"
