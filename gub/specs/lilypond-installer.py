@@ -36,6 +36,11 @@ class LilyPond_installer__mingw (LilyPond_installer):
     dependencies = (LilyPond_installer.dependencies
                     + ['lilypad', 'tools::icoutils', 'tools::nsis'])
     compile_flags = LilyPond_installer.compile_flags + ' lilypad'
+    def __init__ (self, settings, source):
+        LilyPond_installer.__init__ (self, settings, source)
+        # ugh, that's what you get for modifying CLASS variables
+        # in a base-class' INSTANCE
+        self.dependencies += self.__class__.dependencies
 
 Lilypond_installer = LilyPond_installer
 Lilypond_installer__mingw = LilyPond_installer__mingw
