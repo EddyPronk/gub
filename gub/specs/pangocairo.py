@@ -19,6 +19,18 @@ class Pangocairo__mingw (Pangocairo):
     configure_flags = (target.AutoBuild.configure_flags
                 + ' --disable-rebuilds')
 
+class Pangocairo__darwin (Pangocairo):
+    def configure (self):
+        Pangocairo.configure (self)
+        self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
+                       '%(builddir)s/libtool')
+    def install (self):
+        Pangocairo.install (self)                
+        # FIXME: PANGO needs .so, NOT .dylib?
+        self.dump ('''
+set PANGO_SO_EXTENSION=.so
+''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
+
 class Pangocairo__darwin__no_quartz_objective_c (Pangocairo):
     config_cache_overrides = Pangocairo.config_cache_overrides + '''
 ac_cv_header_Carbon_Carbon_h=${ac_cv_header_Carbon_Carbon_h=no}

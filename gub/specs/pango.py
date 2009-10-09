@@ -83,8 +83,9 @@ class Pango__darwin (Pango):
                        '%(builddir)s/libtool')
     def install (self):
         Pango.install (self)                
+        # FIXME: PANGO needs .so, NOT .dylib?
         self.dump ('''
-set PANGO_SO_EXTENSION=%(so_extension)s
+set PANGO_SO_EXTENSION=.so
 ''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
 
 class Pango__mingw (Pango):
