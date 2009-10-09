@@ -16,12 +16,12 @@ class Libt1 (target.AutoBuild):
                        + ' --x-includes='
                        + ' --x-libraries='
                        )
-    def autoupdate (self):
-        target.AutoBuild.autoupdate (self)
-        # Cross ...WHAT?
-        self.file_sub ([(' (/usr|/opt)', r' %(system_prefix)s\1')],
-                       '%(srcdir)s/configure')
     if 'stat' in misc.librestrict ():
+        def autoupdate (self):
+            target.AutoBuild.autoupdate (self)
+            # Cross ...WHAT?
+            self.file_sub ([(' (/usr|/opt)', r' %(system_prefix)s\1')],
+                           '%(srcdir)s/configure')
         def LD_PRELOAD (self):
             return '%(tools_prefix)s/lib/librestrict-open.so'
 
