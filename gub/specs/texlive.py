@@ -39,13 +39,15 @@ packages.'''
             'tools::automake',
             'tools::texlive',
             'tools::t1utils',
+            'tools::rsync',
             'libtool',
-#            'fontconfig',
+#?            'fontconfig',
             'freetype',
             'libgd',
             'libpng',
             'libtiff',
             'libt1',
+            'ncurses',
             'zlib',
             ]
 ##--with-system-kpathsea
@@ -100,6 +102,17 @@ packages.'''
 --x-includes=%(system_prefix)s/X11R6/include
 --x-libraries=%(system_prefix)s/X11R6/lib
 '''))
+    configure_flags = (target.AutoBuild.configure_flags
+                       + (common_configure_flags
+                          .replace ('--with-mf-x-toolkit=xaw', '')
+                          .replace ('--with-xdvi-x-toolkit=xaw', ''))
+                       + ' CPPFLAGS=-I%(system_prefix)s/include'
+                       + ' --x-includes='
+                       + ' --x-libraries='
+                       + ' --disable-xdvik'
+                       + ' --disable-xdvipdfmx'
+                       + ' --disable-mf'
+                       + ' --disable-pdfopen')
 #    destdir_install_broken = True
     license_files = ['%(srcdir)s/LICENSE.TL']
     subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
@@ -130,7 +143,9 @@ packages.'''
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         self.init_repos ()
-
+    if 'stat' in misc.librestrict ():
+        def LD_PRELOAD (self):
+            return '%(tools_prefix)s/lib/librestrict-open.so'
     def version (self):
         return '2009'
     def get_subpackage_definitions (self):
@@ -188,15 +203,15 @@ class Texlive__tools (tools.AutoBuild, Texlive):
     dependencies = [
             'automake',
             'libtool',
-#            'fontconfig',
+#?            'fontconfig',
             'freetype',
             'libgd',
             'libpng',
             'libt1',
             'libtiff',
+            'ncurses',
+            'rsync',
             't1utils',
-#            'texlive-texmf-tiny',
-#            'texlive-texmf-dist-tiny',
             'zlib',
             ]
     configure_flags = (tools.AutoBuild.configure_flags
