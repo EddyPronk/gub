@@ -123,7 +123,7 @@ class LilyPond__smart (LilyPond__simple):
     configure_binary = '%(srcdir)s/smart-configure.sh'
     if 'stat' in misc.librestrict ():
         def patch (self):
-            LilyPond__simple.AutoBuild.patch (self)
+            LilyPond__simple.patch (self)
             # How weird is this?  With LIBRESTRICT=open:stat [see
             # TODO] the set -eux carry over into autoconf and
             # configure runs.
@@ -134,6 +134,7 @@ class LilyPond__smart (LilyPond__simple):
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
 
+#LilyPond = LilyPond__simple
 LilyPond = LilyPond__smart
 
 class LilyPond__freebsd (LilyPond):
