@@ -134,7 +134,6 @@ class LilyPond__smart (LilyPond__simple):
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
 
-#LilyPond = LilyPond__simple
 LilyPond = LilyPond__smart
 
 class LilyPond__freebsd (LilyPond):

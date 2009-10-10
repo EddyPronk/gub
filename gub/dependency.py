@@ -24,6 +24,7 @@ def get_build_from_file (platform, file_name, name):
     base = os.path.basename (name)
     class_name = ((base[0].upper () + base[1:])
                   .replace ('-', '_')
+                  .replace ('.', '_')
                   .replace ('++', '_xx_')
                   .replace ('+', '_x_')
                   + ('-' + platform).replace ('-', '__'))
