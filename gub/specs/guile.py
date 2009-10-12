@@ -41,11 +41,16 @@ PATH=/usr/bin:$PATH
 -I%(srcdir)s/libguile"
 '''))
     compile_flags_native = ' LD_PRELOAD= '
+    # FIXME: guile runs gen_scmconfig [when not x-building also guile]
+    # without setting the proper LD_LIBRARY_PATH.
     configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                          + target.AutoBuild.configure_command
                          + guile_configure_flags)
-    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
-                + target.AutoBuild.compile_command)
+    # FIXME: guile runs gen_scmconfig [when not x-building also guile]
+    # without setting the proper LD_LIBRARY_PATH.
+    compile_command = ('LD_LIBRARY_PATH=%(tools_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                       + 'preinstguile=%(tools_prefix)s/bin/guile '
+                       + target.AutoBuild.compile_command)
     subpackage_names = ['doc', 'devel', 'runtime', '']
     @staticmethod
     def version_from_VERSION (self):
