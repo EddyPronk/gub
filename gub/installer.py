@@ -18,7 +18,7 @@ from gub import commands
 pretty_names = {
     'denemo': 'GNU_Denemo',
     'git': 'Git',
-    'lilypond': 'GNU_LilyPond',
+    'lilypond': 'LilyPond',
     'openoffice': 'Go-Oo_OpenOffice.org',
     'ooo-build': 'Go-Oo_OpenOffice.org',
     }
