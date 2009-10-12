@@ -1,19 +1,36 @@
 from gub import build
 from gub import cross
+from gub import misc
 from gub.specs import binutils
 
 class Binutils (cross.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.19.1.tar.gz'
     patches = []
     dependencies = [
+        'tools::zlib',
             ]
+    # Block usage of libz.so during configure, which may not be
+    # available in the library path.
+    config_cache_overrides = cross.AutoBuild.config_cache_overrides + '''
+ac_cv_search_zlibVersion=
+'''
     configure_flags = (cross.AutoBuild.configure_flags
-                + ' --disable-werror'
-                )
-        # binutils' makefile uses:
-        #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`
-        # which differs on each system.  Setting it avoids inconsistencies.
-    make_flags = 'MULTIOSDIR=../../lib'
+                       + ' --disable-werror'
+                       + ' --cache-file=%(builddir)s/config.cache'
+                       )
+    configure_variables = (cross.AutoBuild.configure_variables
+                           + misc.join_lines ('''
+LDFLAGS='-L%(tools_prefix)s/lib %(rpath)s %(libs)s'
+'''))
+#CC='gcc -L%(tools_prefix)s/lib %(rpath)s %(libs)s'
+#LD_LIBRARY_PATH=%(tools_prefix)s/lib
+    # binutils' makefile uses:
+    #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`
+    # which differs on each system.  Setting it avoids inconsistencies.
+    make_flags = misc.join_lines ('''
+MULTIOSDIR=../../lib
+''')
+#CCLD='$(CC) -L%(tools_prefix)s/lib %(rpath)s'
     def install (self):
         cross.AutoBuild.install (self)
         binutils.install_missing_plain_binaries (self)

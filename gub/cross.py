@@ -39,6 +39,9 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
+    @context.subst_method
+    def rpath (self):
+        return r'-Wl,-rpath -Wl,%(tools_prefix)s/lib'
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 
@@ -61,6 +64,7 @@ bootstrap_names = [
     'tools::make',
     'tools::libtool',
     'tools::file',
+    'tools::zlib',
     ]
 
 if 'stat' in misc.librestrict ():
