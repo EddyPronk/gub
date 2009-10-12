@@ -68,6 +68,11 @@ class Glib__tools (tools.AutoBuild, Glib):
             'libtool',
             'pkg-config',
             ]            
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + ' --build=%(build_architecture)s'
+                       + ' --host=%(build_architecture)s'
+                       + ' --target=%(build_architecture)s'
+                       )
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias')
