@@ -9,10 +9,15 @@ class LilyPond (lilypond.LilyPond__simple):
         'cross/gcc-2.95',
         ]
     # got no autoconf-2.13
-    #force_autoupdate = True
+    # force_autoupdate = True
+#    configure_variables = (lilypond.LilyPond__simple.configure_variables
+#                           + 'CC=%(cross_prefix)s/
     make_flags = (lilypond.LilyPond__simple.make_flags
                   + ' builddir=%(builddir)s'
                   + ' config=%(builddir)s/config.make')
+    def __init__ (self, settings, source):
+        lilypond.LilyPond__simple.__init__ (self, settings, source)
+        build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
     def LD_PRELOAD (self):
         return ''
     def patch (self):

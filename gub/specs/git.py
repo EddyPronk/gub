@@ -12,7 +12,9 @@ ac_cv_fread_reads_directories=no
 ac_cv_snprintf_returns_bongus=yes
 '''
     configure_flags = (tools.AutoBuild.configure_flags
-                       + ' --without-openssl')
+                       + ' --without-openssl'
+                       + ' --without-tcltk'
+                       )
     make_flags = '''V=1 NO_PERL=NoThanks'''
 
 class Git__freebsd (Git):
@@ -53,5 +55,7 @@ class Git__mingw (Git):
 class Git__tools (tools.AutoBuild, Git):
     dependencies = ['curl', 'expat', 'zlib']
     configure_flags = (tools.AutoBuild.configure_flags
-                       + ' --without-openssl')
+                       + ' --without-openssl'
+                       + ' --without-tcltk'
+                       )
     make_flags = Git.make_flags

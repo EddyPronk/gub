@@ -44,6 +44,9 @@ class AutoBuild (build.AutoBuild):
         return r'-Wl,-rpath -Wl,%(tools_prefix)s/lib'
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
+# ugh, mis-used in specs/gcc.py for CROSS/gcc.py to be ROOT/usr/lib
+#    def install_prefix (self):
+#        return '%(install_root)s%(prefix_dir)s%(cross_dir)s'
 
 def change_target_package (package):
     tools.package_auto_dependency_dict (package)
