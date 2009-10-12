@@ -1,3 +1,5 @@
+#
+from gub import build
 from gub.specs import lilypond
 
 #LilyPond = LilyPond__simple
@@ -17,7 +19,7 @@ class LilyPond (lilypond.LilyPond__simple):
                   + ' config=%(builddir)s/config.make')
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
-        build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
+        build.change_dict (self, {'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin'}) #:' + os.environ['PATH']
     def LD_PRELOAD (self):
         return ''
     def patch (self):
