@@ -4,3 +4,4 @@ class Gcc_2_95 (cross_gcc.Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-2.95.3/gcc-everything-2.95.3.tar.gz'
     configure_flags = (cross_gcc.Gcc.configure_flags
                        + ' --program-suffix=-2.95')
+    dependencies = cross_gcc.Gcc.dependencies + ['glibc']

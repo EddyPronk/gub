@@ -3,7 +3,8 @@ from gub.specs import lilypond
 #LilyPond = LilyPond__simple
 class LilyPond (lilypond.LilyPond__simple):
     source = lilypond.url (version='v1.4')
-    dependencies = lilypond.LilyPond__simple.dependencies + [
+    dependencies = [x for x in lilypond.LilyPond__simple.dependencies
+                    if not x in ['system::mf', 'system::mpost']] + [
         'texlive',
         'cross/gcc-2.95',
         ]
