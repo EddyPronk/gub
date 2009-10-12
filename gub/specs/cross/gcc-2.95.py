@@ -31,3 +31,8 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 #        cross_gcc.Gcc.install (self)
         cross.AutoBuild.install (self)
         gcc.install_missing_archprefix_binaries (self)
+    def __init__ (self, settings, source):
+        cross_gcc.Gcc.__init__ (self, settings, source)
+        if self.settings.build_bits == '64':
+            self.configure_command = (''' CFLAGS='-m32 -D_FORTIFY_SOURCE=0' '''
+                                      + self.configure_command)
