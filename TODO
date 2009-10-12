@@ -1,4 +1,4 @@
-* If you have problems installing GUB, just setup a debian root:
+* If you have problems installing GUB, setup a debian root [sudo bash TODO]:
   set -ex
   cd /var/tmp
   debootstrap etch etch http://ftp.nl.debian.org/debian
@@ -8,10 +8,12 @@
   wget -O gub.tar.gz http://github.com/janneke/gub/tarball/master
 #  (cd /home/janneke/vc/gub && git tar-tree HEAD | gzip -c - > gub.tar.gz)
 #  cp -pv /home/janneke/vc/gub/gub.tar.gz .
-  mkdir -p etch/root/gub
-  tar -C etch/root/gub --strip-components=1 -xzf gub.tar.gz
+  mkdir -p etch/root/vc/gub
+  tar -C etch/root/vc/gub --strip-components=1 -xzf gub.tar.gz
   mount -t proc /proc etch/proc # for librestrict
-  chroot etch bash -c 'cd root/gub && bin/gub mingw::lilypond'
+  mkdir -p etch/root/bin
+  cp -pv etch/root/vc/gub/sourcefiles/gub.sh etch/root/bin/gub
+  chroot etch bash -c 'cd root/vc/gub && gub mingw::lilypond'
   exit 0
    
 * add tools::texlive
