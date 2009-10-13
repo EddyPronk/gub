@@ -12,8 +12,12 @@ def move_target_libs (self, libdir):
     self.system ('mkdir -p %(install_prefix)s/lib || true')
     def move_target_lib (logger, file_name):
         base = os.path.split (self.expand (file_name))[1]
-##        loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s/lib'), base))
-        loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s%(cross_dir)s/lib'), base))
+        new_name = os.path.join (self.expand ('%(install_prefix)s%(cross_dir)s/lib'), base)
+        if os.path.islink (file_name):
+            target = os.path.basename (misc.delinkify (file_name))
+            loggedos.symlink (logger, target, new_name)
+        else:
+            loggedos.rename (logger, file_name, new_name)
     for suf in ['.a', '.la', '.so.*', '.dylib']:
         self.map_find_files (move_target_lib, libdir, 'lib.*%(suf)s' % locals ())
                             
