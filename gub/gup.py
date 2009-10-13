@@ -78,7 +78,7 @@ class FileManager:
                              'mkdir -p %s' % self.root)
 
     def package_installed_files (self, name):
-        lst = self._package_file_db.get (name)
+        lst = self._package_file_db[name]
         if lst:
             return [file_name for file_name in lst.decode ('utf8').split ('\n')]
         return []
