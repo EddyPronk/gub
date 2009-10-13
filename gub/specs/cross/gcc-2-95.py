@@ -19,7 +19,9 @@ tooldir='%(system_prefix)s/cross/%(target_architecture)s'
 gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 ''')
     destdir_install_broken = True
-    
+    install_flags = (cross_gcc.Gcc.install_flags
+                     .replace ('prefix=%(prefix_dir)s',
+                               'prefix=%(install_prefix)s'))
     install_flags_destdir_broken = (cross_gcc.Gcc.install_flags_destdir_broken
 #                                    .replace ('((aclocaldir|bindir|datadir|exec_prefix|gcc_tooldir|includedir|xinfodir|libdir|libexecdir|xmandir|xprefix|sysconfdir|tooldir)=%[(]install_prefix[)]s)', r'\1%(cross_dir)s')
                                     .replace ('%(install_prefix)s', r'%(install_prefix)s%(cross_dir)s')
