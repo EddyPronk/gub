@@ -19,7 +19,7 @@ class LilyPond (lilypond.LilyPond__simple):
     make_flags = (lilypond.LilyPond__simple.make_flags
                   + ' builddir=%(builddir)s'
                   + ' config=%(builddir)s/config.make')
-    configure_command = ('CFLAGS=-I%(system_prefix)s/include '
+    configure_command = (''' CFLAGS='-I%(system_prefix)s/include -DGUILE_MINOR_VERSION=SCM_MINOR_VERSION' '''
                          + ' LDFLAGS=-L%(system_prefix)s/lib '
                          + lilypond.LilyPond__simple.configure_command)
     def __init__ (self, settings, source):
@@ -39,6 +39,9 @@ class LilyPond (lilypond.LilyPond__simple):
                 ('(^STEPMAKE_BISON\()REQUIRED', r'\1OPTIONAL'),
                 #], '%(srcdir)s/configure.in')
                 ], '%(srcdir)s/configure')
+        # FIXME: PROMOTME to texlive.
+        self.file_sub ([('^(#include <kpathsea/getopt.h>)', r'//\1'),],
+                       '%(system_prefix)s/include/kpathsea/kpathsea.h')
         def defer (logger):
             srcdir = self.expand ('%(srcdir)s')
             base = srcdir[:srcdir[1:].find ('/') + 1]
