@@ -1,5 +1,8 @@
+import os
+#
 from gub import build
 from gub import cross
+from gub import loggedos
 from gub import misc
 from gub.specs import gcc
 from gub.specs.cross import gcc as cross_gcc
