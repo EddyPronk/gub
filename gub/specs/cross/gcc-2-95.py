@@ -1,3 +1,4 @@
+from gub import build
 from gub import cross
 from gub import misc
 from gub.specs import gcc
@@ -42,6 +43,13 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 #        cross_gcc.Gcc.install (self)
         cross.AutoBuild.install (self)
         gcc.install_missing_archprefix_binaries (self)
+    def patch (self):
+        cross_gcc.Gcc.patch (self)
+        if self.settings.build_bits == '64':
+            self.dump ('', '%(srcdir)s/libio/lowlevellock.h')
+            self.dump (''' # MT_CFLAGS = -D_IO_MTSAFE_IO
+MTCFLAGS='-D__extern_inline=extern inline' -D__extension__=
+''', '%(srcdir)s/libio/config/mtsafe.mt')
     def __init__ (self, settings, source):
         cross_gcc.Gcc.__init__ (self, settings, source)
         if self.settings.build_bits == '64':
@@ -49,4 +57,7 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
             # [requires: apt-get install gcc-multilib]
             self.configure_command = (''' CC='gcc -m32 -D_FORTIFY_SOURCE=0' '''
                                       + self.configure_command)
-            self.make_flags += ''' CFLAGS='-g -Wa,--32 -Wl,--architecture=i686-linux' '''
+            self.make_flags += (''' CFLAGS='-g -Wa,--32 -Wl,--architecture=i686-linux' '''
+                                + ''' libc_interface=-libc6.3 '''
+                                )
+            build.append_dict (self, {'LIBRARY_PATH': ':/usr/lib32'})
