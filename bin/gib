@@ -148,6 +148,7 @@ def build_installer (installer_obj):
             checksum_file = v.file
             logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')
             return
+        raise
     installer_obj.connect_command_runner (None)
 
 def main ():
