@@ -60,9 +60,13 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
         cross_gcc.Gcc.patch (self)
         if self.settings.build_bits == '64':
             self.dump ('', '%(srcdir)s/libio/lowlevellock.h')
-            self.dump (''' # MT_CFLAGS = -D_IO_MTSAFE_IO
-MTCFLAGS='-D__extern_inline=extern inline' -D__extension__=
-''', '%(srcdir)s/libio/config/mtsafe.mt')
+            for i in ['%(srcdir)s/libio/config/mtsafe.mt',
+                      '%(srcdir)s/libstdc++/config/linux.mt']:
+                # _IO_MTSAFE_IO has problems, so comment out
+                # MT_CFLAGS seems to be only way to get flags into build?
+                self.dump (''' # MT_CFLAGS = -D_IO_MTSAFE_IO
+MT_CFLAGS=-Wa,--32 '-D__extern_inline=extern inline' -D__extension__=
+''', i)
     def __init__ (self, settings, source):
         cross_gcc.Gcc.__init__ (self, settings, source)
         if self.settings.build_bits == '64':
