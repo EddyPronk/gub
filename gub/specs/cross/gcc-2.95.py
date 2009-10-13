@@ -34,5 +34,8 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
     def __init__ (self, settings, source):
         cross_gcc.Gcc.__init__ (self, settings, source)
         if self.settings.build_bits == '64':
-            self.configure_command = (''' CFLAGS='-m32 -D_FORTIFY_SOURCE=0' '''
+            # Allow building on 64 bits buid platform
+            # [requires: apt-get install gcc-multilib]
+            self.configure_command = (''' CC='gcc -m32 -D_FORTIFY_SOURCE=0' '''
                                       + self.configure_command)
+            self.make_flags += ''' CFLAGS='-g -Wa,--32 -Wl,--architecture=i686-linux' '''
