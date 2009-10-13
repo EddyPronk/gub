@@ -15,6 +15,7 @@ class LilyPond (lilypond.LilyPond__simple):
     make_flags = (lilypond.LilyPond__simple.make_flags
                   + ' builddir=%(builddir)s'
                   + ' config=%(builddir)s/config.make'
+                  + ' GUILE_LOAD_PATH=%(system_prefix)s/share/guile/1.8'
                   )
     configure_command = ('''CPPFLAGS='-I%(system_prefix)s/include -DSCM_DEBUG_TYPING_STRICTNESS=0' '''
 #                         + '''LIBS=-lstdc++-3-libc6.3-2-2.10.0 '''
@@ -23,6 +24,7 @@ class LilyPond (lilypond.LilyPond__simple):
                          + '''LDFLAGS='-L%(system_prefix)s%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib %(rpath)s' '''
                          + '''LIBS='-lstdc++ -lgcc -lkpathsea' '''
                          + lilypond.LilyPond__simple.configure_command)
+    destdir_install_broken = True
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
         build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
@@ -43,6 +45,10 @@ class LilyPond (lilypond.LilyPond__simple):
                 ('(^STEPMAKE_BISON\()REQUIRED', r'\1OPTIONAL'),
                 #], '%(srcdir)s/configure.in')
                 ], '%(srcdir)s/configure')
+        self.file_sub ([
+                ('[$][(]builddir[)]/stepmake', ''),
+                ('(\t)Documentation', r'\1'),
+                ], '%(srcdir)s/GNUmakefile.in')
         self.file_sub ([
                 ('\n\n#include "config.h"', r'''
 #ifndef GUILE_MAJOR_VERSION
@@ -137,10 +143,18 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
         # FIXME: PROMOTME to texlive.
         self.file_sub ([('^(#include <kpathsea/getopt.h>)', r'//\1'),],
                        '%(system_prefix)s/include/kpathsea/kpathsea.h')
-        def defer (logger):
-            srcdir = self.expand ('%(srcdir)s')
-            base = srcdir[:srcdir[1:].find ('/') + 1]
-            loggedos.system (logger, self.expand ('cd %%(srcdir)s && ln -s %(base)s .' % locals ()))
-        self.func (defer)
+        srcdir = self.expand ('%(srcdir)s')
+        base = srcdir[:srcdir[1:].find ('/') + 1]
+        self.system ('cd %(srcdir)s && ln -s %(base)s .', locals ())
+        def escape (logger, full_name):
+            loggedos.file_sub (logger,
+                               [(r'([^\\])[\\](a|b|e|f|o)',r'\1\\\2')],
+                               full_name)
+        self.map_find_files (escape, '%(srcdir)s/scm', '.*[.]scm')
+    def configure (self):
+        lilypond.LilyPond__simple.configure (self)
+        builddir = self.expand ('%(builddir)s')
+        base = builddir[:builddir[1:].find ('/') + 1]
+        self.system ('cd %(builddir)s && ln -s %(base)s .', locals ())
 
 Lilypond_ancient = LilyPond
