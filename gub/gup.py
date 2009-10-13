@@ -76,9 +76,12 @@ class FileManager:
         if not os.path.isdir (self.root):
             loggedos.system (logging.default_logger,
                              'mkdir -p %s' % self.root)
-        
+
     def package_installed_files (self, name):
-        return [file_name for file_name in self._package_file_db[name].decode ('utf8').split ('\n')]
+        lst = self._package_file_db.get (name)
+        if lst:
+            return [file_name for file_name in lst.decode ('utf8').split ('\n')]
+        return []
 
     def installed_packages (self):
         return [name.decode ('utf8') for name in list (self._package_file_db.keys ())]
