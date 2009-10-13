@@ -40,16 +40,16 @@ PATH=/usr/bin:$PATH
 -I.
 -I%(srcdir)s/libguile"
 '''))
-    compile_flags_native = ' LD_PRELOAD= '
+    # FIXME: guile runs gen_scmconfig [when not x-building also guile]
+    # without setting the proper LD_LIBRARY_PATH.
+    compile_flags_native = (' LD_PRELOAD= '
+                            + ' LD_LIBRARY_PATH=%(tools_prefix)s/lib:${LD_LIBRARY_PATH-/foe} ')
     # FIXME: guile runs gen_scmconfig [when not x-building also guile]
     # without setting the proper LD_LIBRARY_PATH.
     configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                          + target.AutoBuild.configure_command
                          + guile_configure_flags)
-    # FIXME: guile runs gen_scmconfig [when not x-building also guile]
-    # without setting the proper LD_LIBRARY_PATH.
-    compile_command = ('LD_LIBRARY_PATH=%(tools_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
-                       + 'preinstguile=%(tools_prefix)s/bin/guile '
+    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
                        + target.AutoBuild.compile_command)
     subpackage_names = ['doc', 'devel', 'runtime', '']
     @staticmethod
