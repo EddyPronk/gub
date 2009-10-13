@@ -27,7 +27,7 @@ class LilyPond (lilypond.LilyPond__simple):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
         build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
     def rpath (self):
-        return (r'-Wl,-rpath -Wl,\$$ORIGIN/..%(cross_dir)s/lib -Wl,-rpath -Wl,%(system_prefix)s%(cross_dir)s/lib'
+        return (r'-Wl,-rpath -Wl,\$$ORIGIN/..%(cross_dir)s-ancient/lib -Wl,-rpath -Wl,%(system_prefix)s%(cross_dir)s-ancient/lib '
                 + lilypond.LilyPond__simple.rpath (self))
     def LD_PRELOAD (self):
         return ''
