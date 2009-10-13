@@ -4,6 +4,16 @@ from gub import misc
 from gub.specs import gcc
 from gub.specs.cross import gcc as cross_gcc
 
+
+def move_target_libs (self, libdir):
+    self.system ('mkdir -p %(install_prefix)s/lib || true')
+    def move_target_lib (logger, file_name):
+        base = os.path.split (self.expand (file_name))[1]
+##        loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s/lib'), base))
+        loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s%(cross_dir)s/lib'), base))
+    for suf in ['.a', '.la', '.so.*', '.dylib']:
+        self.map_find_files (move_target_lib, libdir, 'lib.*%(suf)s' % locals ())
+                            
 class Gcc_2_95 (cross_gcc.Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-2.95.3/gcc-everything-2.95.3.tar.gz'
     configure_flags = (cross_gcc.Gcc.configure_flags
@@ -45,6 +55,7 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 #        cross_gcc.Gcc.install (self)
         cross.AutoBuild.install (self)
         gcc.install_missing_archprefix_binaries (self)
+        move_target_libs (self, '%(install_prefix)s%(cross_dir)s/lib/gcc-lib/%(target_architecture)s')
     def patch (self):
         cross_gcc.Gcc.patch (self)
         if self.settings.build_bits == '64':
