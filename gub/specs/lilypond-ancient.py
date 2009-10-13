@@ -2,6 +2,7 @@ import os
 #
 from gub import build
 from gub import loggedos
+from gub import target
 from gub.specs import lilypond
 
 #LilyPond = LilyPond__simple
@@ -25,6 +26,8 @@ class LilyPond (lilypond.LilyPond__simple):
                          + '''LIBS='-lstdc++ -lgcc -lkpathsea' '''
                          + lilypond.LilyPond__simple.configure_command)
     destdir_install_broken = True
+    install_flags_destdir_broken = (lilypond.LilyPond__simple.install_flags_destdir_broken
+                                    .replace ('datadir=', 'xdatadir='))
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
         build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
@@ -156,5 +159,6 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
         builddir = self.expand ('%(builddir)s')
         base = builddir[:builddir[1:].find ('/') + 1]
         self.system ('cd %(builddir)s && ln -s %(base)s .', locals ())
+    install = target.AutoBuild.install
 
 Lilypond_ancient = LilyPond
