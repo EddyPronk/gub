@@ -19,6 +19,9 @@ class LilyPond (lilypond.LilyPond__simple):
     make_flags = (lilypond.LilyPond__simple.make_flags
                   + ' builddir=%(builddir)s'
                   + ' config=%(builddir)s/config.make')
+    configure_command = ('CFLAGS=-I%(system_prefix)s/include '
+                         + ' LDFLAGS=-L%(system_prefix)s/lib '
+                         + lilypond.LilyPond__simple.configure_command)
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
         build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
