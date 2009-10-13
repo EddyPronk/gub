@@ -10,7 +10,7 @@ class LilyPond (lilypond.LilyPond__simple):
     dependencies = [x for x in lilypond.LilyPond__simple.dependencies
                     if not x in ['system::mf', 'system::mpost']] + [
         'texlive',
-        'cross/gcc-2.95',
+        'cross/gcc-2-95',
         ]
     # got no autoconf-2.13
     # force_autoupdate = True
