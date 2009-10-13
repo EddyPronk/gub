@@ -402,6 +402,7 @@ def binary_strip_p (filter_out=[], extension_filter_out=[]):
     def predicate (file):
         return (os.path.basename (file) not in filter_out
                 and (os.path.splitext (file)[1] not in extension_filter_out)
+                and os.path.exists (file)
                 and not get_interpreter (file))
     return predicate
 
