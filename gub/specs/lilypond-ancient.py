@@ -20,12 +20,15 @@ class LilyPond (lilypond.LilyPond__simple):
 #                         + '''LIBS=-lstdc++-3-libc6.3-2-2.10.0 '''
 #                         + '''LDFLAGS='-Wl,-L -Wl,%(system_prefix)s/%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib' '''
 #                         + '''LIBS=-lstdc++-3-libc6.3-2-2.10.0 '''
-                         + '''LDFLAGS='-L%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib' '''
+                         + '''LDFLAGS='-L%(system_prefix)s%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib %(rpath)s' '''
                          + '''LIBS='-lstdc++ -lgcc -lkpathsea' '''
                          + lilypond.LilyPond__simple.configure_command)
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
         build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
+    def rpath (self):
+        return (r'-Wl,-rpath -Wl,\$$ORIGIN/..%(cross_dir)s/lib -Wl,-rpath -Wl,%(system_prefix)s%(cross_dir)s/lib'
+                + lilypond.LilyPond__simple.rpath (self))
     def LD_PRELOAD (self):
         return ''
     def patch (self):
