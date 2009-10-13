@@ -114,6 +114,7 @@ packages.'''
                        + ' --disable-mf'
                        + ' --disable-pdfopen')
 #    destdir_install_broken = True
+    make_flags = ' SHELL=/bin/bash' # web2c forces `/bin/sh libtool', use bash
     license_files = ['%(srcdir)s/LICENSE.TL']
     subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
@@ -264,7 +265,7 @@ rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
 (cd %(install_prefix)s/bin && ln -s pdftex pdflatex)
 rm -f %(install_prefix)s/bin/man
 ''')
-        self.dump ('''#! %(tools_prefix)s/bin/bash
+        self.dump ('''#! /bin/sh
 texconfig-sys rehash
 texconfig-sys confall
 texconfig-sys rehash
