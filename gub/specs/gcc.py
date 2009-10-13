@@ -73,3 +73,11 @@ def move_target_libs (self, libdir):
         # .so* because version numbers trail .so extension.
     for suf in ['.a', '.la', '.so*', '.dylib']:
         self.map_find_files (move_target_lib, libdir, 'lib.*%(suf)s' % locals ())
+
+def install_missing_archprefix_binaries (self):
+    def copy (logger, plain_name):
+        base_name = os.path.basename (plain_name)
+        full_name = self.expand ('%(install_prefix)s%(cross_dir)s/bin/%(toolchain_prefix)s%(base_name)s', env=locals ())
+        if not os.path.exists (full_name):
+            loggedos.system (logger, 'cp %(plain_name)s %(full_name)s' % locals ())
+    self.map_find_files (copy, '%(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin', self.expand ('.*'))
