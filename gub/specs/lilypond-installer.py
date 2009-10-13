@@ -29,6 +29,7 @@ bin/gib
 --branch=guile=%(guile_branch)s
 --branch=lilypond=%(lilypond_branch)s
 lilypond
+%%(compile_flags)s
 ''' % locals ()))
         self.system (compile_command)
 
