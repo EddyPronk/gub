@@ -28,6 +28,7 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
                                               'infodir=%(install_prefix)s')
                                     .replace ('mandir=%(install_prefix)s%(cross_dir)s',
                                               'mandir=%(install_prefix)s')
+                                    + ' gxx_include_dir=%(install_prefix)s%(cross_dir)s/include/g++-3'
                                     )
     def pre_install (self):
         cross.AutoBuild.pre_install (self)
