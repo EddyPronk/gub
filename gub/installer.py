@@ -162,7 +162,10 @@ class Installer (context.RunnableContext):
             'bin/envsubst*',
             'bin/msg*',
             'bin/xmlwf',
-            'cross',
+            'cross/', # ugh, must keep cross-ancient/lib
+            'cross-ancient/bin',
+            'cross-ancient/i686-linux',
+            'cross-ancient/include',
             'doc',
             'include',
             'info',
