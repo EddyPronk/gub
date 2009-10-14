@@ -80,6 +80,10 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
 #define LLL_MUTEX_LOCK_INITIALIZER              (0)
 #define LLL_MUTEX_LOCK_INITIALIZER_LOCKED       (1)
 
+/* Initializers for lock.  */
+#define LLL_LOCK_INITIALIZER            (0)
+#define LLL_LOCK_INITIALIZER_LOCKED     (1)
+
 ''', '%(srcdir)s/libio/lowlevellock.h')
             for i in ['%(srcdir)s/libio/config/mtsafe.mt',
                       '%(srcdir)s/libstdc++/config/linux.mt']:
@@ -87,9 +91,22 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
                 # MT_CFLAGS seems to be only way to get flags into build?
                 self.dump ('''
 # This builds, but does not run any iostream stuff -- possibly because of including from /usr? -- retry
-MT_CFLAGS='-D__extern_inline=extern inline' -D__extension__=
-##  MT_CFLAGS = -D_IO_MTSAFE_IO '-D__extern_inline=extern inline' -D__extension__=
+##MT_CFLAGS='-D__extern_inline=extern inline' -D__extension__=
+MT_CFLAGS = -D_IO_MTSAFE_IO '-D__extern_inline=extern inline' -D__extension__=
 ''', i)
+            self.system ('mkdir -p %(srcdir)s/libio/bits')
+            self.dump ('''
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include_next <bits/libc-lock.h>
+asm (".weak _pthread_cleanup_pop_restore");
+asm (".weak _pthread_cleanup_push_defer");
+#ifdef __cplusplus
+}
+#endif
+''',
+                       '%(srcdir)s/libio/bits/libc-lock.h')
         # PROMOTEME: gcc_do_not_look_in_slash_lib_usr
         self.file_sub ([
                 ('([ *]standard_(startfile|exec)_prefix_.*= ")(/lib|/usr)', r'\1%(system_root)s\3')],
