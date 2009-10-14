@@ -430,7 +430,7 @@ def get_base_package_name (name):
             'cygwin::',
             ] if x in name]:
         return name
-    name = re.sub ('gcc-c[+][+]-runtime', 'gcc', name)
+    name = re.sub ('(gcc-.*)-c[+][+]-runtime', r'\1', name)
     name = re.sub ('-devel$', '', name)
     name = re.sub ('-runtime$', '', name)
     name = re.sub ('-doc$', '', name)
