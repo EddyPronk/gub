@@ -132,6 +132,13 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
 
 ''')],
                        '%(srcdir)s/lily/include/lily-guile.hh')
+        self.file_sub ([('''
+  return String ((Byte*)SCM_STRING_CHARS (s), (int) SCM_STRING_LENGTH (s));
+''', '''
+  SCM str = scm_symbol_to_string (s);
+  return ly_scm2string (str);
+''')],
+                       '%(srcdir)s/lily/lily-guile.cc', use_re=False)
         self.file_sub ([('\n\n(#ifndef YY_BUF_SIZE)',
                          r'''
 /* Flex >= 2.5.29 has include stack; but we don't use that yet.  */
@@ -173,6 +180,11 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
                                [(r'(^|[^\\])([\\])(a|b|c|e|f|o)',r'\1\2\2\3')],
                                full_name)
         self.map_find_files (escape, '%(srcdir)s/scm', '.*[.]scm')
+        def escape2 (logger, full_name):
+            loggedos.file_sub (logger,
+                               [(r'(^|[^#])(#)(t|f)( |$)',r'\1\2\2\3\4')],
+                               full_name)
+        self.map_find_files (escape, '%(srcdir)s/ly', '.*[.]ly')
     def configure (self):
         lilypond.LilyPond__simple.configure (self)
         builddir = self.expand ('%(builddir)s')
