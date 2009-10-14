@@ -8,10 +8,21 @@ from gub.specs import lilypond
 #LilyPond = LilyPond__simple
 class LilyPond (lilypond.LilyPond__simple):
     source = lilypond.url (version='v1.4')
-    dependencies = [x for x in lilypond.LilyPond__simple.dependencies
-                    if not x in ['system::mf', 'system::mpost']] + [
+    dependencies = [
+        'cross/gcc-2-95-c++-runtime',
+        'flex',
+        'gettext-devel',
+        'ghostscript',
+        'guile-devel',
+        'python-devel',
+        'urw-fonts',
+        'tools::autoconf',
+        'tools::flex',
+        'tools::bison',
+        'tools::texinfo',
+        'tools::pkg-config',
+        'tools::gettext', # AM_GNU_GETTEXT
         'texlive',
-        'cross/gcc-2-95',
         ]
     make_flags = (lilypond.LilyPond__simple.make_flags
                   + ' builddir=%(builddir)s'
@@ -105,9 +116,13 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
 #define gh_int2scm scm_int2num
 #define gh_double2scm scm_double2num
 
-
 #define gh_call1 scm_call_1
 #define gh_call2 scm_call_2
+
+#ifdef scm_fill_input
+#undef scm_fill_input
+#endif
+#define scm_fill_input(x)
 
 #endif /* !gh_pair_p */
 
@@ -151,7 +166,7 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
         self.system ('cd %(srcdir)s && ln -s %(base)s .', locals ())
         def escape (logger, full_name):
             loggedos.file_sub (logger,
-                               [(r'([^\\])[\\](a|b|e|f|o)',r'\1\\\2')],
+                               [(r'(^|[^\\])([\\])(a|b|c|e|f|o)',r'\1\2\2\3')],
                                full_name)
         self.map_find_files (escape, '%(srcdir)s/scm', '.*[.]scm')
     def configure (self):
@@ -159,6 +174,12 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
         builddir = self.expand ('%(builddir)s')
         base = builddir[:builddir[1:].find ('/') + 1]
         self.system ('cd %(builddir)s && ln -s %(base)s .', locals ())
-    install = target.AutoBuild.install
+    def install (self):
+        target.AutoBuild.install (self)
+        self.system ('cd %(install_prefix)s/bin && ln -s lilypond lilypond-ancient')
+        self.dump ('''set LILYPONDPREFIX=$INSTALLER_PREFIX/share/lilypond/%(version)s
+''',
+                   '%(install_prefix)s/etc/relocate/lilypond.reloc',
+                   env=locals ())
 
 Lilypond_ancient = LilyPond
