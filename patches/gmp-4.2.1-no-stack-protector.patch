@@ -1,0 +1,110 @@
+--- gmp-4.2.1/./Makefile.in~	2009-10-14 20:17:16.000000000 +0200
++++ gmp-4.2.1/./Makefile.in	2009-10-14 20:19:56.000000000 +0200
+@@ -383,6 +383,12 @@ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+ 
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ # The following options are the same as AM_INIT_AUTOMAKE in configure.in,
+ # except no $(top_builddir) on ansi2knr.  That directory is wanted for the
+ # Makefiles in subdirectories, but here we must omit it so automake gives
+--- gmp-4.2.1/mpbsd/Makefile.in~	2006-05-04 18:50:19.000000000 +0200
++++ gmp-4.2.1/mpbsd/Makefile.in	2009-10-14 20:18:09.000000000 +0200
+@@ -229,6 +229,12 @@ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+ 
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ # -I$(top_srcdir)/mpz is for #includes done by mpz .c files.  Perhaps most
+ # compilers are smart enough to look in the same directory as the .c file
+ # already, but lets make absolutely sure.
+--- gmp-4.2.1/mpf/Makefile.in~	2006-05-04 18:50:19.000000000 +0200
++++ gmp-4.2.1/mpf/Makefile.in	2009-10-14 20:11:15.000000000 +0200
+@@ -239,6 +239,13 @@ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
++
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ INCLUDES = -D__GMP_WITHIN_GMP -I$(top_srcdir)
+ noinst_LTLIBRARIES = libmpf.la
+ libmpf_la_SOURCES = \
+--- gmp-4.2.1/mpn/Makefile.in~	2006-05-04 18:50:19.000000000 +0200
++++ gmp-4.2.1/mpn/Makefile.in	2009-10-14 20:18:27.000000000 +0200
+@@ -248,6 +248,13 @@ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
++
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ INCLUDES = -D__GMP_WITHIN_GMP -I$(top_srcdir) \
+   -DOPERATION_`echo $* | sed 's/_$$//'`
+ 
+--- gmp-4.2.1/mpq/Makefile.in~	2006-05-04 18:50:20.000000000 +0200
++++ gmp-4.2.1/mpq/Makefile.in	2009-10-14 20:19:50.000000000 +0200
+@@ -231,6 +231,13 @@ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
++
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ INCLUDES = -D__GMP_WITHIN_GMP -I$(top_srcdir)
+ noinst_LTLIBRARIES = libmpq.la
+ libmpq_la_SOURCES = \
+--- gmp-4.2.1/mpz/Makefile.in~	2006-05-04 18:50:20.000000000 +0200
++++ gmp-4.2.1/mpz/Makefile.in	2009-10-14 20:19:47.000000000 +0200
+@@ -259,6 +259,13 @@ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
++
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ INCLUDES = -D__GMP_WITHIN_GMP -I$(top_srcdir)
+ noinst_LTLIBRARIES = libmpz.la
+ libmpz_la_SOURCES = aors.h aors_ui.h fits_s.h mul_i.h \
+--- gmp-4.2.1/printf/Makefile.in~	2006-05-04 18:50:20.000000000 +0200
++++ gmp-4.2.1/printf/Makefile.in	2009-10-14 20:26:16.000000000 +0200
+@@ -230,6 +230,13 @@ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
++
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ INCLUDES = -D__GMP_WITHIN_GMP -I$(top_srcdir)
+ noinst_LTLIBRARIES = libprintf.la
+ libprintf_la_SOURCES = \

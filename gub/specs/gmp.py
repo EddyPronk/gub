@@ -60,3 +60,7 @@ class Gmp__freebsd (Gmp):
 
 class Gmp__tools (tools.AutoBuild, Gmp):
     dependencies = ['bison', 'flex', 'libtool']
+    patches = ['gmp-4.2.1-no-stack-protector.patch']
+    configure_variables = (tools.AutoBuild.configure_variables
+                           # avoid __isoc99_fscanf@@GLIBC_2.7 etc
+                           + ' CPPFLAGS=-D_GNU_SOURCE')
