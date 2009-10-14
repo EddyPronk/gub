@@ -73,20 +73,36 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
         move_target_libs (self, '%(install_prefix)s%(cross_dir)s/lib/gcc-lib/%(target_architecture)s')
     def patch (self):
         cross_gcc.Gcc.patch (self)
+        # Hmm? fixed in glibc-2.3.5-10 ? http://bugs.gentoo.org/63793
         if self.settings.build_bits == '64':
-            self.dump ('', '%(srcdir)s/libio/lowlevellock.h')
+            self.dump ('''
+/* Initializer for compatibility lock.  */
+#define LLL_MUTEX_LOCK_INITIALIZER              (0)
+#define LLL_MUTEX_LOCK_INITIALIZER_LOCKED       (1)
+
+''', '%(srcdir)s/libio/lowlevellock.h')
             for i in ['%(srcdir)s/libio/config/mtsafe.mt',
                       '%(srcdir)s/libstdc++/config/linux.mt']:
                 # _IO_MTSAFE_IO has problems, so comment out
                 # MT_CFLAGS seems to be only way to get flags into build?
-                self.dump (''' # MT_CFLAGS = -D_IO_MTSAFE_IO
+                self.dump ('''
+# This builds, but does not run any iostream stuff -- possibly because of including from /usr? -- retry
 MT_CFLAGS='-D__extern_inline=extern inline' -D__extension__=
+##  MT_CFLAGS = -D_IO_MTSAFE_IO '-D__extern_inline=extern inline' -D__extension__=
 ''', i)
         # PROMOTEME: gcc_do_not_look_in_slash_lib_usr
         self.file_sub ([
                 ('([ *]standard_(startfile|exec)_prefix_.*= ")(/lib|/usr)', r'\1%(system_root)s\3')],
                        '%(srcdir)s/gcc/gcc.c')
-
+        # PROMOTEME: gcc_do_not_look_in_slash_lib_usr
+        for i in [
+            '%(srcdir)s/gcc/cccp.c',
+            '%(srcdir)s/gcc/cppinit.c',
+            '%(srcdir)s/gcc/protoize.c',
+            ]:
+            self.file_sub ([
+                    ('(define STANDARD_INCLUDE_DIR ")(/usr)', r'\1%(system_root)s\2')],
+                           i)
     def __init__ (self, settings, source):
         cross_gcc.Gcc.__init__ (self, settings, source)
         if self.settings.build_bits == '64':
