@@ -24,6 +24,7 @@ def move_target_libs (self, libdir):
 class Gcc_2_95 (cross_gcc.Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-2.95.3/gcc-everything-2.95.3.tar.gz'
     configure_flags = (cross_gcc.Gcc.configure_flags
+                       .replace ('%(cross_prefix)s/bin', '%(system_prefix)s/cross/bin')
                        + ' --build=i686-linux'
                        + ' --host=i686-linux'
                        )
@@ -31,9 +32,12 @@ class Gcc_2_95 (cross_gcc.Gcc):
     cross_prefix = '%(system_prefix)s%(cross_dir)s'
     dependencies = cross_gcc.Gcc.dependencies + ['glibc']
     parallel_build_broken = True
+    # weird, what about /bin?
+    # tooldir='%(system_prefix)s/cross/%(target_architecture)s'
+    # gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
     make_flags = misc.join_lines ('''
 tooldir='%(system_prefix)s/cross/%(target_architecture)s'
-gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
+gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
 ''')
     destdir_install_broken = True
     install_flags = (cross_gcc.Gcc.install_flags
@@ -76,8 +80,13 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
                 # _IO_MTSAFE_IO has problems, so comment out
                 # MT_CFLAGS seems to be only way to get flags into build?
                 self.dump (''' # MT_CFLAGS = -D_IO_MTSAFE_IO
-MT_CFLAGS=-Wa,--32 '-D__extern_inline=extern inline' -D__extension__=
+MT_CFLAGS='-D__extern_inline=extern inline' -D__extension__=
 ''', i)
+        # PROMOTEME: gcc_do_not_look_in_slash_lib_usr
+        self.file_sub ([
+                ('([ *]standard_(startfile|exec)_prefix_.*= ")(/lib|/usr)', r'\1%(system_root)s\3')],
+                       '%(srcdir)s/gcc/gcc.c')
+
     def __init__ (self, settings, source):
         cross_gcc.Gcc.__init__ (self, settings, source)
         if self.settings.build_bits == '64':
@@ -88,4 +97,3 @@ MT_CFLAGS=-Wa,--32 '-D__extern_inline=extern inline' -D__extension__=
             self.make_flags += (''' CFLAGS='-g -Wa,--32 -Wl,--architecture=i686-linux' '''
                                 + ''' libc_interface=-libc6.3 '''
                                 )
-            build.append_dict (self, {'LIBRARY_PATH': ':/usr/lib32'})
