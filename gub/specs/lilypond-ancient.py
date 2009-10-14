@@ -197,5 +197,10 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
 ''',
                    '%(install_prefix)s/etc/relocate/lilypond.reloc',
                    env=locals ())
+        self.system ('''
+mkdir -p %(install_prefix)s/share/doc/lilypond
+rsync -v -a %(srcdir)s/input %(install_prefix)s/share/doc/lilypond
+rsync -v -a %(srcdir)s/mutopia %(install_prefix)s/share/doc/lilypond || :
+''')
 
 Lilypond_ancient = LilyPond
