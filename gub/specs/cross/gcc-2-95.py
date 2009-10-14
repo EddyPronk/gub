@@ -50,6 +50,10 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
                                               'mandir=%(install_prefix)s')
                                     + ' gxx_include_dir=%(install_prefix)s%(cross_dir)s/include/g++-3'
                                     )
+    def get_subpackage_definitions (self):
+        d = cross_gcc.Gcc.get_subpackage_definitions (self)
+        d['c++-runtime'] = [self.expand ('%(prefix_dir)s%(cross_dir)s/lib/libstdc++*so*')]
+        return d
     def pre_install (self):
         cross.AutoBuild.pre_install (self)
         # Only id <PREFIX>/<TARGET-ARCH>/bin exists, gcc's install installs
