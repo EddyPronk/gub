@@ -184,7 +184,7 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
             loggedos.file_sub (logger,
                                [(r'(^|[^#])(#)(t|f)( |$)',r'\1\2\2\3\4')],
                                full_name)
-        self.map_find_files (escape, '%(srcdir)s/ly', '.*[.]ly')
+        self.map_find_files (escape2, '%(srcdir)s/ly', '.*[.]ly')
     def configure (self):
         lilypond.LilyPond__simple.configure (self)
         builddir = self.expand ('%(builddir)s')
