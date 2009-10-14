@@ -33,15 +33,19 @@ class LilyPond (lilypond.LilyPond__simple):
 #                         + '''LIBS=-lstdc++-3-libc6.3-2-2.10.0 '''
 #                         + '''LDFLAGS='-Wl,-L -Wl,%(system_prefix)s/%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib' '''
 #                         + '''LIBS=-lstdc++-3-libc6.3-2-2.10.0 '''
+####                         + '''CFLAGS='-L/lib32 -Wl,-L -Wl,/lib32 -Wa,--32 -Wl,-L -Wl,%(system_root)s/lib' '''
+                         + '''LIBRARY_PATH=%(system_prefix)s/lib '''
                          + '''LDFLAGS='-L%(system_prefix)s%(cross_dir)s-ancient/lib -L%(system_prefix)s/lib %(rpath)s' '''
                          + '''LIBS='-lstdc++ -lgcc -lkpathsea' '''
                          + lilypond.LilyPond__simple.configure_command)
+    configure_flags = (lilypond.LilyPond__simple.configure_flags
+                       + ' --cache-file=%(builddir)s/config.cache')
     destdir_install_broken = True
     install_flags_destdir_broken = (lilypond.LilyPond__simple.install_flags_destdir_broken
                                     .replace ('datadir=', 'xdatadir='))
     def __init__ (self, settings, source):
         lilypond.LilyPond__simple.__init__ (self, settings, source)
-        build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
+        build.change_dict (self, {'PATH': '%(cross_prefix)s-ancient/bin:%(tools_prefix)s/bin:%(cross_prefix)s/bin:%(cross_prefix)s/%(target_architecture)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH']})
     def rpath (self):
         return (r'-Wl,-rpath -Wl,\$$ORIGIN/..%(cross_dir)s-ancient/lib -Wl,-rpath -Wl,%(system_prefix)s%(cross_dir)s-ancient/lib '
                 + lilypond.LilyPond__simple.rpath (self))
