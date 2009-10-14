@@ -22,6 +22,7 @@ class LilyPond (lilypond.LilyPond__simple):
         'tools::texinfo',
         'tools::pkg-config',
         'tools::gettext', # AM_GNU_GETTEXT
+        'tools::rsync',
         'texlive',
         ]
     make_flags = (lilypond.LilyPond__simple.make_flags
