@@ -74,8 +74,7 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
     def patch (self):
         cross_gcc.Gcc.patch (self)
         # Hmm? fixed in glibc-2.3.5-10 ? http://bugs.gentoo.org/63793
-        if self.settings.build_bits == '64':
-            self.dump ('''
+        self.dump ('''
 /* Initializer for compatibility lock.  */
 #define LLL_MUTEX_LOCK_INITIALIZER              (0)
 #define LLL_MUTEX_LOCK_INITIALIZER_LOCKED       (1)
@@ -85,13 +84,12 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
 #define LLL_LOCK_INITIALIZER_LOCKED     (1)
 
 ''', '%(srcdir)s/libio/lowlevellock.h')
+        if self.settings.build_bits == '64':
             for i in ['%(srcdir)s/libio/config/mtsafe.mt',
                       '%(srcdir)s/libstdc++/config/linux.mt']:
                 # _IO_MTSAFE_IO has problems, so comment out
                 # MT_CFLAGS seems to be only way to get flags into build?
                 self.dump ('''
-# This builds, but does not run any iostream stuff -- possibly because of including from /usr? -- retry
-##MT_CFLAGS='-D__extern_inline=extern inline' -D__extension__=
 MT_CFLAGS = -D_IO_MTSAFE_IO '-D__extern_inline=extern inline' -D__extension__=
 ''', i)
             self.system ('mkdir -p %(srcdir)s/libio/bits')
