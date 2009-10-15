@@ -165,9 +165,15 @@ packages.'''
                 revision='HEAD')
         else:
             self.texmf_repo = repository.get_repository_proxy (self.get_repodir ().replace ('texlive', 'texlive-texmf-tiny'),
-                                                               Texlive.source.replace ('texlive', 'texlive-texmf-tiny'))
+                                                               (Texlive.source
+                                                                .replace ('texlive', 'texlive-texmf-tiny')
+                                                                .replace ('.tar.gz', '.1.tar.gz')
+                                                               ))
             self.texmf_dist_repo = repository.get_repository_proxy (self.get_repodir ().replace ('texlive', 'texlive-texmf-dist-tiny'),
-                                                               Texlive.source.replace ('texlive', 'texlive-texmf-dist-tiny'))
+                                                                    (Texlive.source
+                                                                     .replace ('texlive', 'texlive-texmf-dist-tiny')
+                                                                     .replace ('.tar.gz', '.1.tar.gz')
+                                                                     ))
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -298,14 +304,15 @@ def system (cmd, env={}, ignore_errors=False):
 
 def main ():
     version = '15644'
+    revision = '.1'
     logging.default_logger.threshold = '1'
     for texmf in ['texlive-texmf', 'texlive-texmf-dist']:
         system ('''
 mkdir -p downloads/%(texmf)s-tiny
 LANG= tar -C downloads/%(texmf)s-tiny -xvzf downloads/%(texmf)s/%(texmf)s-%(version)s.tar.gz $(sed -e s/^texmf/%(texmf)s-%(version)s/ sourcefiles/texmf-tiny.list) 1> %(texmf)s.list 2> %(texmf)s.missing || :
-cd downloads/%(texmf)s-tiny && mv %(texmf)s-%(version)s %(texmf)s-tiny-%(version)s
-tar -C downloads/%(texmf)s-tiny -czf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s.tar.gz %(texmf)s-tiny-%(version)s
-rm -rf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s
+cd downloads/%(texmf)s-tiny && mv %(texmf)s-%(version)s %(texmf)s-tiny-%(version)s%(revision)s
+tar -C downloads/%(texmf)s-tiny -czf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s%(revision)s.tar.gz %(texmf)s-tiny-%(version)s%(revision)s
+rm -rf downloads/%(texmf)s-tiny/%(texmf)s-tiny-%(version)s%(revision)s
 ''', locals ())
     system ('''
 sed s@.*/@@ sourcefiles/texmf-tiny.list | sort > sourcefiles/tiny.list
