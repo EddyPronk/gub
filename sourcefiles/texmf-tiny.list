@@ -1024,6 +1024,8 @@ texmf/tex/generic/hyph-utf8/special/spechyph-ot1-la.tex
 texmf/tex/generic/metapost/mproof.tex
 texmf/tex/generic/misc/null.tex
 texmf/tex/generic/misc/texnames.sty
+texmf/tex/generic/oberdiek/ifpdf.sty
+texmf/tex/generic/oberdiek/ifvtex.sty
 texmf/tex/generic/ruhyphen/catkoi.tex
 texmf/tex/generic/ruhyphen/cyryoal.tex
 texmf/tex/generic/ruhyphen/hypht2.tex
