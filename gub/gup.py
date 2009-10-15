@@ -116,7 +116,7 @@ class FileManager:
                 conflicts = True
         logging.command ('GUP: for f in lst:' + misc.timing () + '\n')
         if conflicts and not self.is_distro:
-            raise Exception ('abort')
+            raise Exception ('Duplicate files found.')
         root = self.root
         loggedos.system (logging.default_logger,
                          # cd %(root)s to avoid open(2) of cwd, see
@@ -137,7 +137,7 @@ class FileManager:
 
         if os.path.exists ('%(root)s/usr/etc/postinstall/%(name)s' % locals ()):
             loggedos.system (logging.default_logger,
-                             '%(root)s/usr/etc/postinstall/%(name)s && mv %(root)s/usr/etc/postinstall/%(name)s %(root)s/usr/etc/postinstall/%(name)s.done || :' % locals ())
+                             'PATH=%(root)s/usr/bin:$PATH %(root)s/usr/etc/postinstall/%(name)s && mv %(root)s/usr/etc/postinstall/%(name)s %(root)s/usr/etc/postinstall/%(name)s.done || :' % locals ())
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
@@ -327,8 +327,9 @@ class PackageManager (FileManager, PackageDictManager):
             return
         logging.action ('installing package: %s\n' % name)
         if self.is_installed (name):
-            logging.error ('already have package: ' + name + '\n')
-            raise Exception ('abort')
+            message = 'already have package: ' + name + '\n'
+            logging.error (message)
+            raise Exception (message)
         d = self._packages[name]
         ball = '%(split_ball)s' % d
         self.install_tarball (ball, name, d['prefix_dir'])
