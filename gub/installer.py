@@ -162,10 +162,7 @@ class Installer (context.RunnableContext):
             'bin/envsubst*',
             'bin/msg*',
             'bin/xmlwf',
-            'cross/', # ugh, must keep cross-ancient/lib
-            'cross-ancient/bin',
-            'cross-ancient/i686-linux',
-            'cross-ancient/include',
+            'cross',
             'doc',
             'include',
             'info',
@@ -241,9 +238,29 @@ class Installer (context.RunnableContext):
         for p in self.strip_prefixes ():
             delete_me += p + '%(i)s '
 
+        keep = []
+        if self.name.startswith ('lilypond-ancient'):
+            keep += [
+                'cross',
+                'share/doc',
+                'share/lilypond/*/tex',
+                'share/lilypond/*/fonts/source',
+                'share/lilypond/*/fonts/tfm',
+                ]
+            globs += [
+                'share/doc/[^l]*',
+                'share/doc/l[^i]*',
+                'share/doc/li[^l]*',
+                'cross/',
+                'cross-ancient/bin',
+                'cross-ancient/i686-linux',
+                'cross-ancient/include',
+                ]
+
         for i in globs:
-            # [^..] dash globbing is broken, {,} globbing is bashism
-            self.system ("cd %(installer_root)s && bash -c 'rm -rf " + delete_me + "'", {'i': i }, locals ())
+            if not i in keep:
+                # [^..] dash globbing is broken, {,} globbing is bashism
+                self.system ("cd %(installer_root)s && bash -c 'rm -rvf " + delete_me + "'", {'i': i }, locals ())
 
     def strip_dir (self, dir):
         misc.map_command_dir (self,
