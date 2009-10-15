@@ -84,16 +84,15 @@ gcc_tooldir='%(cross_prefix)s/%(target_architecture)s'
 #define LLL_LOCK_INITIALIZER_LOCKED     (1)
 
 ''', '%(srcdir)s/libio/lowlevellock.h')
-        if self.settings.build_bits == '64':
-            for i in ['%(srcdir)s/libio/config/mtsafe.mt',
-                      '%(srcdir)s/libstdc++/config/linux.mt']:
-                # _IO_MTSAFE_IO has problems, so comment out
-                # MT_CFLAGS seems to be only way to get flags into build?
-                self.dump ('''
+        for i in ['%(srcdir)s/libio/config/mtsafe.mt',
+                  '%(srcdir)s/libstdc++/config/linux.mt']:
+            # _IO_MTSAFE_IO has problems, so comment out
+            # MT_CFLAGS seems to be only way to get flags into build?
+            self.dump ('''
 MT_CFLAGS = -D_IO_MTSAFE_IO '-D__extern_inline=extern inline' -D__extension__=
 ''', i)
-            self.system ('mkdir -p %(srcdir)s/libio/bits')
-            self.dump ('''
+        self.system ('mkdir -p %(srcdir)s/libio/bits')
+        self.dump ('''
 #ifdef __cplusplus
 extern "C" {
 #endif
