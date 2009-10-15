@@ -91,8 +91,12 @@ packages.'''
 --without-xdvipdfmx
 --without-xetex
 ''')
-    configure_command = ('export TEXMF=%(tools_prefix)s/share/texmf;'
-                         + target.AutoBuild.configure_command)
+    LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
+    # PROMOTEME: LDFLAGS should be set in target.py just like tools.py?
+    configure_variables = (target.AutoBuild.configure_variables
+                           + ''' LDFLAGS='%(rpath)s %(libs)s' ''')
+#    configure_command = ('export TEXMF=%(tools_prefix)s/share/texmf;'
+#                         + target.AutoBuild.configure_command)
     configure_flags = (target.AutoBuild.configure_flags
                        + '%(common_configure_flags)s'
                        + misc.join_lines ('''
@@ -115,8 +119,32 @@ packages.'''
                        + ' --disable-pdfopen')
 #    destdir_install_broken = True
     make_flags = ' SHELL=/bin/bash' # web2c forces `/bin/sh libtool', use bash
+    common_install_flags = (
+        ''' 'btdocdir=$(datadir)/texmf/doc/bibtex8' '''
+        + ''' 'cmapdatadir=$(datadir)/texmf/fonts/cmap/dvipdfmx' '''
+        + ''' 'configdatadir=$(datadir)/texmf/dvipdfmx' '''
+        + ''' 'csfdir=$(datadir)/texmf-dist/bibtex/csf/base' '''
+        + ''' 'encdir=$(datadir)/texmf-dist/fonts/enc/dvips/base' '''
+        + ''' 'glyphlistdatadir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
+        + ''' 'glyphlistdir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
+        + ''' 'gsftopkpsheaderdir=$(datadir)/texmf/dvips/gsftopk' '''
+        + ''' 'infodir=$(datadir)/info' '''
+        + ''' 'mandir=$(datadir)/man' '''
+        + ''' 'mapdatadir=$(datadir)/texmf/fonts/map/dvipdfm/dvipdfmx' '''
+        + ''' 'prologdir=$(datadir)/texmf/dvips/base' '''
+        + ''' 'scriptdir=$(datadir)/texmf-dist/scripts' '''
+        + ''' 'scriptxdir=$(datadir)/texmf/scripts' '''
+        + ''' 'tetexdocdir=$(datadir)/texmf/doc/tetex' '''
+        + ''' 'tex4htdir=$(datadir)/$(tex4ht_subdir)' '''
+        + ''' 'texconfigdir=$(datadir)/texmf/texconfig' '''
+        + ''' 'web2cdir=$(datadir)/texmf/web2c' '''
+        )
+    install_flags = (tools.AutoBuild.install_flags
+                     + common_install_flags
+                     )
     license_files = ['%(srcdir)s/LICENSE.TL']
-    subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
+    ##subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
+    subpackage_names = ['']
 
     def init_repos (self):
         if isinstance (self.source, repository.Subversion):
@@ -172,20 +200,50 @@ packages.'''
         target.AutoBuild.untar (self)
         def defer (logger):
             self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
-            if texmf_dist:
-                self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+            if texmf_dist:                self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
             # ugh.
             if self.source.have_client ():
                 loggedos.download_url (logging.default_logger,
                                        license_url,
                                        self.expand ('%(srcdir)s'))
         self.func (defer)
-    def install (self):
-        target.AutoBuild.install (self)
+    def common_patch (self):
+        self.file_sub ([(' REL=[.][.] ', ' REL=../share'),],
+                       '%(srcdir)s/texk/texlive/linked_scripts/Makefile.in')
+        self.file_sub ([
+#                ('[{]/share', '{%(prefix_dir)s/share'),
+                (' [$]SELFAUTOPARENT/texmf-var', ' $SELFAUTOPARENT/var/lib/texmf'),
+                (' [$]SELFAUTOPARENT/texmf-config', ' $SELFAUTODIR/etc/texmf'),
+                (' [$]SELFAUTOPARENT/texmf-dist', ' $SELFAUTODIR/share/texmf-dist'),
+                (' [$]SELFAUTOPARENT/texmf', ' $SELFAUTODIR/share/texmf'),
+                ],
+                       '%(srcdir)s/texk/kpathsea/texmf.cnf')
+    def patch (self):
+        target.AutoBuild.patch (self)
+        self.common_patch ()
+    def common_install (self):
         self.system ('''
+mkdir -p %(install_prefix)s/share/
+(cd %(install_prefix)s && tar -cf- texmf* | tar -C share -xf-)
+rm -rf %(install_prefix)s/texmf*
 rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
+(cd %(install_prefix)s/bin && ln -s pdftex latex)
+(cd %(install_prefix)s/bin && ln -s pdftex pdflatex)
+rm -f %(install_prefix)s/bin/man
 ''')
+        self.dump ('''#! /bin/sh
+texconfig-sys rehash
+texconfig-sys confall
+texconfig-sys rehash
+texconfig-sys init
+texconfig-sys dvips printcmd -
+''',
+                   '%(install_prefix)s/etc/postinstall/texlive',
+                   permissions=octal.o755)
+    def install (self):
+        target.AutoBuild.install (self)
+        self.common_install ()
     # FIXME: shared for all vc packages
     def srcdir (self):
         return '%(allsrcdir)s/%(name)s-%(version)s'
@@ -219,61 +277,17 @@ class Texlive__tools (tools.AutoBuild, Texlive):
                        + Texlive.common_configure_flags
                        + ' --without-x')
     install_flags = (tools.AutoBuild.install_flags
-                     + ''' 'btdocdir=$(datadir)/texmf/doc/bibtex8' '''
-                     + ''' 'cmapdatadir=$(datadir)/texmf/fonts/cmap/dvipdfmx' '''
-                     + ''' 'configdatadir=$(datadir)/texmf/dvipdfmx' '''
-                     + ''' 'csfdir=$(datadir)/texmf-dist/bibtex/csf/base' '''
-                     + ''' 'encdir=$(datadir)/texmf-dist/fonts/enc/dvips/base' '''
-                     + ''' 'glyphlistdatadir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
-                     + ''' 'glyphlistdir=$(datadir)/texmf-dist/fonts/map/glyphlist' '''
-                     + ''' 'gsftopkpsheaderdir=$(datadir)/texmf/dvips/gsftopk' '''
-                     + ''' 'infodir=$(datadir)/info' '''
-                     + ''' 'mandir=$(datadir)/man' '''
-                     + ''' 'mapdatadir=$(datadir)/texmf/fonts/map/dvipdfm/dvipdfmx' '''
-                     + ''' 'prologdir=$(datadir)/texmf/dvips/base' '''
-                     + ''' 'scriptdir=$(datadir)/texmf-dist/scripts' '''
-                     + ''' 'scriptxdir=$(datadir)/texmf/scripts' '''
-                     + ''' 'tetexdocdir=$(datadir)/texmf/doc/tetex' '''
-                     + ''' 'tex4htdir=$(datadir)/$(tex4ht_subdir)' '''
-                     + ''' 'texconfigdir=$(datadir)/texmf/texconfig' '''
-                     + ''' 'web2cdir=$(datadir)/texmf/web2c' '''
+                     + Texlive.common_install_flags
                      )
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Texlive.init_repos (self)
     def patch (self):
         tools.AutoBuild.patch (self)
-        self.file_sub ([(' REL=[.][.] ', ' REL=../share'),],
-                       '%(srcdir)s/texk/texlive/linked_scripts/Makefile.in')
-        self.file_sub ([
-#                ('[{]/share', '{%(prefix_dir)s/share'),
-                (' [$]SELFAUTOPARENT/texmf-var', ' $SELFAUTOPARENT/var/lib/texmf'),
-                (' [$]SELFAUTOPARENT/texmf-config', ' $SELFAUTODIR/etc/texmf'),
-                (' [$]SELFAUTOPARENT/texmf-dist', ' $SELFAUTODIR/share/texmf-dist'),
-                (' [$]SELFAUTOPARENT/texmf', ' $SELFAUTODIR/share/texmf'),
-                ],
-                       '%(srcdir)s/texk/kpathsea/texmf.cnf')
+        Texlive.common_patch (self)
     def install (self):
         tools.AutoBuild.install (self)
-        self.system ('''
-mkdir -p %(install_prefix)s/share/
-(cd %(install_prefix)s && tar -cf- texmf* | tar -C share -xf-)
-rm -rf %(install_prefix)s/texmf*
-rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
-rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
-(cd %(install_prefix)s/bin && ln -s pdftex latex)
-(cd %(install_prefix)s/bin && ln -s pdftex pdflatex)
-rm -f %(install_prefix)s/bin/man
-''')
-        self.dump ('''#! /bin/sh
-texconfig-sys rehash
-texconfig-sys confall
-texconfig-sys rehash
-texconfig-sys init
-texconfig-sys dvips printcmd -
-''',
-                   '%(install_prefix)s/etc/postinstall/texlive',
-                   permissions=octal.o755)
+        Texlive.common_install (self)
 
 def system (cmd, env={}, ignore_errors=False):
     call_env = os.environ.copy ()
