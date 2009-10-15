@@ -194,7 +194,11 @@ inline SCM ly_caadr (SCM x) { return SCM_CAADR (x); }
     def install (self):
         target.AutoBuild.install (self)
         self.system ('cd %(install_prefix)s/bin && ln -s lilypond lilypond-ancient')
-        self.dump ('''set LILYPONDPREFIX=$INSTALLER_PREFIX/share/lilypond/%(version)s
+        self.dump ('''
+set LILYPONDPREFIX=$INSTALLER_PREFIX/share/lilypond/%(version)s
+prepend MFINPUTS=$INSTALLER_PREFIX/share/lilypond/%(version)s//:
+prepend TEXINPUTS=$INSTALLER_PREFIX/share/lilypond/%(version)s//:
+prepend TFMINPUTS=$INSTALLER_PREFIX/share/lilypond/%(version)s//:
 ''',
                    '%(install_prefix)s/etc/relocate/lilypond.reloc',
                    env=locals ())
