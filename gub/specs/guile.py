@@ -43,7 +43,8 @@ PATH=/usr/bin:$PATH
     # FIXME: guile runs gen_scmconfig [when not x-building also guile]
     # without setting the proper LD_LIBRARY_PATH.
     compile_flags_native = (' LD_PRELOAD= '
-                            + ' LD_LIBRARY_PATH=%(tools_prefix)s/lib:${LD_LIBRARY_PATH-/foe} ')
+                            + ' LD_LIBRARY_PATH=%(tools_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                            + ' cross_compiling=yes ')
     # FIXME: guile runs gen_scmconfig [when not x-building also guile]
     # without setting the proper LD_LIBRARY_PATH.
     configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
