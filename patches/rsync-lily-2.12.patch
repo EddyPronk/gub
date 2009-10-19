@@ -6,7 +6,7 @@ index 01e9790..ca062d3 100644
      
      printf ('Instrumenting for Google Analytics' )
      for f in ['Documentation/index.html',
--              'Documentation/changes.html',
+-              'Documentation/changes/index.html',
 -              'Documentation/notation/index.html',
 -              'Documentation/internals/index.html',
 +              'Documentation/topdocs/NEWS.html',
