@@ -5,6 +5,7 @@
 .PHONY: update-versions unlocked-update-versions
 .PHONY: doc doc-clean doc-export unlocked-doc-clean unlocked-doc-export
 .PHONY: dist-check unlocked-dist-check
+.PHONY: lilypond-prep nongit-dirs
 
 default: all
 
@@ -64,7 +65,7 @@ NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 #FIXME: yet another copy of gub/settings.py
 SET_LOCAL_PATH=PATH=$(CWD)/target/local/root/usr/bin:$(PATH)
 
-LILYPOND_VERSIONS = uploads/lilypond.versions
+LILYPOND_VERSIONS = versiondb/lilypond.versions
 
 include compilers.make
 
@@ -82,9 +83,6 @@ ifneq ($(findstring cygwin,$(PLATFORMS)),)
 	python gub/versiondb.py --no-sources --version-db=uploads/noweb.versions --download --platforms="cygwin"
 endif
 
-update-versions:
-	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
-
 download-cygwin:
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
@@ -93,7 +91,20 @@ download-cygwin:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: packages rest
+## same command as  lilypond.versions:
+update-versions:
+	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
+
+## same command as  update-versions:
+$(LILYPOND_VERSIONS):
+	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
+
+nongit-dirs:
+	mkdir -p versiondb regtests uploads
+
+lilypond-prep: nongit-dirs $(LILYPOND_VERSIONS)
+
+all: lilypond-prep packages rest
 
 ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
 rest: nsis

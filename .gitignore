@@ -17,3 +17,5 @@ packages
 target
 test-settings.py
 uploads
+versiondb
+regtests
