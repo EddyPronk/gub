@@ -80,7 +80,7 @@ class Cygwin_package (context.RunnableContext):
 
     def build_number (self, package):
         from gub import versiondb
-        version_file = '%(uploads)s/%(name)s.versions' % package
+        version_file = 'versiondb/%(name)s.versions' % package
         db = versiondb.VersionDataBase (version_file)
         version = '%(full_version)s' % package
         version = re.sub ('[a-zA-Z]+', '.0', version)

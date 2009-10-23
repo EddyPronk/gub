@@ -147,7 +147,7 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
     p.add_option ('--version-db', action='store',
                   dest='version_db',
                   help='Pickle of version dict',
-                  default='uploads/lilypond.versions')
+                  default='versiondb/lilypond.versions')
 
     p.add_option ('--url', action='store',
                   dest='url',

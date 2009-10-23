@@ -117,7 +117,7 @@ Examples:
     p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
     p.add_option ('--lilypond-versions', action='store',
-                  default='uploads/lilypond.versions',
+                  default='versiondb/lilypond.versions',
                   dest='lilypond_versions')
     p.add_option ('--force-package', action='store_true',
                   default=False,
