@@ -350,7 +350,7 @@ this leaves installers and documentation in
   uploads/webdoc/VERSION
 
   uploads/lilypond-VERSION-RELEASE.test-output.tar.bz2
-  uploads/wbtest/VERSION
+  uploads/webtest/VERSION
 
 More examples
 
@@ -370,6 +370,10 @@ More examples
     this leaves installers for GNU/Linux (x86, x86_64, powerpc),
     Windows, MacOSX (x86 and powerpc), FreeBSD (x86, x86_64) and
     documentation in uploads/
+
+  * Build all LilyPond installers for an older branch
+
+      make lilypond LILYPOND_BRANCH=stable/2.12
 
   * Optional: Prepare build environment
 
