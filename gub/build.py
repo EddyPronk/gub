@@ -302,6 +302,14 @@ class AutoBuild (Build):
         return self.source.version ()
 
     @context.subst_method
+    def build_number (self):
+        from gub import versiondb
+        db = versiondb.VersionDataBase('versiondb/lilypond.versions')
+        version_tup = misc.string_to_version (self.source.version() )
+        buildnumber = '%d' % db.get_next_build_number (version_tup)
+        return buildnumber
+
+    @context.subst_method
     def name_version (self):
         return '%s-%s' % (self.name (), self.version ())
 

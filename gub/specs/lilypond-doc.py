@@ -32,10 +32,10 @@ TARGET_PYTHON=/usr/bin/python
         return '0'
     @context.subst_method
     def doc_ball (self):
-        return '%(uploads)s/lilypond-%(version)s-HEAD.documentation.tar.bz2'
+        return '%(uploads)s/lilypond-%(version)s-%(build_number)s.documentation.tar.bz2'
     @context.subst_method
     def web_ball (self):
-        return '%(uploads)s/lilypond-%(version)s-HEAD.webdoc.tar.bz2'
+        return '%(uploads)s/lilypond-%(version)s-%(build_number)s.webdoc.tar.bz2'
     def install (self):
         target.AutoBuild.install (self) 
         self.system ('''
