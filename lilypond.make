@@ -99,10 +99,25 @@ update-versions:
 $(LILYPOND_VERSIONS):
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
+regtests/ignore:
+	@echo 
+	@echo 
+	@echo "******************************************************"
+	@echo "CHECK: regression tests tarball  (i.e. something like"
+	@echo "\t lilypond-2.13.4-1.test-output.tar.bz2"
+	@echo ") should be placed in regtests/"
+	@echo
+	@echo "When you have done this, disable this check by doing:"
+	@echo "\t touch regtests/ignore"
+	@echo "******************************************************"
+	@echo 
+	@echo
+	exit 1
+
 nongit-dirs:
 	mkdir -p versiondb regtests uploads
 
-lilypond-prep: nongit-dirs $(LILYPOND_VERSIONS)
+lilypond-prep: nongit-dirs $(LILYPOND_VERSIONS) regtests/ignore
 
 all: lilypond-prep packages rest
 
