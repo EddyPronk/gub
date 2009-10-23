@@ -29,7 +29,7 @@ LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 
 # FOR BUILDING from GIT
 INSTALLER_BUILDER_OPTIONS =\
- --version-db=uploads/denemo.versions\
+ --version-db=versiondb/denemo.versions\
  $(if $(DENEMO_BRANCH), --branch=denemo=$(DENEMO_FLATTENED_BRANCH),)\
  $(if $(LILYPOND_BRANCH), --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH),)\
 #
@@ -55,7 +55,7 @@ nsis:
 	bin/gub tools::nsis
 
 update-versions:
-	python gub/versiondb.py --no-sources --version-db=uploads/denemo.versions --download --platforms="mingw" --url=http://lilypond.org/blog/janneke/software/denemo
+	python gub/versiondb.py --no-sources --version-db=versiondb/denemo.versions --download --platforms="mingw" --url=http://lilypond.org/blog/janneke/software/denemo
 
 print-success:
 	@echo "success!!"

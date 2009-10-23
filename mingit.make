@@ -20,7 +20,7 @@ GUB_OPTIONS=\
 
 INSTALLER_BUILDER_OPTIONS=\
   --branch=git=$(MINGIT_LOCAL_BRANCH)\
-  --version-db=uploads/git.versions \
+  --version-db=versiondb/git.versions \
 
 all: $(PLATFORMS)
 
@@ -33,7 +33,7 @@ mingw:
 	$(call BUILD,$@,git)
 
 update-versions:
-	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.versions --download --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile versiondb/git.versions --download --platforms="$(PLATFORMS)"
 
 LAST_GIT=$(shell ls -1 -t uploads/git*.exe|head -1)
 TAG=gub-release-mingw-git-$(subst uploads/git-,,$(LAST_GIT))

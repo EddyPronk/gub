@@ -76,11 +76,11 @@ unlocked-update-versions:
 
 ifneq ($(findstring cygwin,$(PLATFORMS)),)
 # this is downloading the same info 5 times. Can we do this more efficiently?
-	python gub/versiondb.py --no-sources --version-db=uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --no-sources --version-db=uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --no-sources --version-db=uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --no-sources --version-db=uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --no-sources --version-db=uploads/noweb.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=versiondb/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=versiondb/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=versiondb/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=versiondb/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=versiondb/noweb.versions --download --platforms="cygwin"
 endif
 
 download-cygwin:
