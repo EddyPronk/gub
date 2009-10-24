@@ -27,10 +27,6 @@ TARGET_PYTHON=/usr/bin/python
                      ' DESTDIR=%(install_root)s'
                      ' mandir=/share/man')
     @context.subst_method
-    def build_number (self):
-        printf ('FIXME Buildnum')
-        return '0'
-    @context.subst_method
     def doc_ball (self):
         return '%(uploads)s/lilypond-%(version)s-%(build_number)s.documentation.tar.bz2'
     @context.subst_method
