@@ -2,8 +2,8 @@ from gub import context
 from gub import tools 
 
 class Fontforge__tools (tools.AutoBuild):
-    source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
-    patches = ['fontforge-20080927-noxml2.patch']
+    source = 'http://sourceforge.net/projects/fontforge/files/fontforge-source/fontforge_full-20090923.tar.bz2'
+    #patches = ['fontforge-20080927-noxml2.patch']
     parallel_build_broken = True
     srcdir_build_broken = True
     dependencies = ['freetype', 'libpng', 'libjpeg', 'libxml2']
@@ -36,6 +36,7 @@ class Fontforge__tools (tools.AutoBuild):
     configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-freetype-src'
                 + ' --disable-libff '
+                + ' --enable-double '
                 # let's ignore python (and its dynamic link intracies
                 # for now).
                 + ' --without-python')
