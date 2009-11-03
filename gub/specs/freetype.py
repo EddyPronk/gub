@@ -11,7 +11,7 @@ high-quality output (glyph images). It can be used in graphics
 libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
-    source = 'http://download.savannah.nongnu.org/releases/freetype/freetype-2.1.10.tar.gz&name=freetype'
+    source = 'http://download.savannah.nongnu.org/releases/freetype/freetype-2.3.11.tar.gz&name=freetype'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # Freetype stats /sbin, /usr/sbin and /hurd to determine if
@@ -55,9 +55,9 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 ''',
              '%(builddir)s/Makefile',
              mode='a')
+
 class Freetype__tools (tools.AutoBuild, Freetype):
     dependencies = ['libtool', 'zlib']
-    configure_variables = misc.double_quote (tools.AutoBuild.configure_variables)
     # FIXME, mi-urg?
     license_files = Freetype.license_files
     def install (self):
