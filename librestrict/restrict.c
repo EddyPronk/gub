@@ -112,8 +112,10 @@ is_allowed (char const *file_name, char const *call)
     if (0 == strncmp (abs_file_name, allowed[i].prefix, allowed[i].prefix_len))
       return 1;
 
-  fprintf (stderr, "%s: tried to %s () file %s\nallowed:\n",
+  fprintf (stderr, "librestrict:error:%s: tried to %s () file %s\n",
            executable_name, call, abs_file_name);
+
+  fprintf (stderr, "librestrict:allowed:%s\n", "");
 
   for (i = 0; i < allowed_count; i++)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
@@ -129,7 +131,7 @@ get_executable_name (void)
   ssize_t ss = readlink (SELF, s, MAXLEN);
   if (ss < 0)
     {
-      fprintf (stderr, "restrict.c: failed reading: %s\n", SELF);
+      fprintf (stderr, "librestrict:error: cannot open: %s\n", SELF);
       abort ();
     }
   s[ss] = '\0';
@@ -171,7 +173,7 @@ get_allowed_prefix (char const *exe_name)
   if (ignore && is_in_path (ignore, exe_name))
     {
       if (verbosity)
-	fprintf (stderr, "%s: lifting restrictions for %s\n", __PRETTY_FUNCTION__, exe_name);
+	fprintf (stderr, "librestrict:warning:%s: lifting restrictions for %s\n", __PRETTY_FUNCTION__, exe_name);
       return NULL;
     }
 
@@ -204,7 +206,7 @@ void initialize (void)
     {
       char *allow = getenv ("LIBRESTRICT_ALLOW");
       if (verbosity > 1)
-	fprintf (stderr, "%s: allow: %s\n", __PRETTY_FUNCTION__, allow);
+	fprintf (stderr, "librestrict:warning:%s: allow: %s\n", __PRETTY_FUNCTION__, allow);
 
       add_allowed_file (restrict);
       if (allow)
@@ -229,7 +231,7 @@ main ()
   printf ("strrstr %s %s: %s\n", h,n, strrstr (h, n));
   printf ("allowed for %s : %s\n", exe, get_allowed_prefix (exe));
 
-  puts ("allowed:");
+  puts ("librestrict:allowed:");
   for (i = 0; i < allowed_count; i++)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
   return 0;
