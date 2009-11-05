@@ -7,7 +7,7 @@ class Bash (target.AutoBuild):
     dependencies = ['libtool', 'gettext-devel']
 
 class Bash__mingw (Bash):
-    source = 'http://ufpr.dl.sourceforge.net/sourceforge/mingw/bash-2.05b-MSYS-src.tar.bz2&strip=2'
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/mingw/bash-2.05b-MSYS-src.tar.bz2&strip=2'
     def patch (self):
         self.file_sub ([(r'test \$ac_cv_sys_tiocgwinsz_in_termios_h != yes',
                          r'test "$ac_cv_sys_tiocgwinsz_in_termios_h" != yes'),

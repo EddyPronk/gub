@@ -5,7 +5,7 @@ from gub import target
 from gub import tools
 
 class Zlib (target.AutoBuild):
-    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
     patches = ['zlib-1.2.3.patch']
     srcdir_build_broken = True
     dependencies = ['tools::autoconf']

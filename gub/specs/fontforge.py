@@ -2,7 +2,7 @@ from gub import context
 from gub import tools 
 
 class Fontforge__tools (tools.AutoBuild):
-    source = 'http://sourceforge.net/projects/fontforge/files/fontforge-source/fontforge_full-20090923.tar.bz2'
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/fontforge/fontforge-source/fontforge_full-20090923.tar.bz2'
     #patches = ['fontforge-20080927-noxml2.patch']
     parallel_build_broken = True
     srcdir_build_broken = True
