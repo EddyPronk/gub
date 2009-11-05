@@ -65,9 +65,14 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
             failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed' + so)]
             if failed:
                 logger.write_log ('failed python modules:' + ', '.join (failed), 'error')
-            if not 'struct' + so in all or not 'itertools' + so in all:
-                logger.write_log ('all python modules:' + ', '.join (all), 'error')
-                raise Exception ('Python struct or itertools module failed')
+            for module in [
+                'itertools',
+                'struct',
+                'time',
+                ]:
+                if not module + so in all:
+                    logger.write_log ('all python modules:' + ', '.join (all), 'error')
+                    raise Exception ('Python module failed: ' + module)
         self.func (assert_fine)
     ### Ugh.
     @context.subst_method

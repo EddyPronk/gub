@@ -270,12 +270,13 @@
  	*)	   SO=.so;;
  	esac
  else
-@@ -1484,6 +1519,8 @@ then
+@@ -1484,6 +1519,9 @@ then
  	SCO_SV*) LDSHARED='$(CC) -Wl,-G,-Bexport';;
  	Monterey*) LDSHARED="cc -G -dy -Bdynamic -Bexport -L/usr/lib/ia64l64";;
  	CYGWIN*) LDSHARED="gcc -shared -Wl,--enable-auto-image-base";;
 +	mingw*) LDSHARED='$(CC) -mdll'
-+		BLDSHARED='$(CC) -mdll libpython$(VERSION).dll';;
++		BLDSHARED='$(CC) -mdll libpython$(VERSION).dll'
++		LIBC='-lwsock32';;
  	atheos*) LDSHARED="gcc -shared";;
  	*)	LDSHARED="ld";;
  	esac
@@ -870,6 +871,15 @@
  
      def detect_modules(self):
          # Ensure that /usr/local is always used
+@@ -327,6 +327,8 @@ class PyBuildExt(build_ext):
+         math_libs = ['m']
+         if platform in ['darwin', 'beos', 'mac']:
+             math_libs = []
++        if platform in ['mingw']:
++            math_libs += ['wsock32']
+ 
+         # XXX Omitted modules: gl, pure, dl, SGI-specific modules
+ 
 @@ -1141,6 +1150,8 @@ class PyBuildInstallLib(install_lib):
      # mode 755. All installed directories will get mode 755.
  
