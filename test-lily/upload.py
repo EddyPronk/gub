@@ -230,7 +230,7 @@ upload x.y.z      - upload packages
 
     p.add_option ('--version-db', action='store',
                   dest='version_db',
-                  default='uploads/lilypond.versions',
+                  default='versiondb/lilypond.versions',
                   help='version database')
     
     p.add_option ('', '--upload-host', action='store',

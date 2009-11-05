@@ -31,7 +31,7 @@ def parse_options ():
     p.add_option ('--version-db',
                   dest='version_db',
                   help='which version db to use',
-                  default='uploads/lilypond.versions')
+                  default='versiondb/lilypond.versions')
     p.add_option ('--output-distance',
                   dest='output_distance_script',
                   help='compute signature distances using script') 
