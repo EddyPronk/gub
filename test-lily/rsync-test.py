@@ -51,7 +51,11 @@ def parse_options ():
     p.add_option ('--upload-dir',
                   dest='upload_dir',
                   default='uploads/',
-                  help='Where to find test-output tarballs')
+                  help='Where to find current test-output tarballs')
+    p.add_option ('--regtest-dir',
+                  dest='regtest_dir',
+                  default='regtests/',
+                  help='Where to find old test-output tarballs')
     p.add_option ('--keep',
                   dest='keep',
                   action='store_true',
@@ -141,6 +145,7 @@ Regression test results for %(version_str)s
 
 def compare_test_info (options):
     outputs = glob.glob (options.upload_dir + '/lilypond-*.test-output*')
+    outputs += glob.glob (options.regtest_dir + '/lilypond-*.test-output*')
 
     current_version = tuple (map (int, options.version))
     current_tuple = (current_version, options.build)
