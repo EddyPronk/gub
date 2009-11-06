@@ -6,6 +6,7 @@
 .PHONY: doc doc-clean doc-export unlocked-doc-clean unlocked-doc-export
 .PHONY: dist-check unlocked-dist-check
 .PHONY: lilypond-prep nongit-dirs
+.PHONY: lilypond-upload
 
 default: all
 
@@ -138,9 +139,9 @@ test-output:
 print-success:
 	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL)
 	@echo ""
-	@echo "To upload, run "
+	@echo "To upload, run:"
 	@echo
-	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL) --execute "
+	@echo "    make lilypond-upload LILYPOND_BRANCH=$(LILYPOND_BRANCH) LILYPOND_REPO_URL=$(LILYPOND_REPO_URL)"
 	@echo
 
 docball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
@@ -269,3 +270,8 @@ print-branches:
 	@echo "--branch=guile=$(GUILE_FLATTENED_BRANCH)"
 	@echo "--branch=lilypond=$(LILYPOND_FLATTENED_BRANCH)"
 	@echo "--branch=denemo=$(DENEMO_FLATTENED_BRANCH)"
+
+lilypond-upload:
+	$(PYTHON) test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL) --execute
+	mv uploads/lilypond-*.test-output.tar.bz2 regtests/
+
