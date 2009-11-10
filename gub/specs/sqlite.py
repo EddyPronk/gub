@@ -3,6 +3,7 @@ from gub import target
 
 class Sqlite (target.AutoBuild):
     source = 'http://www.sqlite.org/sqlite-3.6.4.tar.gz' # 3.3.16
+    dependencies = ['tools::libtool']
     configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --disable-tcl
