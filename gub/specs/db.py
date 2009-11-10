@@ -20,6 +20,8 @@ class Db (target.AutoBuild):
                         '%(builddir)s/build_unix/Makefile')
     def install (self):
         target.AutoBuild.install (self)
+        # FIXME: /usr/docs/ is full of invalid symlinks
+        self.system ('rm -rf %(install_prefix)s/docs')
         self.system ('rm -f %(install_prefix)s/lib/libdb.{a,so{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.a libdb.a')
         self.system ('cd %(install_prefix)s/lib && cp libdb-*.la libdb.la')
@@ -57,6 +59,8 @@ LDFLAGS=-lwsock32
 '''))
     def install (self):
         target.AutoBuild.install (self)
+        # FIXME: /usr/docs/ is full of invalid symlinks
+        self.system ('rm -rf %(install_prefix)s/docs')
         self.system ('rm -f %(install_prefix)s/{bin,lib}/libdb.{{,so,dll}{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && cp libdb-*.a libdb.a')
         self.system ('cd %(install_prefix)s/lib && cp libdb-*.la libdb.la')
@@ -81,4 +85,6 @@ class Db__tools (tools.AutoBuild, Db):
         pass
     def install (self):
         tools.AutoBuild.install (self)
+        # FIXME: /usr/docs/ is full of invalid symlinks
+        self.system ('rm -rf %(install_prefix)s/docs')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
