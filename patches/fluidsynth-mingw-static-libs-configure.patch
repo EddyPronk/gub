@@ -1,0 +1,11 @@
+--- fluidsynth-1.1.0/configure~	2009-11-10 09:26:41.434050274 +0100
++++ fluidsynth-1.1.0/configure	2009-11-10 09:32:43.925297500 +0100
+@@ -12655,7 +12655,7 @@ cat >>confdefs.h <<\_ACEOF
+ #define MINGW32 1
+ _ACEOF
+ 
+-  LIBFLUID_LIBS="-ldsound -lwinmm -lws2_32"
++  LIBFLUID_LIBS="-static -ldsound -lwinmm -lws2_32"
+   LIBFLUID_CPPFLAGS="-DFLUIDSYNTH_DLL_EXPORTS"
+   LIBFLUID_LDFLAGS="-no-undefined"
+   FLUID_CPPFLAGS="-DFLUIDSYNTH_NOT_A_DLL"

@@ -23,8 +23,6 @@
 #ifndef _WINE_WINDEF_
 #define _WINE_WINDEF_
 
-/* from wine/windows/windef.h */
-
 #ifdef WINE_NO_UNICODE_MACROS
 # define WINELIB_NAME_AW(func) \
     func##_must_be_suffixed_with_W_or_A_in_this_context \
@@ -43,4 +41,4 @@
 # define DECL_WINELIB_TYPE_AW(type)  typedef WINELIB_NAME_AW(type) type;
 #endif
 
-#endif _WINE_WINDEF_
+#endif /* _WINE_WINDEF_ */
