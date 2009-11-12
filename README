@@ -189,27 +189,105 @@ bin/
 sourcefiles/             non-patch files used in build specifications
 nsis/                    nsis windows installer scripts
 
+BASIC WORKINGS
+
+Checksums and rebuilds
+
+GUB seeks to minimise unnecessary rebuilds while being strict about important
+changes. Before starting the actual building of a package, the build recipe is
+executed as a dry-run and a checksum is calculated from these build commands.
+This checksum includes the environment variables DISPLAY, FTP_PROXY,
+GUB_TOOLS_PREFIX, HOME, HTTP_PROXY, LIBRESTRICT, PATH [no other environment
+variables are allowed through].
+
+The packages' build checksum is matched with the previous build and if it
+changes, the package is rebuilt. Otherwise, only the binary package is
+reinstalled, if necessary. This means that the .py build specs can be changed
+and refactored at will and as long as no actual build commands change, nothing
+will be rebuilt.
+
+This makes that forcing rebuilds can can be tricky: gub refuses to do so if it
+deems rebuilding unnecessary.
+
+LIBRESTRICT
+
+A common problem with [making reproducible cross] builds is using files or
+features that are not controlled by the [GUB] build process, but just happen to
+be on the build host and happen to differ between most build hosts.
+
+GUB uses the LD_PRELOAD feature with the gub/specs/librestrict.py package and
+code from ./librestrict/restrict.c to disallow reading from build host files.
+This makes for much better reprocucibility, especially between different build
+hosts.
+
+The downside to this LIBRESTRICT feature is that quit a few packages are not
+prepared for cross building. LIBRESTRICT will catch these errors and they have
+to be fixed in the package's spec file.
+
+This is what such a LIBRESTRICT assertion could like
+
+    librestrict:error:/home/janneke/vc/gub/target/mingw/root/usr/cross/libexec/gcc/i686-mingw32/4.1.1/cc1plus: tried to open () file /home/janneke/vc/lilypond/lily/main.cc
+    librestrict:allowed:
+      /home/janneke/vc/gub/target/mingw
+      /tmp
+      /dev/null
+      /dev/urandom
+      /proc/self
+    cc1plus: internal compiler error: Aborted
+    Please submit a full bug report,
+    with preprocessed source if appropriate.
+    See  for instructions.
+    [1]10:42:08 janneke@peder:~/vc/gub
+    $
+
+you often find these in config.log files when package-dependant code blondly
+looks in /usr/include or /usr/lib.
+
+stat-restriction
+
+LIBRESTRICT has an experimental strict mode enabled by setting the environment
+variable
+
+    LIBRESTRICT=open:stat
+
+This will even disallow any STATting outside the target's build tree. It would
+be nice to get this to work and some effort has been done. However, this is
+potentially a lot of work as not only upstream packages but also build system
+authors [autoconf, automake, libtool etc.] look at the build host root file
+system while cross building.
+
+Simplifying package builds or avoiding code duplication
+
+Another idea of GUB is to identify, fix and generalise build quircks and move
+them from a package's spec file into one of the generic build classes. This
+increases maintainability by avoiding code duplication, makes spec files
+smaller, simpler and also increases the chances of a new package's spec file to
+only need a source url to specify the build.
+
 BASIC USAGE
 
-Build package foo for platform bar
+Build package hello for platform linux-x86
 
-    bin/gub bar::foo
+    bin/gub linux-x86::hello
 
-Force a rebuild of package foo for all platforms
+Examine why package hello wants to rebuild
 
-    rm -rf target/*/*/foo-*
+    less target/linux-x86/log/build.log
+        search from end back to `mismatch:' [type: FC-c?mismatch:RET]
 
-search from end back to `mismatch:' [F?mismatch:RET] Examine why package foo
-wants to rebuild
+Force a rebuild of package hello for platform linux-x86
 
-    less target/bar/log/build.log
+    rm -rf target/linux-x86/*/hello-*
 
-search from end back to `mismatch:' [F?mismatch:RET] Prepare to rebuild entire
-platform bar
+Force a rebuild of package hello for all platforms
 
-    rm -rf target/bar
+    rm -rf target/*/*/hello-*
 
-Remove all build output
+Prepare to rebuild entire linux-x86 platform
+
+    rm -rf target/linux-x86
+
+Prepare to rebuild everything, all platforms
 
     rm -rf target
 
@@ -294,7 +372,9 @@ __<platform>__<arch>-specific instructions
 
 For platform specific instructions, append "__<platform>" to the class name.
 For platform+architecture-specific instructions, "__<platform>__<arch>" to the
-class name. gub/specs/pixman.py
+class name.
+
+gub/specs/pixman.py
 
     from gub import target
 
@@ -311,6 +391,76 @@ class name. gub/specs/pixman.py
         # if it thinks it's a compile flag.
         # FIXME: should add fixup to update_libtool ()
         compile_flags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
+
+
+String expansion
+
+In all build commands, standard Python string expansion
+
+    %(string-name)s
+
+
+can be used. These strings are taken from class Settings in gub/settings.py and
+from the package's build class and its parent classes.
+
+Adding string expansion variables to a spec build class can be done in several
+ways
+
+  • class variable
+
+        class Foo (target.Autobuild):
+            common_configure_flags = ' --without-java'
+
+
+  • instance variable
+
+        class Foo__mingw (Foo):
+            def __init__ (self, settings, source):
+                Foo.__init__ (self, settings, source)
+                self.target_gcc_flags = '-mms-bitfields'
+
+
+  • decorated funtion returning a string
+
+        class Bar__mingw (target.Autobuild):
+            @context.subst_method
+            def target_os (self):
+                return 'windows'
+
+
+  • Manipulating the substitution_dict using gub/build.py's class Change_dict
+    or overriding the get_substitution_dict method.
+
+Pre-defined strings
+
+Typical variables defined by settings are
+
+    build_architecture=x86_64-linux
+    build_os=linux
+    build_platform=linux-64
+    platform=target
+    target_architecture=x86_64-linux
+    target_bits=64
+    target_cpu=x86_64
+    target_os=linux
+    target_platform=target
+
+
+Typical variables defined by the build class
+
+    compile_flags=
+    builddir=.../target/build/...
+    config_cache_overrides=
+    configure_binary= .../configure
+    configure_command= sh .../configure ...
+    configure_flags= --prefix=... --enable-shared --enable-static
+    configure_variables= CFLAGS=-I.../target/root/usr/include
+    install_command=
+    install_flags=
+    install_prefix=
+    install_root=
+    make_flags=
+    srcdir=.../target/src/...
 
 
 More examples
@@ -350,7 +500,7 @@ this leaves installers and documentation in
   uploads/webdoc/VERSION
 
   uploads/lilypond-VERSION-RELEASE.test-output.tar.bz2
-  uploads/webtest/VERSION
+  uploads/wbtest/VERSION
 
 More examples
 
@@ -370,10 +520,6 @@ More examples
     this leaves installers for GNU/Linux (x86, x86_64, powerpc),
     Windows, MacOSX (x86 and powerpc), FreeBSD (x86, x86_64) and
     documentation in uploads/
-
-  * Build all LilyPond installers for an older branch
-
-      make lilypond LILYPOND_BRANCH=stable/2.12
 
   * Optional: Prepare build environment
 

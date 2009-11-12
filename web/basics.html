@@ -107,27 +107,124 @@
       </tr>
     </table>
 
+    <h2>BASIC WORKINGS</h2>
+    
+    <h3>Checksums and rebuilds</h3>
+
+    GUB seeks to minimise unnecessary rebuilds while being strict
+    about important changes.  Before starting the actual building of a
+    package, the build recipe is executed as a dry-run and a checksum
+    is calculated from these build commands.  This checksum includes
+    the environment variables DISPLAY, FTP_PROXY, GUB_TOOLS_PREFIX,
+    HOME, HTTP_PROXY, LIBRESTRICT, PATH [no other environment
+    variables are allowed through].
+
+    <p></p>
+
+    The packages' build checksum is matched with the previous build
+    and if it changes, the package is rebuilt.  Otherwise, only the
+    binary package is reinstalled, if necessary.
+    This means that the .py build specs can be changed and refactored
+    at will and as long as no actual build commands change, nothing
+    will be rebuilt.
+
+    <p></p>
+
+    This makes that forcing rebuilds can can be tricky: gub refuses to
+    do so if it deems rebuilding unnecessary.
+    
+    <h3>LIBRESTRICT</h3>
+
+    A common problem with [making reproducible cross] builds is using
+    files or features that are not controlled by the [GUB] build
+    process, but just happen to be on the build host <em>and</em>
+    happen to differ between most build hosts.
+
+    <p></p>
+
+    GUB uses the LD_PRELOAD feature with
+    the <file>gub/specs/librestrict.py</file> package and code
+    from <file>./librestrict/restrict.c</file> to disallow reading
+    from build host files.  This makes for much better reprocucibility,
+    especially between different build hosts.
+
+    <p></p>
+
+    The downside to this LIBRESTRICT feature is that quit a few
+    packages are not prepared for cross building.  LIBRESTRICT will
+    catch these errors and they have to be fixed in the package's spec
+    file.
+
+    <p></p>
+    This is what such a LIBRESTRICT assertion could like
+    
+    <blockquote><pre>librestrict:error:/home/janneke/vc/gub/target/mingw/root/usr/cross/libexec/gcc/i686-mingw32/4.1.1/cc1plus: tried to open () file /home/janneke/vc/lilypond/lily/main.cc
+librestrict:allowed:
+  /home/janneke/vc/gub/target/mingw
+  /tmp
+  /dev/null
+  /dev/urandom
+  /proc/self
+cc1plus: internal compiler error: Aborted
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://gcc.gnu.org/bugs.html> for instructions.
+[1]10:42:08 janneke@peder:~/vc/gub
+$ 
+</pre></blockquote>
+
+    you often find these in <file>config.log</file> files when
+    package-dependant code blondly looks in <file>/usr/include</file>
+    or <file>/usr/lib</file>.
+
+    <h4>stat-restriction</h4>
+
+    LIBRESTRICT has an experimental strict mode enabled by
+    setting the environment variable
+    
+    <pre><blockquote>LIBRESTRICT=open:stat
+</pre></blockquote>
+
+    This will even disallow any STATting outside the target's build
+    tree.  It would be nice to get this to work and some effort has
+    been done.  However, this is potentially a lot of work as not only
+    upstream packages but also build system authors [autoconf,
+    automake, libtool etc.] look at the build host root file system
+    while cross building.
+
+    <h3>Simplifying package builds or avoiding code duplication</h3>
+
+    Another idea of GUB is to identify, fix and generalise build
+    quircks and move them from a package's spec file into one of the
+    generic build classes.  This increases maintainability by avoiding
+    code duplication, makes spec files smaller, simpler and also
+    increases the chances of a new package's spec file to only need a
+    source url to specify the build.
+
     <h2>BASIC USAGE</h2>
 
-    Build package foo for platform bar
-    <pre><blockquote>bin/gub bar::foo
+    Build package hello for platform linux-x86
+    <pre><blockquote>bin/gub linux-x86::hello
 </blockquote></pre>
 
-    Force a rebuild of package foo for all platforms
-    <pre><blockquote>rm -rf target/*/*/foo-*
-</blockquote></pre>
-    search from end back to `mismatch:' [F?mismatch:RET]
-
-    Examine why package foo wants to rebuild
-    <pre><blockquote>less target/bar/log/build.log
-</blockquote></pre>
-    search from end back to `mismatch:' [F?mismatch:RET]
-
-    Prepare to rebuild entire platform bar
-    <pre><blockquote>rm -rf target/bar
+    Examine why package hello wants to rebuild
+    <pre><blockquote>less target/linux-x86/log/build.log
+    search from end back to `mismatch:' [type: FC-c?mismatch:RET]
 </blockquote></pre>
 
-    Remove all build output
+    Force a rebuild of package hello for platform linux-x86
+    <pre><blockquote>rm -rf target/linux-x86/*/hello-*
+</blockquote></pre>
+
+    Force a rebuild of package hello for all platforms
+    <pre><blockquote>rm -rf target/*/*/hello-*
+</blockquote></pre>
+
+    Prepare to rebuild entire linux-x86 platform
+    <pre><blockquote>rm -rf target/linux-x86
+</blockquote></pre>
+
+    Prepare to rebuild everything, all platforms
     <pre><blockquote>rm -rf target
 </blockquote></pre>
 
@@ -201,6 +298,8 @@ class Icoutils__tools (tools.AutoBuild):
     For platform specific instructions, append "__&lt;platform&gt;" to
     the class name.  For platform+architecture-specific instructions,
     "__&lt;platform&gt;__&lt;arch&gt;" to the class name.
+
+    <p></p>
     <file><strong>gub/specs/pixman.py</strong></file>
     <pre><blockquote>from gub import target
 
@@ -217,6 +316,77 @@ class Glib__freebsd__x86 (Glib__freebsd):
     # if it thinks it's a compile flag.
     # FIXME: should add fixup to update_libtool ()
     compile_flags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
+    </pre></blockquote>
+
+    <h3>String expansion</h3>
+
+    In all build commands, standard Python string expansion
+    <pre><blockquote>%(string-name)s
+    </pre></blockquote>
+
+    can be used.  These strings are taken from <code>class
+    Settings</code> in <file>gub/settings.py</file> and from
+    the package's build class and its parent classes.
+
+    <p></p>
+    Adding string expansion variables to a spec build class
+    can be done in several ways
+
+    <ul>
+      <li>class variable
+    <pre><blockquote>class Foo (target.Autobuild):
+    common_configure_flags = ' --without-java'
+    </pre></blockquote>
+      </li>
+      <li>instance variable
+    <pre><blockquote>class Foo__mingw (Foo):
+    def __init__ (self, settings, source):
+        Foo.__init__ (self, settings, source)
+        self.target_gcc_flags = '-mms-bitfields'
+    </pre></blockquote>
+      </li>
+      <li>decorated funtion returning a string
+    <pre><blockquote>class Bar__mingw (target.Autobuild):
+    @context.subst_method
+    def target_os (self):
+        return 'windows'
+    </pre></blockquote>
+      </li>
+      <li>
+	Manipulating the <code>substitution_dict</code> using
+	<file>gub/build.py</file>'s <code>class Change_dict</code> or
+	overriding the <code>get_substitution_dict</code> method.
+      </li>
+    </ul>
+
+    <h4>Pre-defined strings</h4>
+
+    Typical variables defined by settings are
+    <pre><blockquote>build_architecture=x86_64-linux
+build_os=linux
+build_platform=linux-64
+platform=target
+target_architecture=x86_64-linux
+target_bits=64
+target_cpu=x86_64
+target_os=linux
+target_platform=target
+    </pre></blockquote>
+
+    Typical variables defined by the build class
+    <pre><blockquote>compile_flags=
+builddir=.../target/build/...
+config_cache_overrides=
+configure_binary= .../configure
+configure_command= sh .../configure ...
+configure_flags= --prefix=... --enable-shared --enable-static
+configure_variables= CFLAGS=-I.../target/root/usr/include
+install_command= 
+install_flags= 
+install_prefix=
+install_root=
+make_flags=
+srcdir=.../target/src/...
     </pre></blockquote>
 
     <h3>More examples</h3>
