@@ -2,7 +2,11 @@ from gub import target
 
 class Portaudio (target.AutoBuild):
     source = 'http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz'
-    dependencies = ['tools::automake', 'tools::pkg-config',]
+    dependencies = [
+        'tools::automake',
+        'tools::libtool',
+        'tools::pkg-config',
+        ]
 
 class Portaudio__mingw (Portaudio):
     def patch (self):
