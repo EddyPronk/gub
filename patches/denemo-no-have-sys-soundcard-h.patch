@@ -1,0 +1,41 @@
+[!HAVE_SYS_SOUNDCARD_H]: Define dummies.  Fixes build without sys/soundcard.h
+
+diff --git a/src/midi.c b/src/midi.c
+index 684f6de..11fb154 100644
+--- a/src/midi.c
++++ b/src/midi.c
+@@ -128,7 +128,33 @@ seqbuf_dump ()
+   _seqbufptr = 0;
+ }
+ 
+-#endif
++#else /* !HAVE_SYS_SOUNDCARD_H */
++
++gint
++get_midi_channel ()
++{
++  return 0;
++}
++
++gint
++get_midi_prognum ()
++{
++  return 0;
++}
++
++gint
++get_midi_port ()
++{
++  return 0;
++}
++
++void
++seqbuf_dump ()
++{
++}
++
++#endif /* !HAVE_SYS_SOUNDCARD_H */
++
+ /**
+  * Close the sequencer device
+  *
