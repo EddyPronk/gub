@@ -1,10 +1,18 @@
 from gub import target
 
+def libtool_no_library_names (self, name):
+    self.file_sub ([
+            ('^(library_names=).*', r'\1'),
+            ('^(weak_library_names=).*', r'\1'),
+            ],
+                   '%(install_prefix)s/lib/lib%(name)s.la',
+                   env=locals ())
+
 class Fluidsynth (target.AutoBuild):
     source = 'http://download.savannah.gnu.org/releases/fluid/fluidsynth-1.1.0.tar.gz'
     dependencies = [
         'glib-devel',
-        'portaudio',
+        'portaudio-devel',
         ]
     configure_flags = (target.AutoBuild.configure_flags
                        + ' --with-pic'
@@ -26,6 +34,7 @@ class Fluidsynth__mingw (Fluidsynth):
 #        'fluidsynth-mingw-static-libs.patch',
 #        'fluidsynth-mingw-static-libs-configure.patch',
         'fluidsynth-mingw-static-libs-src-makefile.patch',
+        'fluidsynth-mingw-not-a-dll.patch',
     ]
     # The link command includes libraries that we only have in
     # static form: libstdc++.a libuuid.a and libdsound.a.
@@ -56,3 +65,6 @@ cp %(sourcefiledir)s/mingw-headers/dsound.h %(srcdir)s/src
 ''',
                    '%(srcdir)s/src/config.h.in',
                    mode='a')
+    def install (self):
+        Fluidsynth.install (self)
+        libtool_no_library_names (self, 'fluidsynth')
