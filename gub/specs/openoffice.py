@@ -151,6 +151,8 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
                          + openoffice_configure_flags)
     subpackage_names = ['']
     def __init__ (self, settings, source):
+        # Ugh, mingw::openoffice install complains about this...
+        os.environ['DISPLAY'] = 'localhost:0.0'
         target.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
         def tracking (self):

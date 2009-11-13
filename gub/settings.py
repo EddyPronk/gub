@@ -239,8 +239,8 @@ class Settings (context.Context):
         # cd /x/y/z.  This terribly breaks stat restriction.
         os.environ['SHELLOPTS'] = 'physical'
 
-        if not '%(tools_prefix)s/bin' in os.environ['PATH']:
-            os.environ['PATH'] = '%(tools_prefix)s/bin:' + os.environ['PATH']
+        if not '%(tools_prefix)s/bin' % self.__dict__ in os.environ['PATH']:
+            os.environ['PATH'] = '%(tools_prefix)s/bin:' % self.__dict__ + os.environ['PATH']
         
     def create_dirs (self): 
         for a in (
@@ -309,7 +309,6 @@ def as_variables (settings):
 def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
                   (
-                'DISPLAY', # Ugh, mingw::openoffice install complains about this...
                 'FTP_PROXY',
                 'GUB_TOOLS_PREFIX',
                 'HOME',
