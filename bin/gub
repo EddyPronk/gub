@@ -33,8 +33,10 @@ def argv0_relocation ():
 
 argv0_relocation ()
 
+import pickle
 import optparse
 import os
+import time
 import sys
 #
 from gub import buildrunner
@@ -271,6 +273,35 @@ def logged_build (settings, options, files):
     logger.write_log ('platform: %s\n' % settings.platform, 'verbose')
     sys.exit (exceptional_build (settings, options, files, logger))
 
+def environment_sanity (settings):
+    environment_file = settings.alltargetdir + '/environment.pickle'
+    environment = dict ()
+    if os.path.exists (environment_file):
+        environment = dict (pickle.loads (open (environment_file, 'rb').read ()))
+    differ = []
+    for key in list (misc.uniq (sorted (environment.keys ()
+                                        + os.environ.keys ()))):
+        if environment.get (key, None) != os.environ.get (key, None):
+            differ += [key]
+    if list (environment.keys ()) and differ:
+        printf ('*** environment changed\n')
+        for key in differ:
+            printf ('    #new# %(key)s=' % locals () + os.environ.get (key, ''))
+            if environment.get (key, None):
+                printf ('    %(key)s=' % locals () + environment[key])
+            else:
+                printf ('    unset %(key)s' % locals ())
+        sys.stderr.write ('\n*** press ^C in 10s or suffer a full rebuild')
+        try:
+            while range (10):
+                time.sleep (1)
+                sys.stderr.write ('.')
+        except KeyboardInterrupt:
+            sys.exit (1)
+        except:
+            pass
+    open (environment_file, 'w').write (pickle.dumps (os.environ, protocol=2))
+
 def main ():
     # stat restriction has become much more real using BASH
     # lots of specs do not compile atm
@@ -310,6 +341,7 @@ def main ():
         cli_parser.print_help ()
         sys.exit (2)
         
+    environment_sanity (settings)
     logged_build (settings, options, files)
 
 
