@@ -293,7 +293,7 @@ def environment_sanity (settings):
                 printf ('    unset %(key)s' % locals ())
         sys.stderr.write ('\n*** press ^C in 10s or suffer a full rebuild')
         try:
-            while range (10):
+             for i in range (10):
                 time.sleep (1)
                 sys.stderr.write ('.')
         except KeyboardInterrupt:
