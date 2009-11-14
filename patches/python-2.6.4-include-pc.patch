@@ -1,0 +1,11 @@
+--- python-2-6-2.6.4/Makefile.pre.in~	2009-11-14 18:26:49.785296707 +0100
++++ python-2-6-2.6.4/Makefile.pre.in	2009-11-14 18:30:15.674047010 +0100
+@@ -63,7 +63,7 @@ CFLAGS=		$(BASECFLAGS) $(OPT) $(EXTRA_CF
+ # Both CPPFLAGS and LDFLAGS need to contain the shell's value for setup.py to
+ # be able to build extension modules using the directories specified in the
+ # environment variables
+-CPPFLAGS=	-I. -IInclude -I$(srcdir)/Include @CPPFLAGS@
++CPPFLAGS=	-I. -IInclude -I$(srcdir)/Include -I$(srcdir)/PC @CPPFLAGS@
+ LDFLAGS=	@LDFLAGS@
+ LDLAST=		@LDLAST@
+ SGI_ABI=	@SGI_ABI@

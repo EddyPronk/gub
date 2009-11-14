@@ -34,7 +34,14 @@ class Python (target.AutoBuild):
     dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
     force_autoupdate = True
     subpackage_names = ['doc', 'devel', 'runtime', '']
-
+    so_modules = [
+        'itertools',
+        'struct',
+        'time',
+        ]
+    make_flags = misc.join_lines (r'''
+BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
+''')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         self.CROSS_ROOT = '%(targetdir)s'
@@ -52,9 +59,6 @@ class Python (target.AutoBuild):
         if self.settings.build_platform == self.settings.target_platform:
             self.file_sub ([('cross_compiling=(maybe|no|yes)',
                              'cross_compiling=no')], '%(srcdir)s/configure')
-    make_flags = misc.join_lines (r'''
-BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
-''')
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
@@ -65,11 +69,7 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
             failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed' + so)]
             if failed:
                 logger.write_log ('failed python modules:' + ', '.join (failed), 'error')
-            for module in [
-                'itertools',
-                'struct',
-                'time',
-                ]:
+            for module in self.so_modules:
                 if not module + so in all:
                     logger.write_log ('all python modules:' + ', '.join (all), 'error')
                     raise Exception ('Python module failed: ' + module)
@@ -160,4 +160,4 @@ class Python__tools (tools.AutoBuild, Python):
         tools.AutoBuild.patch (self)
         Python.patch (self)
         # Stop python from reading ~/.inputrc
-        self.apply_patch('python-2.4.5-readline.patch')
+        self.apply_patch ('python-2.4.5-readline.patch')

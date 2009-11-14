@@ -1,0 +1,78 @@
+--- python-2-6-2.6.4/configure.in~	2009-11-14 17:36:40.825298178 +0100
++++ python-2-6-2.6.4/configure.in	2009-11-14 17:46:23.084987247 +0100
+@@ -2697,6 +2697,7 @@ AC_CHECK_LIB(c, inet_aton, [$ac_cv_prog_
+ # On Tru64, chflags seems to be present, but calling it will
+ # exit Python
+ AC_MSG_CHECKING(for chflags)
++AC_CACHE_VAL(ac_cv_have_chflags,[
+ AC_TRY_RUN([
+ #include <sys/stat.h>
+ #include <unistd.h>
+@@ -2706,12 +2707,17 @@ int main(int argc, char*argv[])
+     return 1;
+   return 0;
+ }
+-],AC_DEFINE(HAVE_CHFLAGS, 1, Define to 1 if you have the `chflags' function.)
+-  AC_MSG_RESULT(yes),
+-  AC_MSG_RESULT(no)
++],
++  ac_cv_have_chflags=yes,
++  ac_cv_have_chflags=no,
+-)
++)])
++AC_MSG_RESULT($ac_cv_have_chflags)
++if $ac_cv_have_chflags = yes; then
++   AC_DEFINE(HAVE_CHFLAGS, 1, Define to 1 if you have the `chflags' function.)
++fi
+ 
+ AC_MSG_CHECKING(for lchflags)
++AC_CACHE_VAL(ac_cv_have_lchflags,[
+ AC_TRY_RUN([
+ #include <sys/stat.h>
+ #include <unistd.h>
+@@ -2721,10 +2727,14 @@ int main(int argc, char*argv[])
+     return 1;
+   return 0;
+ }
+-],AC_DEFINE(HAVE_LCHFLAGS, 1, Define to 1 if you have the `lchflags' function.)
+-  AC_MSG_RESULT(yes),
+-  AC_MSG_RESULT(no)
++],
++  ac_cv_have_lchflags=yes,
++  ac_cv_have_lchflags=no,
+-)
++)])
++AC_MSG_RESULT($ac_cv_have_lchflags)
++if $ac_cv_have_lchflags = yes; then
++   AC_DEFINE(HAVE_CHFLAGS, 1, Define to 1 if you have the `lchflags' function.)
++fi
+ 
+ dnl Check if system zlib has *Copy() functions
+ dnl
+--- python-2-6-2.6.4/configure.in~	2009-11-14 18:21:57.425296208 +0100
++++ python-2-6-2.6.4/configure.in	2009-11-14 18:25:05.636181212 +0100
+@@ -3845,6 +3845,7 @@ then
+ fi
+ 
+ AC_MSG_CHECKING(for %zd printf() format support)
++AC_CACHE_VAL(ac_cv_have_lchflags,[
+ AC_TRY_RUN([#include <stdio.h>
+ #include <stddef.h>
+ #include <string.h>
+@@ -3879,9 +3880,13 @@ int main()
+ 
+     return 0;
+ }],
+-[AC_MSG_RESULT(yes)
+- AC_DEFINE(PY_FORMAT_SIZE_T, "z", [Define to printf format modifier for Py_ssize_t])],
+- AC_MSG_RESULT(no))
++  ac_cv_py_format_size_t=yes,
++  ac_cv_py_format_size_t=no,
++)])
++AC_MSG_RESULT($ac_cv_py_format_size_t)
++if $ac_cv_py_format_size_t = yes; then
++ AC_DEFINE(PY_FORMAT_SIZE_T, "z", [Define to printf format modifier for Py_ssize_t])
++fi
+ 
+ AC_CHECK_TYPE(socklen_t,,
+   AC_DEFINE(socklen_t,int,
