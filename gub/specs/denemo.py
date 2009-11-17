@@ -66,6 +66,8 @@ class Denemo__mingw__windows (Denemo):
     make_flags = ''
 
 class Denemo__mingw__console (Denemo__mingw__windows):
+    configure_flags = (Denemo__mingw__windows.configure_flags
+                       + ' --enable-debugging')
     def __init__ (self, settings, source):
         Denemo__mingw__windows.__init__ (self, settings, source)
         # Configure (link) without -mwindows for denemo-console.exe
@@ -83,7 +85,9 @@ install -m755 %(builddir)s/src/denemo-windows.exe %(install_prefix)s/bin/denemo.
 install -m755 %(builddir)s/src/denemo-console.exe %(install_prefix)s/bin/denemo-console.exe
 ''')
 
-Denemo__mingw = Denemo__mingw__windows
+# Use debugging for Windows for now.
+# Denemo__mingw = Denemo__mingw__windows
+Denemo__mingw = Denemo__mingw__console
 
 class Denemo__darwin (Denemo):
     dependencies = [x for x in Denemo.dependencies
