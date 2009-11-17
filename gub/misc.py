@@ -293,6 +293,8 @@ def rewrite_url (url, mirror):
     
     file = os.path.basename (url)
     base = split_ball (file)[0]
+    if '.' in base:
+        base = base[:base.find ('.')]
     return os.path.join (mirror, base, file)
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
