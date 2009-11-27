@@ -5,6 +5,8 @@ from gub import tools
 class Curl (target.AutoBuild):
     source = 'http://curl.haxx.se/download/curl-7.19.0.tar.gz'
     dependencies = ['tools::libtool']
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + ' --without-openssl')
     def install (self):
         target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
@@ -17,3 +19,6 @@ class Curl (target.AutoBuild):
 
 class Curl__tools (tools.AutoBuild, Curl):
     dependencies = ['libtool']
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + ' --without-openssl')
+
