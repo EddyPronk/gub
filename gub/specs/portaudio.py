@@ -1,14 +1,26 @@
+from gub import misc
+from gub import repository
 from gub import target
 
 class Portaudio (target.AutoBuild):
     source = 'http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz'
+    # useless, changes every night
+    # source = 'http://www.portaudio.com/archives/pa_snapshot.tgz'
+    source = 'svn:http://www.portaudio.com/repos/portaudio/trunk&revision=1428'
     dependencies = [
         'tools::automake',
         'tools::libtool',
         'tools::pkg-config',
         ]
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        if isinstance (source, repository.Subversion):
+            source.version = misc.bind_method (lambda x: repository.Repository.version_from_pc_in (x, 'portaudio-2.0.pc.in'), source)
+        if 'snapshot' in Portaudio.source:
+            # version_from_* does not work with tar ball, hardcode for now
+            source.version = misc.bind_method (lambda x: '19', source)
 
-class Portaudio__mingw (Portaudio):
+class only_for_stable_Portaudio__mingw (Portaudio):
     def patch (self):
         Portaudio.patch (self)
         for i in ['%(srcdir)s/configure.in',

@@ -120,6 +120,12 @@ class Repository:
                                                    default_version)
         except:
             return default_version
+    def version_from_pc_in (self, file_name, default_version='0.0.0'):
+        try:
+            return misc.version_from_pc_in (self.read_file (file_name),
+                                            default_version)
+        except:
+            return default_version
     @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))

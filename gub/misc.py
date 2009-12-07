@@ -134,6 +134,15 @@ def version_from_configure_in (configure_in, name, default_version='0.0.0'):
         pass
     return default_version
 
+def version_from_pc_in (pc_in, default_version='0.0.0'):
+    try:
+        m = re.search (r'^Version: ([0-9.]+)', pc_in)
+        if m:
+            return m.group (1)
+    except:
+        pass
+    return default_version
+
 def version_to_string (t):
     if t[-1]:
         return '%s-%s' % ('.'.join (map (str, t[:-1])), t[-1])
