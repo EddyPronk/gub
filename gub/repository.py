@@ -614,6 +614,9 @@ cd %(dir_slash_vcs)s && mv *bz2 *deb *gz *zip .. || :
     def is_downloaded (self):
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
             return False
+        ref = 'refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__
+        if not os.path.isdir (os.path.join (self.dir, ref)):
+            return False
         if self.revision:
             result = self.git_pipe ('cat-file commit %s' % self.revision,
                                     ignore_errors=True)
@@ -650,14 +653,15 @@ fatal: The remote end hung up unexpectedly
         branch = self.get_ref ()
         if branch in self.checksums:
             return self.checksums[branch]
-        if os.path.isdir (self.dir):
-            ## can't use describe: fails in absence of tags.
-            cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
-            cs = cs.strip ()
-            self.checksums[branch] = cs
-            return cs
-        else:
+        if not self.is_downloaded ():
+            self.download ()
+        if not self.is_downloaded () or not os.path.isdir (self.dir):
             return 'invalid'
+        # can't use describe: fails in absence of tags.
+        cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
+        cs = cs.strip ()
+        self.checksums[branch] = cs
+        return cs
     def all_files (self):
         branch = self.get_ref ()
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
