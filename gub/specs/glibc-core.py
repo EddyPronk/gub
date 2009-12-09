@@ -39,3 +39,8 @@ class Glibc_core__linux__ppc (Glibc_core):
         # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so
         # linkage, which then fails.
     make_flags = glibc.Glibc.make_flags
+
+class Glibc_core__linux__mipsel (Glibc_core):
+    patches = Glibc_core.patches + [
+        'glibc-2.3-mips-syscall.patch',
+        ]

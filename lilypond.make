@@ -16,7 +16,7 @@ BUILDSCRIPTS=scripts/build
 # LILYPOND_BRANCH=stable/2.10
 LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 
-ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 debian debian-arm freebsd-64 freebsd-x86 debian-mipsel linux-ppc
+ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 debian debian-arm freebsd-64 freebsd-x86 debian-mipsel linux-ppc linux-mipsel
 ALL_PLATFORMS += cygwin
 
 PLATFORMS=linux-x86
@@ -24,6 +24,8 @@ PLATFORMS+=darwin-ppc darwin-x86
 PLATFORMS+=mingw
 PLATFORMS+=linux-64
 PLATFORMS+=linux-ppc
+# Works for me, uncommentme!
+# PLATFORMS+=linux-mipsel
 PLATFORMS+=freebsd-x86 freebsd-64
 # Put cygwin last, because it is not a core lilypond platform. 
 #PLATFORMS += cygwin

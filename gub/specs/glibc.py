@@ -104,3 +104,10 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
     # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
     def LD_PRELOAD (self):
         return ''
+
+class Glibc__linux__mipsel (Glibc):
+    patches = Glibc.patches + [
+        'glibc-2.3-mips-syscall.patch',
+        ]
+    def get_add_ons (self):
+        return ('linuxthreads',)
