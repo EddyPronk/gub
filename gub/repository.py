@@ -615,7 +615,7 @@ cd %(dir_slash_vcs)s && mv *bz2 *deb *gz *zip .. || :
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
             return False
         ref = 'refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__
-        if not os.path.isdir (os.path.join (self.dir, ref)):
+        if not os.path.exists (os.path.join (self.dir, ref)):
             return False
         if self.revision:
             result = self.git_pipe ('cat-file commit %s' % self.revision,
@@ -675,6 +675,8 @@ fatal: The remote end hung up unexpectedly
         branch = self.branch # branch is empty?
         branch = 'master'
         HEAD = self.checksum ()
+        if HEAD == 'invalid':
+            barf
         if not os.path.isdir (os.path.join (destdir, self.vc_system)):
             self.system ('mkdir -p %(destdir)s' % locals ())
             self.system ('cd %(destdir)s && git init' % locals ())
