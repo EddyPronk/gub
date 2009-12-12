@@ -359,6 +359,7 @@ MY_PATCH_LEVEL=
             ],
             '%(darwin_bundle_dir)s/Contents/Resources/Welcome-to-LilyPond-MacOS.ly',
             env=locals ())
+        self.system ('cd %(darwin_bundle_dir)s/../ && find LilyPond.app | xargs touch', locals ())
         
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
