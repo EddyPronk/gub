@@ -351,8 +351,7 @@ MY_PATCH_LEVEL=
              'doc/v%(majmin)s/'),
             ],
             '%(darwin_bundle_dir)s/Contents/Resources/Credits.html',
-            env=locals (),
-            must_succeed=True)
+            env=locals ())
         
         self.file_sub (
             [('2.12.0', installer_version),
