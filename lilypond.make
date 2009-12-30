@@ -131,7 +131,7 @@ ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
 rest: nsis
 endif
 
-rest: installers test doc doc-export print-success
+rest: lilypond-installers test doc doc-export print-success
 
 test: dist-check test-output test-export
 

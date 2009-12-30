@@ -65,6 +65,9 @@ packages:
 installers: packages
 	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
 
+lilypond-installers: packages
+	$(foreach p,$(PLATFORMS),$(call INVOKE_GUB,$(p)) $(INSTALL_PACKAGE)-installer && ) :
+
 platforms: $(PLATFORMS)
 
 debian-%:
