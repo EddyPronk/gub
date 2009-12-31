@@ -47,6 +47,9 @@ LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 BUILD_PACKAGE='$(LILYPOND_SOURCE_URL)'
 INSTALL_PACKAGE = lilypond
 
+DOC_PACKAGE=$(subst lilypond,lilypond-doc,$(BUILD_PACKAGE))
+TEST_PACKAGE=$(subst lilypond,lilypond-test,$(BUILD_PACKAGE))
+
 MAKE += -f lilypond.make
 
 # FIXME: this is duplicated and must match actual info in guile.py
@@ -133,10 +136,10 @@ rest: installers test doc doc-export print-success
 test: dist-check test-output test-export
 
 doc:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) lilypond-doc
+	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) $(DOC_PACKAGE)
 
 test-output:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) lilypond-test
+	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) $(TEST_PACKAGE)
 
 print-success:
 	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL)
@@ -202,6 +205,9 @@ NATIVE_BUILD_COMMITTISH=$(shell cat $(LILYPOND_REPO_BRANCH_DIR)/refs/heads/$(LIL
 print:
 	@echo LDB $(LILYPOND_DIRRED_BRANCH)
 	@echo LFB  $(LILYPOND_FLATTENED_BRANCH)
+	@echo $(BUILD_PACKAGE)
+	@echo $(DOC_PACKAGE)
+	@echo $(TEST_PACKAGE)
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --platforms=$(PLATFORMS) --build-for=$(DIST_VERSION))
