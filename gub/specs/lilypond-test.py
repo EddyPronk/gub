@@ -8,6 +8,9 @@ class LilyPond_test (lilypond.LilyPond_base):
     @context.subst_method
     def test_ball (self):
         return '%(uploads)s/lilypond-%(version)s-%(build_number)s.test-output.tar.bz2'
+    make_flags = misc.join_lines ('''
+CPU_COUNT=%(cpu_count)s
+''')
     compile_flags = lilypond.LilyPond_base.compile_flags + ' test'
         #return (lilypond.LilyPond_base.install_command
     install_command = 'true'

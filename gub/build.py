@@ -345,6 +345,12 @@ class AutoBuild (Build):
         return ''
 
     @context.subst_method
+    def cpu_count (self):
+        if not self.parallel_build_broken:
+            return self.settings.cpu_count_str
+        return '1'
+
+    @context.subst_method
     def src_package_ball (self):
         return '%(src_package_uploads)s/%(name)s%(ball_suffix)s-src.%(platform)s.tar.gz'
 
