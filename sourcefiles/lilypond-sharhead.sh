@@ -196,7 +196,7 @@ done
 #######################
 ## symlinks to wrappers
 
-(cd ${bindir};
+cd ${bindir};
     for a in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly; do
 	rm -f $a;
 	ln -s $wrapscript.python $a;
@@ -207,7 +207,7 @@ done
 	ln -s $wrapscript.guile $a;
 	binaries="$binaries $a"
     done
-)
+cd - > /dev/null;
 
 
 ###################
