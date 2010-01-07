@@ -38,7 +38,6 @@ class Operations(object):
 
 class DryOperations(Operations):
     def download_url (self, original_url, dest_dir):
-        print 'download_url droog'
         pass
 
 class Module(object):
@@ -53,7 +52,6 @@ class Module(object):
                 return val
             return func_with_logging
         return with_logging(getattr(self.impl, name))
-        print 'get attr', name
         try:
             return getattr(self.wrapped, name)
         except AttributeError:
